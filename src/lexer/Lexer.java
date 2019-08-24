@@ -38,51 +38,49 @@ public class Lexer {
 
 
 
-
+		
     public void nextToken() {
         char ch;
 
         lastTokenPos = tokenPos;
-        while (  (ch = input[tokenPos]) == ' ' || ch == '\r' ||
-                 ch == '\t' || ch == '\n')  {
-            // count the number of lines
-          if ( ch == '\n')
-            lineNumber++;
-          tokenPos++;
-          }
+        while (  (ch = input[tokenPos]) == ' ' || ch == '\r' || ch == '\t' || ch == '\n')  {
+        	// count the number of lines, OK
+        	if ( ch == '\n')
+        		lineNumber++;
+        	tokenPos++;
+        }
         if ( ch == '\0')
-          token = Token.EOF;
-        else
-          if ( input[tokenPos] == '/' && input[tokenPos + 1] == '/' ) {
-                // comment found
-               while ( input[tokenPos] != '\0'&& input[tokenPos] != '\n' )
-                 tokenPos++;
-               nextToken();
-          }
-          else if ( input[tokenPos] == '/' && input[tokenPos + 1] == '*' ) {
-             int posStartComment = tokenPos;
-             int lineNumberStartComment = lineNumber;
-             tokenPos += 2;
-             while ( (ch = input[tokenPos]) != '\0' &&
-                 (ch != '*' || input[tokenPos + 1] != '/') ) {
+        	// end of file, OK
+        	token = Token.EOF;
+        else if ( input[tokenPos] == '/' && input[tokenPos + 1] == '/' ) {
+        	// linear comment, OK
+        	while ( input[tokenPos] != '\0'&& input[tokenPos] != '\n' )
+        		tokenPos++;
+               	nextToken();
+        }
+        else if ( input[tokenPos] == '/' && input[tokenPos + 1] == '*' ) {
+        	// block comment, OK
+        	int posStartComment = tokenPos;
+        	int lineNumberStartComment = lineNumber;
+            tokenPos += 2;
+            while ( (ch = input[tokenPos]) != '\0' && (ch != '*' || input[tokenPos + 1] != '/') ) {
                 if ( ch == '\n' )
-                   lineNumber++;
+                	lineNumber++;
                 tokenPos++;
-             }
-             if ( ch == '\0' )
-                error.showError( "Comment opened and not closed",
+            }
+            if ( ch == '\0' )
+            	error.showError( "Comment opened and not closed",
                       getLine(posStartComment), lineNumberStartComment);
-             else
+            else
                 tokenPos += 2;
-             nextToken();
-          }
-          else {
+            nextToken();
+        }
+        else {
             if ( Character.isLetter( ch ) ) {
-                // get an identifier or keyword
+                // get an identifier or keyword, OK
                 StringBuffer ident = new StringBuffer();
                 while ( Character.isLetter( ch = input[tokenPos] ) ||
-                        Character.isDigit(ch) ||
-                        ch == '_' ) {
+                        Character.isDigit(ch) || ch == '_' ) {
                     ident.append(input[tokenPos]);
                     tokenPos++;
                 }
@@ -103,7 +101,7 @@ public class Lexer {
                 }
             }
             else if ( Character.isDigit( ch ) ) {
-                // get a number
+                // get a number, OK
                 StringBuffer number = new StringBuffer();
                 while ( Character.isDigit( input[tokenPos] ) ) {
                     number.append(input[tokenPos]);
@@ -111,103 +109,104 @@ public class Lexer {
                 }
                 token = Token.LITERALINT;
                 try {
-                   numberValue = Integer.valueOf(number.toString()).intValue();
+                	numberValue = Integer.valueOf(number.toString()).intValue();
                 } catch ( NumberFormatException e ) {
-                   error.showError("Number out of limits");
+                	error.showError("Number out of limits");
                 }
                 if ( numberValue > MaxValueInteger )
-                   error.showError("Number out of limits");
+                	error.showError("Number out of limits");
             }
             else {
+            	// other symbols
                 tokenPos++;
                 switch ( ch ) {
                     case '+' :
-                      token = Token.PLUS;
-                      break;
+                    	token = Token.PLUS;
+                    	break;
                     case '-' :
-                      if ( input[tokenPos] == '>' ) {
-                          tokenPos++;
-                          token = Token.MINUS_GT;
-                      }
-                      else {
-                          token = Token.MINUS;
-                      }
-                      break;
+                    	if ( input[tokenPos] == '>' ) {
+                    		tokenPos++;
+                    		token = Token.MINUS_GT;
+                    	}
+                    	else {
+                    		token = Token.MINUS;
+                    	}
+                    	break;
                     case '*' :
-                      token = Token.MULT;
-                      break;
+                    	token = Token.MULT;
+                    	break;
                     case '/' :
-                      token = Token.DIV;
-                      break;
+                    	token = Token.DIV;
+                    	break;
                     case '<' :
-                      if ( input[tokenPos] == '=' ) {
-                        tokenPos++;
-                        token = Token.LE;
-                      }
-                      else
-                        token = Token.LT;
-                      break;
+                    	if ( input[tokenPos] == '=' ) {
+                    		tokenPos++;
+                    		token = Token.LE;
+                    	}
+                    	else
+                    		token = Token.LT;
+                    	break;
                     case '>' :
-                      if ( input[tokenPos] == '=' ) {
-                        tokenPos++;
-                        token = Token.GE;
-                      }
-                      else
-                        token = Token.GT;
-                      break;
+                    	if ( input[tokenPos] == '=' ) {
+                    		tokenPos++;
+                    		token = Token.GE;
+                    	}
+                    	else
+                    		token = Token.GT;
+                    	break;
                     case '=' :
-                      if ( input[tokenPos] == '=' ) {
-                        tokenPos++;
-                        token = Token.EQ;
-                      }
-                      else
-                        token = Token.ASSIGN;
-                      break;
+                    	if ( input[tokenPos] == '=' ) {
+                    		tokenPos++;
+                    		token = Token.EQ;
+                    	}
+                    	else
+                    		token = Token.ASSIGN;
+                    	break;
                     case '!' :
-                      if ( input[tokenPos] == '=' ) {
-                         tokenPos++;
-                         token = Token.NEQ;
-                      }
-                      else
-                         token = Token.NOT;
-                      break;
+                    	if ( input[tokenPos] == '=' ) {
+                    		tokenPos++;
+                    		token = Token.NEQ;
+                    	}
+                    	else
+                    		token = Token.NOT;
+                    	break;
                     case '(' :
-                      token = Token.LEFTPAR;
-                      break;
+                    	token = Token.LEFTPAR;
+                    	break;
                     case ')' :
-                      token = Token.RIGHTPAR;
-                      break;
+                    	token = Token.RIGHTPAR;
+                    	break;
                     case ',' :
-                      token = Token.COMMA;
-                      break;
+                    	token = Token.COMMA;
+                    	break;
                     case ';' :
-                      token = Token.SEMICOLON;
-                      break;
+                    	token = Token.SEMICOLON;
+                    	break;
                     case '.' :
-                      token = Token.DOT;
-                      break;
+                    	token = Token.DOT;
+                    	break;
                     case '&' :
-                      if ( input[tokenPos] == '&' ) {
-                         tokenPos++;
-                         token = Token.AND;
-                      }
-                      else
-                        error.showError("& expected");
-                      break;
+                    	if ( input[tokenPos] == '&' ) {
+                    		tokenPos++;
+                    		token = Token.AND;
+                    	}
+                    	else
+                    		error.showError("& expected");
+                    	break;
                     case '|' :
-                      if ( input[tokenPos] == '|' ) {
-                         tokenPos++;
-                         token = Token.OR;
-                      }
-                      else
-                        error.showError("| expected");
-                      break;
+                    	if ( input[tokenPos] == '|' ) {
+                    		tokenPos++;
+                    		token = Token.OR;
+                    	}
+                    	else
+                    		error.showError("| expected");
+                    	break;
                     case '{' :
-                      token = Token.LEFTCURBRACKET;
-                      break;
+                    	token = Token.LEFTCURBRACKET;
+                    	break;
                     case '}' :
-                      token = Token.RIGHTCURBRACKET;
-                      break;
+                    	token = Token.RIGHTCURBRACKET;
+                    	break;
                     case '@' :
                     	metaobjectName = "";
                     	while ( Character.isAlphabetic(input[tokenPos]) ) {
@@ -219,50 +218,50 @@ public class Lexer {
                     	token = Token.ANNOT;
                     	break;
                     case '_' :
-                      error.showError("'_' cannot start an indentifier");
-                      break;
+                    	error.showError("'_' cannot start an indentifier");
+                    	break;
                     case '"' :
-                       StringBuffer s = new StringBuffer();
-                       while ( input[tokenPos] != '\0' && input[tokenPos] != '\n' )
-                          if ( input[tokenPos] == '"' )
-                             break;
-                          else
-                             if ( input[tokenPos] == '\\' ) {
-                                if ( input[tokenPos+1] != '\n' && input[tokenPos+1] != '\0' ) {
-                                   s.append(input[tokenPos]);
-                                   tokenPos++;
-                                   s.append(input[tokenPos]);
-                                   tokenPos++;
-                                }
-                                else {
-                                   s.append(input[tokenPos]);
-                                   tokenPos++;
-                                }
-                             }
-                             else {
-                                s.append(input[tokenPos]);
-                                tokenPos++;
-                             }
+                    	StringBuffer s = new StringBuffer();
+                    	while ( input[tokenPos] != '\0' && input[tokenPos] != '\n' )
+                    		if ( input[tokenPos] == '"' )
+                    			break;
+                    		else if ( input[tokenPos] == '\\' ) {
+                    			// obs
+                				if ( input[tokenPos+1] != '\n' && input[tokenPos+1] != '\0' ) {
+                					s.append(input[tokenPos]);
+                					tokenPos++;
+                					s.append(input[tokenPos]);
+                					tokenPos++;
+                				}
+                				else {
+                					s.append(input[tokenPos]);
+                					tokenPos++;
+                				}
+                    		}
+                			else {
+                				s.append(input[tokenPos]);
+                				tokenPos++;
+                			}
 
-                       if ( input[tokenPos] == '\0' || input[tokenPos] == '\n' ) {
-                          error.showError("Nonterminated string");
-                          literalStringValue = "";
-                       }
-                       else {
-                          tokenPos++;
-                          literalStringValue = s.toString();
-                       }
-                       token = Token.LITERALSTRING;
-                       break;
+                       	if ( input[tokenPos] == '\0' || input[tokenPos] == '\n' ) {
+                       		error.showError("Nonterminated string");
+                       		literalStringValue = "";
+                       	}
+                       	else {
+                       		tokenPos++;
+                       		literalStringValue = s.toString();
+                       	}
+                       	token = Token.LITERALSTRING;
+                       	break;
                     default :
-                      error.showError("Invalid Character: '" + ch + "'", false);
+                    	error.showError("Invalid Character: '" + ch + "'", false);
                 }
             }
-          }
+        }
         beforeLastTokenPos = lastTokenPos;
     }
 
-      // return the line number of the last token got with getToken()
+      // return the line number of the last token got with getToken(), OK
     public int getLineNumber() {
         return lineNumber;
     }
@@ -272,15 +271,15 @@ public class Lexer {
     }
 
     private int getLineNumber( int index ) {
-        // return the line number in which the character input[index] is
+        // return the line number in which the character input[index] is, OK
         int i, n, size;
         n = 1;
         i = 0;
         size = input.length;
         while ( i < size && i < index ) {
-          if ( input[i] == '\n' )
-            n++;
-          i++;
+        	if ( input[i] == '\n' )
+        		n++;
+        	i++;
         }
         return n;
     }
@@ -297,27 +296,29 @@ public class Lexer {
 
     private String getLine( int index ) {
         // get the line that contains input[index]. Assume input[index] is at a token, not
-        // a white space or newline
+        // a white space or newline, OK
 
         int i;
         if ( input.length <= 1 )
-           return "";
+        	return "";
         i = index;
         if ( i <= 0 )
-          i = 1;
-        else
-          if ( i >= input.length )
-            i = input.length;
+        	i = 1;
+        else if ( i >= input.length )
+        		i = input.length;
 
         while ( input[i] == '\n' || input[i] == '\r' )
            i--;
 
         StringBuffer line = new StringBuffer();
+        
           // go to the beginning of the line
         while ( i >= 1 && input[i] != '\n' )
-          i--;
+        	i--;
+        
         if ( input[i] == '\n' )
           i++;
+        
           // go to the end of the line putting it in variable line
         while ( input[i] != '\0' && input[i] != '\n' && input[i] != '\r' ) {
             line.append( input[i] );
@@ -342,22 +343,25 @@ public class Lexer {
 		return metaobjectName;
 	}
 
+	
     private String metaobjectName;
-          // current token
+    
+     	// current token
     public Token token;
     private String stringValue, literalStringValue;
     private int numberValue;
 
     private int  tokenPos;
-      //  input[lastTokenPos] is the last character of the last token found
+    
+      	//  input[lastTokenPos] is the last character of the last token found
     private int lastTokenPos;
-      //  input[beforeLastTokenPos] is the last character of the token before the last
-      // token found
+    
+      	//  input[beforeLastTokenPos] is the last character of the token before the last token found
     private int beforeLastTokenPos;
 
     private char []input;
 
-    // number of current line. Starts with 1
+    	// number of current line. Starts with 1
     private int lineNumber;
 
     private ErrorSignaller error;

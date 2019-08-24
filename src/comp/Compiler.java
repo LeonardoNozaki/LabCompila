@@ -18,7 +18,6 @@ public class Compiler {
 	// compile must receive an input with an character less than
 	// p_input.lenght
 	public Program compile(char[] input, PrintWriter outError) {
-
 		ArrayList<CompilationError> compilationErrorList = new ArrayList<>();
 		signalError = new ErrorSignaller(outError, compilationErrorList);
 		symbolTable = new SymbolTable();
