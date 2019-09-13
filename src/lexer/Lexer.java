@@ -49,14 +49,16 @@ public class Lexer {
         		lineNumber++;
         	tokenPos++;
         }
-        if ( ch == '\0')
+        if ( ch == '\0') {
         	// end of file, OK
         	token = Token.EOF;
+        }
         else if ( input[tokenPos] == '/' && input[tokenPos + 1] == '/' ) {
         	// linear comment, OK
-        	while ( input[tokenPos] != '\0'&& input[tokenPos] != '\n' )
+        	while ( input[tokenPos] != '\0'&& input[tokenPos] != '\n' ) {
         		tokenPos++;
-               	nextToken();
+        	}
+        	nextToken();
         }
         else if ( input[tokenPos] == '/' && input[tokenPos + 1] == '*' ) {
         	// block comment, OK
@@ -64,15 +66,17 @@ public class Lexer {
         	int lineNumberStartComment = lineNumber;
             tokenPos += 2;
             while ( (ch = input[tokenPos]) != '\0' && (ch != '*' || input[tokenPos + 1] != '/') ) {
-                if ( ch == '\n' )
+                if ( ch == '\n' ) {
                 	lineNumber++;
+                }
                 tokenPos++;
             }
             if ( ch == '\0' )
             	error.showError( "Comment opened and not closed",
                       getLine(posStartComment), lineNumberStartComment);
-            else
+            else {
                 tokenPos += 2;
+            }
             nextToken();
         }
         else {
@@ -121,7 +125,13 @@ public class Lexer {
                 tokenPos++;
                 switch ( ch ) {
                     case '+' :
-                    	token = Token.PLUS;
+                    	if( input[tokenPos] == '+') {
+                    		tokenPos++;
+                    		token = Token.PLUSPLUS;
+                    	}
+                    	else {
+                    		token = Token.PLUS;
+                    	}
                     	break;
                     case '-' :
                     	if ( input[tokenPos] == '>' ) {
