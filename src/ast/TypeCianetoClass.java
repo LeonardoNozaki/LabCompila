@@ -1,21 +1,31 @@
 package ast;
+import java.util.*;
 /*
  * Krakatoa Class
  */
-public class TypeCianetoClass extends Type {
+public class TypeCianetoClass {
 
    public TypeCianetoClass( String name ) {
-      super(name);
+      this.name = name;
+   }
+   
+   public TypeCianetoClass( String name, String superclass ) {
+	      this.name = name;
+	      this.superclass = new TypeCianetoClass(superclass);
    }
 
-   @Override
    public String getCname() {
-      return getName();
+      return name;
    }
 
+   public void addField(String qualifier, String name, Type typeVar) {
+	   FieldDec f = new FieldDec(qualifier, name, typeVar);
+	   fieldList.add(f);
+   }
+   
    private String name;
    private TypeCianetoClass superclass;
-   // private FieldList fieldList;
+   private ArrayList<FieldDec> fieldList = new ArrayList<FieldDec>();
    // private MethodList publicMethodList, privateMethodList;
    // métodos públicos get e set para obter e iniciar as variáveis acima,
    // entre outros métodos

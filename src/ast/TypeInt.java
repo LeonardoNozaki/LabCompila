@@ -3,11 +3,11 @@ package ast;
 public class TypeInt extends Type {
     
     public TypeInt() {
-        super("int");
+       super("int");
     }
     
    public String getCname() {
-      return "int";
+	   return "int";
    }
 
 }
