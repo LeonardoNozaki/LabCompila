@@ -445,6 +445,71 @@ public class Compiler {
 		return new SimpleExpr(expr);
 	}
 	
+	private SumSubExpr sumSubExpr() {
+		ArrayList<Term> expr = new ArrayList<Term>();
+		ArrayList<Token> op = new ArrayList<Token>();
+		expr.add(term());
+		while(lexer.token == Token.PLUS || lexer.token == Token.MINUS || lexer.token == Token.OR) {
+			op.add(lexer.token);
+			lexer.nextToken();
+			expr.add(term());
+		}
+		return new SumSubExpr(expr, op);
+	}
+	
+	private Term term() {
+		ArrayList<SignalFactor> expr = new ArrayList<SignalFactor>();
+		ArrayList<Token> op = new ArrayList<Token>();
+		expr.add(signalFactor());
+		while(lexer.token == Token.MULT || lexer.token == Token.DIV || lexer.token == Token.AND) {
+			op.add(lexer.token);
+			lexer.nextToken();
+			expr.add(signalFactor());
+		}
+		return new term(expr, op);
+	}
+	
+	private SignalFactor signalfactor() {
+		Token op = null;
+		Factor factor = null;
+		boolean flag = false;
+		if(lexer.token == Token.MINUS || lexer.token == Token.PLUS) {
+			op = lexer.token;
+			lexer.nextToken();
+			flag = true;
+		}
+		switch(lexer.token) {
+			case LITERALINT:	
+				factor = new LiteralInt(lexer.getNumberValue());
+				return new SignalFactor(op, factor);
+			break;
+			
+			case TRUE:
+				if(flag == true) {
+					error("Signal unexpected before boolean value");
+				}
+				factor = new LiteralBoolean(true);
+				return new SignalFactor(null, factor);
+			break;
+			
+			case FALSE:
+				if(flag == true) {
+					error("Signal unexpected before boolean value");
+				}
+				factor = new LiteralBoolean(false);
+				return new SignalFactor(null, factor);
+			break;
+			
+			case LITERALSTRING:
+				if(flag == true) {
+					error("Signal unexpected before string value");
+				}
+				factor = new LiteralString(lexer.getLiteralStringValue());
+				return new SignalFactor(null, factor);
+			break;
+		}
+	}
+	
 	private void fieldDec(TypeCianetoClass classdec, String qualifier) {
 		lexer.nextToken();
 		Type typeVar = type();

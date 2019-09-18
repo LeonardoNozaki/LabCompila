@@ -1,18 +1,18 @@
 package ast;
 
-public class LiteralBoolean extends Expr {
+public class LiteralBoolean extends BasicValue {
 
     public LiteralBoolean( boolean value ) {
         this.value = value;
     }
 
-    @Override
+    //@Override
 	public void genC( PW pw, boolean putParenthesis ) {
        pw.print( value ? "1" : "0" );
     }
 
 
-    @Override
+    //@Override
 	public Type getType() {
         return Type.booleanType;
     }

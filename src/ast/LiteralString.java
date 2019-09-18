@@ -1,6 +1,6 @@
 package ast;
 
-public class LiteralString extends Expr {
+public class LiteralString extends BasicValue {
     
     public LiteralString( String literalString ) { 
         this.literalString = literalString;
