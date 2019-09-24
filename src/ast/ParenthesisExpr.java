@@ -1,7 +1,7 @@
 package ast;
 
-public class SimpleExpr extends Expr{
-	public SimpleExpr(Expr expr) {
+public class ParenthesisExpr extends Expr{
+	public ParenthesisExpr(Expr expr) {
 		this.expr = expr;
 	}
 	

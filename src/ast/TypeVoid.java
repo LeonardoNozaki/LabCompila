@@ -1,8 +1,8 @@
 package ast;
 
-public class VoidType extends Type {
+public class TypeVoid extends Type {
 	
-	public VoidType() { 
+	public TypeVoid() { 
 		super("void"); 
 	}
 	

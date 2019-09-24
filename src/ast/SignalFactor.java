@@ -1,12 +1,29 @@
 package ast;
 import lexer.*;
 
-public class SignalFactor {
-	public SignalFactor(Token op, Factor factor) {
+public class SignalFactor extends Expr{
+	public SignalFactor(Token op, Expr expr) {
 		this.op = op;
-		this.factor = factor;
+		this.expr = expr;
+	}
+	
+	public void genC( PW pw, boolean putParenthesis ) {
+    	
+    }
+
+	@Override
+	public void genC(PW pw) {
+		//this.genC(pw, false);
+	}
+	
+	@Override
+	public Type getType() {
+		if(op == Token.NOT) {
+			return Type.booleanType;
+		}
+		return expr.getType(); //Nao sei se precisa disso, ou é so return intType
 	}
 	
 	private Token op;
-	private Factor factor;
+	private Expr expr;
 }
