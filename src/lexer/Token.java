@@ -1,3 +1,14 @@
+/* ==========================================================================
+ * Universidade Federal de Sao Carlos - Campus Sorocaba
+ * Disciplina: Laboratorio de Compiladores
+ * Prof. Jose Guimaraes
+ *
+ * Trabalho de Laboratorio de Compiladores - The Cianeto Language
+ *
+ * Aluno: Bruno Rizzi       RA: 743515
+ * Aluno: Leonardo Nozaki   RA: 743561
+ * ========================================================================== */
+
 package lexer;
 
 public enum Token {
@@ -36,7 +47,6 @@ public enum Token {
     MINUS_GT("->"),
     MULT("*"),
     NEQ("!="),
-    NEW("new"),
     NOT("!"),
     NULL("nil"),
     PLUSPLUS("++"),
@@ -45,7 +55,6 @@ public enum Token {
     PLUS("+"),
     PRIVATE("private"),
     PUBLIC("public"),
-    READ("read"),
     REPEAT("repeat"),
     RETURN("return"),
     RIGHTCURBRACKET("}"),
@@ -58,9 +67,7 @@ public enum Token {
     UNTIL("until"),
     VAR("var"),
     VOID("void"),
-    WHILE("while"),
-    WRITE("write"),
-    WRITELN("writeln");
+    WHILE("while");
 
 	Token(String name) {
 		this.name = name;

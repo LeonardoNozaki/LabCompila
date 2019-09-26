@@ -10,31 +10,21 @@
  * ========================================================================== */
 
 package ast;
-import lexer.*;
 
-public class SignalFactor extends Expr{
-	public SignalFactor(Token op, Expr expr) {
-		this.op = op;
-		this.expr = expr;
+public class LocalVar extends Variable{
+	public LocalVar(String id, Type type) {
+		this.type = type;
+		this.id = id;
 	}
 	
-	public void genC( PW pw, boolean putParenthesis ) {
-    	
-    }
-
-	@Override
 	public void genC(PW pw) {
-		//this.genC(pw, false);
+		
 	}
 	
-	@Override
 	public Type getType() {
-		if(op == Token.NOT) {
-			return Type.booleanType;
-		}
-		return expr.getType(); //Nao sei se precisa disso, ou é so return intType
+		return type;
 	}
 	
-	private Token op;
-	private Expr expr;
+	private String id;
+	private Type type;
 }

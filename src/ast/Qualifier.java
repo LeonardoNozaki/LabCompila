@@ -10,31 +10,31 @@
  * ========================================================================== */
 
 package ast;
-import lexer.*;
 
-public class SignalFactor extends Expr{
-	public SignalFactor(Token op, Expr expr) {
-		this.op = op;
-		this.expr = expr;
+public class Qualifier {
+	public Qualifier (String quali) {
+		this.quali = quali;
 	}
 	
-	public void genC( PW pw, boolean putParenthesis ) {
-    	
-    }
-
-	@Override
 	public void genC(PW pw) {
-		//this.genC(pw, false);
+		
 	}
 	
-	@Override
-	public Type getType() {
-		if(op == Token.NOT) {
-			return Type.booleanType;
+	public String getQualifier() {
+		return quali;
+	}
+	
+	public void genJava(PW pw) {
+		pw.printIdent(quali);
+	}
+	
+	public boolean getVoidQualifier() {
+		if(quali.equals("")) {
+			return true;
 		}
-		return expr.getType(); //Nao sei se precisa disso, ou é so return intType
+		else {
+			return false;
+		}
 	}
-	
-	private Token op;
-	private Expr expr;
+	private String quali;
 }

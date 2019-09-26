@@ -9,9 +9,10 @@
  * Aluno: Leonardo Nozaki   RA: 743561
  * ========================================================================== */
 
-package comp;
+package ast;
 
-
-public class SymbolTable {
-
+abstract public class Variable {
+	abstract public void genC(PW pw);
+	abstract public void genJava(PW pw);
+	abstract public Type getType();
 }

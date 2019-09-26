@@ -1,3 +1,13 @@
+/* ==========================================================================
+ * Universidade Federal de Sao Carlos - Campus Sorocaba
+ * Disciplina: Laboratorio de Compiladores
+ * Prof. Jose Guimaraes
+ *
+ * Trabalho de Laboratorio de Compiladores - The Cianeto Language
+ *
+ * Aluno: Bruno Rizzi       RA: 743515
+ * Aluno: Leonardo Nozaki   RA: 743561
+ * ========================================================================== */
 
 package comp;
 
@@ -176,7 +186,6 @@ public class Compiler {
 		lexer.nextToken();
 		*/
 		
-		TypeCianetoClass classdec;
 		if(extend == true) {
 			classdec = new TypeCianetoClass(className, superclassName);
 		}
@@ -184,7 +193,7 @@ public class Compiler {
 			classdec = new TypeCianetoClass(className);
 		}
 		
-		memberList(classdec);
+		memberList();
 		
 		if ( lexer.token != Token.END) error("'end' expected");
 		
@@ -193,15 +202,18 @@ public class Compiler {
 		return classdec;
 	}
 
-	private void memberList(TypeCianetoClass classdec) {
-		String quali;
+	private void memberList() {
+		Qualifier quali;
+		MethodDec methodDec;
+		
 		while ( true ) {
 			quali = qualifier();
 			if ( lexer.token == Token.VAR ) {
-				fieldDec(classdec, quali);
+				fieldDec(quali);
 			}
 			else if ( lexer.token == Token.FUNC ) {
-				methodDec(classdec, quali);
+				//ver onde add cada metododec q volta, quais qualifier considera public e quais private
+				methodDec = methodDec(quali);
 			}
 			else {
 				break;
@@ -225,17 +237,20 @@ public class Compiler {
 		}
 	}
 
-	private void methodDec(TypeCianetoClass classdec, String qualifier) {
+	private MethodDec methodDec(Qualifier qualifier) {
 		lexer.nextToken();
 		Type tipoRetorno = Type.voidType;
-		ArrayList<ParamDec> paramDec;
-		ArrayList<Statement> statementList;
+		ArrayList<ParamDec> paramDec = null;
+		ArrayList<Statement> statementList = null;
+		String id = "";
 		
 		if ( lexer.token == Token.ID ) {
 			// unary method
+			id = lexer.getStringValue();
 			lexer.nextToken();
 		}
 		else if ( lexer.token == Token.IDCOLON ) {
+			id = lexer.getStringValue();
 			paramDec = formalParamDec();
 		}
 		else {
@@ -250,14 +265,20 @@ public class Compiler {
 		if ( lexer.token != Token.LEFTCURBRACKET ) {
 			error("'{' expected");
 		}
-		lexer.nextToken();
+		else {
+			lexer.nextToken();
+		}
+
 		statementList = statementList();
+		
 		if ( lexer.token != Token.RIGHTCURBRACKET ) {
 			error("'}' expected");
 		}
-		lexer.nextToken();
-
-		//aqui
+		else {
+			lexer.nextToken();
+		}
+		
+		return new MethodDec(qualifier, id, paramDec, tipoRetorno, statementList);
 	}
 
 	private ArrayList<ParamDec> formalParamDec(){
@@ -593,6 +614,36 @@ public class Compiler {
 			case NULL:
 				lexer.nextToken();
 				return new NullExpr();
+			case ID:
+				String idName = lexer.getStringValue();
+				if(idName.equals("In")) {
+					lexer.nextToken();
+					return readExpr();
+				}
+				lexer.nextToken();
+				if(lexer.token != Token.DOT) {
+					lexer.nextToken();
+					return;
+				}
+				else if(lexer.token == Token.DOT){
+					lexer.nextToken();
+					if(lexer.getStringValue().equals("new") && lexer.token == Token.ID) {
+						lexer.nextToken();
+						return new ObjectCreation(idName);
+					}
+					else if(lexer.token == Token.ID || lexer.token == Token.IDCOLON){
+						
+					}
+					else {
+						error("new, id or id: expected after .");
+					}
+				}
+			case SUPER:
+				lexer.nextToken();
+				return primaryExpr();
+			case SELF:
+				lexer.nextToken();
+				return primaryExpr();
 			default:
 				error("Factor expected");
 				return null;
@@ -600,20 +651,22 @@ public class Compiler {
 		
 	}
 	
-	private void fieldDec(TypeCianetoClass classdec, String qualifier) {
+	private void fieldDec(Qualifier qualifier) {
+		String name;
+		
 		lexer.nextToken();
 		Type typeVar = type();
 		if(typeVar == Type.undefinedType) {
 			error("Undefined type found");
 		}
-		String name;
+		
 		if ( lexer.token != Token.ID ) {
 			this.error("A field name was expected");
 		}
 		else {
 			while ( lexer.token == Token.ID  ) {
 				name = lexer.getStringValue();
-				classdec.addField(qualifier, name, typeVar);
+				classdec.addField(new FieldDec(qualifier, name, typeVar));
 				
 				lexer.nextToken();
 				if ( lexer.token == Token.COMMA ) {
@@ -624,7 +677,6 @@ public class Compiler {
 				}
 			}
 		}
-
 	}
 
 	private Type type() {
@@ -652,40 +704,40 @@ public class Compiler {
 	}
 
 
-	private String qualifier() {
+	private Qualifier qualifier() {
 		if ( lexer.token == Token.PRIVATE ) {
 			lexer.nextToken();
-			return "private";
+			return new Qualifier("private");
 		}
 		else if ( lexer.token == Token.PUBLIC ) {
 			lexer.nextToken();
-			return "public";
+			return new Qualifier("public");
 		}
 		else if ( lexer.token == Token.OVERRIDE ) {
 			lexer.nextToken();
 			if ( lexer.token == Token.PUBLIC ) {
 				lexer.nextToken();
-				return "override public";
+				return new Qualifier("override public");
 			}
-			return "override";
+			return new Qualifier("override");
 		}
 		else if ( lexer.token == Token.FINAL ) {
 			lexer.nextToken();
 			if ( lexer.token == Token.PUBLIC ) {
 				lexer.nextToken();
-				return "final public";
+				return new Qualifier("final public");
 			}
 			else if ( lexer.token == Token.OVERRIDE ) {
 				lexer.nextToken();
 				if ( lexer.token == Token.PUBLIC ) {
 					lexer.nextToken();
-					return "final override public";
+					return new Qualifier("final override public");
 				}
-				return "final override";
+				return new Qualifier("final override");
 			}
-			return "final";
+			return new Qualifier("final");
 		}
-		return "";
+		return new Qualifier("");
 	}
 	/**
 	 * change this method to 'private'.
@@ -740,5 +792,6 @@ public class Compiler {
 	private SymbolTable		symbolTable;
 	private Lexer			lexer;
 	private ErrorSignaller	signalError;
+	private TypeCianetoClass classdec;
 
 }
