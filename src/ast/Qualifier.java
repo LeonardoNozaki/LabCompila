@@ -36,5 +36,10 @@ public class Qualifier {
 			return false;
 		}
 	}
+	
+	public boolean isPrivate() {
+		return quali.equals("private");
+	}
+	
 	private String quali;
 }

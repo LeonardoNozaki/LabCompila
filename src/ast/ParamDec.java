@@ -11,7 +11,7 @@
 
 package ast;
 
-public class ParamDec {
+public class ParamDec extends Variable{
 	public ParamDec(String id, Type type){
 		this.type = type;
 		this.id = id;
@@ -22,6 +22,10 @@ public class ParamDec {
 	}
 	public void genJava(PW pw) {
 		
+	}
+	
+	public Type getType() {
+		return type;
 	}
 	
 	private String id;

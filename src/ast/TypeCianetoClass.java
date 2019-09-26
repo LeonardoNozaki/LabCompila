@@ -16,13 +16,16 @@ import java.util.*;
  */
 public class TypeCianetoClass {
 
-   public TypeCianetoClass( String name ) {
+   public TypeCianetoClass( String name, boolean open ) {
       this.name = name;
+      this.open = open;
    }
    
-   public TypeCianetoClass( String name, String superclass ) {
+   public TypeCianetoClass( String name, String superclass, boolean open ) {
 	      this.name = name;
-	      this.superclass = new TypeCianetoClass(superclass);
+	      //corrigir na parte semantica para apontar para a superclasse e nao criar outra classe
+	      this.superclass = new TypeCianetoClass(superclass, open);
+	      this.open = open;
    }
 
    public String getCname() {
@@ -46,6 +49,7 @@ public class TypeCianetoClass {
    }
    
    private String name;
+   private boolean open;
    private TypeCianetoClass superclass = null;
    private ArrayList<FieldDec> fieldList = new ArrayList<FieldDec>();
    private ArrayList<MethodDec> publicMethodList = new ArrayList<MethodDec>();

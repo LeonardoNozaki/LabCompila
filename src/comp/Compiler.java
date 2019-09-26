@@ -156,20 +156,26 @@ public class Compiler {
 
 	private TypeCianetoClass classDec() {
 		boolean extend = false;
+		boolean open = false;
 		String superclassName = "";
+		String className = "";
 		
 		if ( lexer.token == Token.ID && lexer.getStringValue().equals("open") ) {
 			//Verificar se precisa de mais algo para o open
 			lexer.nextToken();
+			open = true;
 		}
-		if ( lexer.token != Token.CLASS ) error("'class' expected");
+		if ( lexer.token != Token.CLASS ) 
+			error("'class' expected");
+		else
+			lexer.nextToken();
 		
-		lexer.nextToken();
-		
-		if ( lexer.token != Token.ID ) error("Identifier expected");
-		
-		String className = lexer.getStringValue();
-		lexer.nextToken();
+		if ( lexer.token != Token.ID ) 
+			error("Identifier expected");
+		else {
+			className = lexer.getStringValue();
+			lexer.nextToken();
+		}
 		
 		if ( lexer.token == Token.EXTENDS ) {
 			lexer.nextToken();
@@ -187,10 +193,11 @@ public class Compiler {
 		*/
 		
 		if(extend == true) {
-			classdec = new TypeCianetoClass(className, superclassName);
+			//vai mudar na parte semantica, nao eh pra passar o nome da superclasse e sim a classe em si
+			classdec = new TypeCianetoClass(className, superclassName, open);
 		}
 		else {
-			classdec = new TypeCianetoClass(className);
+			classdec = new TypeCianetoClass(className, open);
 		}
 		
 		memberList();
@@ -212,8 +219,13 @@ public class Compiler {
 				fieldDec(quali);
 			}
 			else if ( lexer.token == Token.FUNC ) {
-				//ver onde add cada metododec q volta, quais qualifier considera public e quais private
 				methodDec = methodDec(quali);
+				if(quali.isPrivate()) {
+					classdec.addMethodPrivate(methodDec);
+				}
+				else {
+					classdec.addMethodPublic(methodDec);
+				}
 			}
 			else {
 				break;
@@ -254,7 +266,7 @@ public class Compiler {
 			paramDec = formalParamDec();
 		}
 		else {
-			error("An identifier or identifer: was expected after 'func'");
+			error("An identifier or identifier: was expected after 'func'");
 		}
 		
 		if ( lexer.token == Token.MINUS_GT ) {
@@ -309,8 +321,8 @@ public class Compiler {
 	
 	private ArrayList<Statement> statementList() {
 		ArrayList<Statement> statementList = new ArrayList<Statement>();
-		  // only '}' is necessary in this test
-		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
+		  // only(?) '}' is necessary in this test
+		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.EOF) {
 			statementList.add(statement());
 		}
 		return statementList;
@@ -342,14 +354,14 @@ public class Compiler {
 			stat = repeatStat();
 			break;
 		case VAR:
-			//stat = localDec();
+			stat = localDec();
 			break;
 		case ASSERT:
 			stat = assertStat();
 			break;
 		default:
 			if ( lexer.token == Token.ID && lexer.getStringValue().equals("Out") ) {
-				//stat = writeStat();
+				stat = writeStat();
 			}
 			else {
 				stat = expr();
@@ -362,18 +374,28 @@ public class Compiler {
 		return stat;
 	}
 
-	private void localDec() {
-		// incompleto, falta terminar essa
+	private LocalDec localDec() {
 		lexer.nextToken();
 		Type type = type();
 		boolean flag = false;
+		String id = "";
 		
-		check(Token.ID, "A variable name was expected");
+		if(lexer.token == Token.ID) {
+			id = lexer.getStringValue();
+			lexer.nextToken();
+		}
+		else {
+			error("A variable name was expected");
+		}
+
 		if ( lexer.token == Token.COMMA ) {
-			ArrayList<Statement> stat = new ArrayList<Statement>();
+			ArrayList<String> local = new ArrayList<String>();
+			local.add(id);
 			flag = true;
 			lexer.nextToken();
 			while ( lexer.token == Token.ID ) {
+				id = lexer.getStringValue();
+				local.add(id);
 				lexer.nextToken();
 				if ( lexer.token == Token.COMMA ) {
 					lexer.nextToken();
@@ -391,7 +413,11 @@ public class Compiler {
 				error("there are two or more variable in assignment");
 			}
 			Expr expr = expr();
+			return new LocalDecExpr(type, id, expr);
 		}
+		
+		//paramo aqui tem q terminar isso
+		return new LocalDecList(type, local);
 
 	}
 
@@ -403,7 +429,7 @@ public class Compiler {
 		lexer.nextToken();
 		ArrayList<Statement> stat = new ArrayList<Statement>();
 		
-		while ( lexer.token != Token.UNTIL && lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.EOF) {
+		while ( lexer.token != Token.UNTIL && lexer.token != Token.END && lexer.token != Token.EOF) {
 			stat.add(statement());
 		}
 		
@@ -422,6 +448,7 @@ public class Compiler {
 
 	private Statement returnStat() {
 		lexer.nextToken();
+		//verificar se tipo de retorno bate com o tipo do metodo
 		Expr expr = expr();
 		return new ReturnStat(expr);
 	}
@@ -676,6 +703,9 @@ public class Compiler {
 					break;
 				}
 			}
+			if(lexer.token == Token.SEMICOLON) {
+				lexer.nextToken();
+			}
 		}
 	}
 
@@ -693,9 +723,10 @@ public class Compiler {
 			return Type.stringType;
 		}
 		else if ( lexer.token == Token.ID ) {
+			//mudar para retornar a classe q ja existe 
+			//lexer.getStringValue();
 			lexer.nextToken();
-			TypeId tipo = new TypeId(lexer.getStringValue());
-			return tipo;
+			return Type.intType;
 		}
 		else {
 			this.error("A type was expected");
@@ -745,23 +776,27 @@ public class Compiler {
 	 * implement the methods it calls
 	 */
 	public Statement assertStat() {
-
 		lexer.nextToken();
-		int lineNumber = lexer.getLineNumber();
-		expr();
+		String message = "";
+		Expr expr = expr();
+		if(expr.getType() != Type.booleanType) {
+			error("'Assert' expression expected Boolean Type");
+		}
 		if ( lexer.token != Token.COMMA ) {
 			this.error("',' expected after the expression of the 'assert' statement");
 		}
-		lexer.nextToken();
+		else {
+			lexer.nextToken();
+		}	
 		if ( lexer.token != Token.LITERALSTRING ) {
 			this.error("A literal string expected after the ',' of the 'assert' statement");
 		}
-		String message = lexer.getLiteralStringValue();
-		lexer.nextToken();
-		if ( lexer.token == Token.SEMICOLON )
+		else {
+			message = lexer.getLiteralStringValue();
 			lexer.nextToken();
+		}
 
-		return null;
+		return new AssertStat(expr, message);
 	}
 
 
