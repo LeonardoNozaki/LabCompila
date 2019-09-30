@@ -34,6 +34,7 @@ public class Program {
 	*/
 		
 	public void genJava(PW pw) {
+		
 	}
 
 	public void genC(PW pw) {

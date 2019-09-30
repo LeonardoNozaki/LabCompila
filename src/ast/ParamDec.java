@@ -28,6 +28,10 @@ public class ParamDec extends Variable{
 		return type;
 	}
 	
+	public void genC( PW pw, boolean putParenthesis ) {
+		
+	}
+
 	private String id;
 	private Type type;
 }

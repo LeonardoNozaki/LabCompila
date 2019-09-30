@@ -14,26 +14,30 @@ import java.util.*;
 /*
  * Krakatoa Class
  */
-public class TypeCianetoClass {
+public class TypeCianetoClass extends Type{
 
-   public TypeCianetoClass( String name, boolean open ) {
-      this.name = name;
-      this.open = open;
+   public TypeCianetoClass( String name) {
+      super(name);
+   }
+
+   public void setSuperClass(TypeCianetoClass superclass) {
+	   this.superclass = superclass;
    }
    
-   public TypeCianetoClass( String name, String superclass, boolean open ) {
-	      this.name = name;
-	      //corrigir na parte semantica para apontar para a superclasse e nao criar outra classe
-	      this.superclass = new TypeCianetoClass(superclass, open);
-	      this.open = open;
+   public void setOpen(boolean open) {
+	   this.open = open;
    }
-
+   
+   public boolean getOpen() {
+	   return open;
+   }
+   
    public String getCname() {
-      return name;
+      return getName();
    }
    
    public String getJavaname() {
-      return name;
+      return getName();
    }
 
    public void addField(FieldDec f) {
@@ -48,7 +52,6 @@ public class TypeCianetoClass {
 	   privateMethodList.add(method);
    }
    
-   private String name;
    private boolean open;
    private TypeCianetoClass superclass = null;
    private ArrayList<FieldDec> fieldList = new ArrayList<FieldDec>();

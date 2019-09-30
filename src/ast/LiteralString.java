@@ -21,6 +21,10 @@ public class LiteralString extends Expr {
     public void genC( PW pw, boolean putParenthesis ) {
         pw.print(literalString);
     }
+    
+    public void genJava(PW pw) {
+    	
+    }
 
     @Override
     public Type getType() {

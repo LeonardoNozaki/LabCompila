@@ -177,6 +177,9 @@ public class Compiler {
 			lexer.nextToken();
 		}
 		
+		classdec = new TypeCianetoClass(className);
+		classdec.setOpen(open);
+		
 		if ( lexer.token == Token.EXTENDS ) {
 			lexer.nextToken();
 			if ( lexer.token != Token.ID ) error("Identifier expected");
@@ -192,12 +195,10 @@ public class Compiler {
 		lexer.nextToken();
 		*/
 		
+		
 		if(extend == true) {
-			//vai mudar na parte semantica, nao eh pra passar o nome da superclasse e sim a classe em si
-			classdec = new TypeCianetoClass(className, superclassName, open);
-		}
-		else {
-			classdec = new TypeCianetoClass(className, open);
+			//Setar a superclasse passando a superclasse no metodo abaixo
+			//classdec.setSuperClass();
 		}
 		
 		memberList();
@@ -308,13 +309,17 @@ public class Compiler {
 				id = lexer.getStringValue();
 				param = new ParamDec(id, tipo);
 				p.add(param);
+				lexer.nextToken();
 			}
 			else {
 				error("An ID was expected");
 			}
-			lexer.nextToken();
+			
 			if ( lexer.token != Token.COMMA ) {
 				return p;
+			}
+			else {
+				lexer.nextToken();
 			}
 		}
 	}
@@ -364,7 +369,7 @@ public class Compiler {
 				stat = writeStat();
 			}
 			else {
-				stat = expr();
+				stat = assignExpr();
 			}
 
 		}
@@ -373,39 +378,56 @@ public class Compiler {
 		}
 		return stat;
 	}
+	
+	private AssignExpr assignExpr() {
+		Expr left = null, right = null;
+		left = expr();
+		if(lexer.token == Token.ASSIGN) {
+			lexer.nextToken();
+			right = expr();
+			return new CompositeAssign(left, right);
+		}
+		return new SimpleAssign(left);
+	}
 
 	private LocalDec localDec() {
 		lexer.nextToken();
 		Type type = type();
 		boolean flag = false;
 		String id = "";
+		ArrayList<String> local = null;
 		
 		if(lexer.token == Token.ID) {
 			id = lexer.getStringValue();
+			local = new ArrayList<String>();
+			local.add(id);
 			lexer.nextToken();
+			if ( lexer.token == Token.COMMA ) {
+				flag = true;
+				lexer.nextToken();
+				if(lexer.token != Token.ID) {
+					error("Missing identifier");
+				}
+				while ( lexer.token == Token.ID ) {
+					id = lexer.getStringValue();
+					local.add(id);
+					lexer.nextToken();
+					if ( lexer.token == Token.COMMA ) {
+						lexer.nextToken();
+						if(lexer.token != Token.ID) {
+							error("Missing identifier");
+						}
+					}
+					else {
+						break;
+					}
+				}
+			}
 		}
 		else {
 			error("A variable name was expected");
 		}
 
-		if ( lexer.token == Token.COMMA ) {
-			ArrayList<String> local = new ArrayList<String>();
-			local.add(id);
-			flag = true;
-			lexer.nextToken();
-			while ( lexer.token == Token.ID ) {
-				id = lexer.getStringValue();
-				local.add(id);
-				lexer.nextToken();
-				if ( lexer.token == Token.COMMA ) {
-					lexer.nextToken();
-				}
-				else {
-					break;
-				}
-			}
-		}
-		
 		if ( lexer.token == Token.ASSIGN ) {
 			lexer.nextToken();
 			// check if there is just one variable
@@ -413,12 +435,13 @@ public class Compiler {
 				error("there are two or more variable in assignment");
 			}
 			Expr expr = expr();
-			return new LocalDecExpr(type, id, expr);
+			Variable v = new LocalDecExpr(type, id, expr);
+			return new LocalDec(v);
 		}
-		
-		//paramo aqui tem q terminar isso
-		return new LocalDecList(type, local);
-
+		else {
+			Variable v = new LocalDecList(type, local);
+			return new LocalDec(v);
+		}
 	}
 
 	private Statement semicolonStat() {
@@ -508,19 +531,32 @@ public class Compiler {
 	/**
 
 	 */
-	private void writeStat() {
+	private Statement writeStat() {
 		lexer.nextToken();
 		check(Token.DOT, "a '.' was expected after 'Out'");
-		//lexer.nextToken();
-		check(Token.IDCOLON, "'print:' or 'println:' was expected after 'Out.'");
-		String printName = lexer.getStringValue();
-		expr();
+		Expr expr = null;
+		
+		if(lexer.token == Token.IDCOLON && lexer.getStringValue().equals("print:")){
+			lexer.nextToken();
+			expr = expr();
+			return new Print(expr);
+		}	
+		else if(lexer.token == Token.IDCOLON && lexer.getStringValue().equals("println:")) {
+			lexer.nextToken();
+			expr = expr();
+			return new Println(expr);
+		}
+		else {
+			error("'print:' or 'println:' was expected after 'Out.'");
+			return new Print(expr);
+		}
 	}
 
 	private Expr expr() {
 		Expr left, right;
 		right = null;
 		left = simpleExpr();
+		
 		Token op = null;
 		if(lexer.token == Token.EQ || lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE || lexer.token == Token.NEQ) {
 			op = lexer.token;
@@ -534,6 +570,7 @@ public class Compiler {
 	private Expr simpleExpr() {
 		ArrayList<Expr> expr = new ArrayList<Expr>();
 		ArrayList<Token> op = new ArrayList<Token>();
+		
 		boolean flag = false;
 		Expr left = sumSubExpr();
 		expr.add(left);
@@ -544,7 +581,7 @@ public class Compiler {
 			flag = true;
 		}
 		if(!flag) {
-			return new SimpleExpr(left);
+			return left;
 		}
 		else {
 			return new MultipleExpr(expr, op);
@@ -554,6 +591,7 @@ public class Compiler {
 	private Expr sumSubExpr() {
 		ArrayList<Expr> expr = new ArrayList<Expr>();
 		ArrayList<Token> op = new ArrayList<Token>();
+		
 		boolean flag = false;
 		Expr left = term();
 		expr.add(left);
@@ -564,7 +602,7 @@ public class Compiler {
 			flag = true;
 		}
 		if(!flag) {
-			return new SimpleExpr(left);
+			return left;
 		}
 		else {
 			return new MultipleExpr(expr, op);
@@ -574,6 +612,7 @@ public class Compiler {
 	private Expr term() {
 		ArrayList<Expr> expr = new ArrayList<Expr>();
 		ArrayList<Token> op = new ArrayList<Token>();
+		
 		boolean flag = false;
 		Expr left = signalFactor();
 		expr.add(left);
@@ -584,7 +623,7 @@ public class Compiler {
 			flag = true;
 		}
 		if(!flag) {
-			return new SimpleExpr(left);
+			return left;
 		}
 		else {
 			return new MultipleExpr(expr, op);
@@ -594,13 +633,15 @@ public class Compiler {
 	private Expr signalFactor() {
 		Token op = null;
 		boolean flag = false;
+		
 		if(lexer.token == Token.MINUS || lexer.token == Token.PLUS) {
 			op = lexer.token;
 			lexer.nextToken();
 			flag = true;
 		}
+		
 		Expr expr = factor();
-		//Verificar se signal é so pra intType
+		
 		if(flag == true && expr.getType() == Type.intType) {
 			return new SignalFactor(op, expr);
 		}
@@ -649,35 +690,156 @@ public class Compiler {
 				}
 				lexer.nextToken();
 				if(lexer.token != Token.DOT) {
-					lexer.nextToken();
-					return;
+					//procurar o variable na symbol table com o nome id para retornar
+					//return variable;
 				}
 				else if(lexer.token == Token.DOT){
 					lexer.nextToken();
+					System.out.println(lexer.getStringValue());
 					if(lexer.getStringValue().equals("new") && lexer.token == Token.ID) {
 						lexer.nextToken();
-						return new ObjectCreation(idName);
+						//procurar o typecianeto class na symbol table com o id para criar o objeto
+						//return new ObjectCreation();
 					}
-					else if(lexer.token == Token.ID || lexer.token == Token.IDCOLON){
-						
+					else if(lexer.token == Token.ID) {
+						String idMethod = lexer.getStringValue();
+						lexer.nextToken();
+						//verificar se o primeiro id é uma variable do tipo type cianeto class
+						//chamada de metodo, é feito pelo RTS
+						//return new MethodCall(Token.SUPER, idName, idMethod);
+					}
+					else if(lexer.token == Token.IDCOLON){
+						String idMethod = lexer.getStringValue();
+						lexer.nextToken();
+						ArrayList<Expr> exprs = new ArrayList<Expr>();
+						exprs.add(expr());
+						while(lexer.token == Token.COMMA) {
+							lexer.nextToken();
+							exprs.add(expr());
+						}
+						//verificar se o primeiro id é uma variable do tipo type cianeto class
+						//chamada de metodo com parametro, é feito pelo RTS
+						//return new MethodCallPar(Token.SUPER, idName, idMethod, exprs);
 					}
 					else {
 						error("new, id or id: expected after .");
+						return null;
 					}
 				}
+				return null;
 			case SUPER:
 				lexer.nextToken();
-				return primaryExpr();
+				if(lexer.token == Token.DOT) {
+					lexer.nextToken();
+					if(lexer.token == Token.ID) {
+						String idMethod = lexer.getStringValue();
+						lexer.nextToken();
+						//verificar se o primeiro id é uma variable do tipo type cianeto class
+						//chamada de metodo, é feito pelo RTS
+						//return new TokenMethodCall(Token.SUPER, idMethod);
+					}
+					else if(lexer.token == Token.IDCOLON){
+						String idMethod = lexer.getStringValue();
+						lexer.nextToken();
+						ArrayList<Expr> exprs = new ArrayList<Expr>();
+						exprs.add(expr());
+						while(lexer.token == Token.COMMA) {
+							lexer.nextToken();
+							exprs.add(expr());
+						}
+						//verificar se o primeiro id é uma variable do tipo type cianeto class
+						//chamada de metodo com parametro, é feito pelo RTS
+						//return new TokenMethodCallPar(Token.SUPER, idMethod, exprs);
+					}
+					else {
+						error("id or id: expected after .");
+						return null;
+					}
+				}
+				else {
+					error("'.' expected after super");
+					return null;
+				}
+				return null;
 			case SELF:
 				lexer.nextToken();
-				return primaryExpr();
+				if(lexer.token == Token.DOT) {
+					lexer.nextToken();
+					if(lexer.token == Token.IDCOLON) {
+						String idMethod = lexer.getStringValue();
+						lexer.nextToken();
+						ArrayList<Expr> exprs = new ArrayList<Expr>();
+						exprs.add(expr());
+						while(lexer.token == Token.COMMA) {
+							lexer.nextToken();
+							exprs.add(expr());
+						}
+						//verificar se o primeiro id é uma variable do tipo type cianeto class
+						//chamada de metodo com parametro, é feito pelo RTS
+						//return new TokenMethodCallPar(Token.SELF, idMethod, exprs);
+					}
+					else if(lexer.token == Token.ID) {
+						String id = lexer.getStringValue();
+						lexer.nextToken();
+						if(lexer.token == Token.DOT) {
+							lexer.nextToken();
+							if(lexer.token == Token.IDCOLON) {
+								String idMethod = lexer.getStringValue();
+								lexer.nextToken();
+								ArrayList<Expr> exprs = new ArrayList<Expr>();
+								exprs.add(expr());
+								while(lexer.token == Token.COMMA) {
+									lexer.nextToken();
+									exprs.add(expr());
+								}
+								//verificar se o primeiro id é uma variable do tipo type cianeto class
+								//chamada de metodo com parametro, é feito pelo RTS
+								//return new SelfMethodCallPar( id, idMethod, exprs);
+							}
+							else if(lexer.token == Token.ID) {
+								String idMethod = lexer.getStringValue();
+								lexer.nextToken();
+								//verificar se o primeiro id é uma variable do tipo type cianeto class
+								//chamada de metodo, é feito pelo RTS
+								//return new SelfMethodCall(id, idMethod);
+							}
+							else {
+								error("id or id: expected after .");
+							}
+						}
+						else {
+							//verificar se o primeiro id é uma variable do tipo type cianeto class
+							//chamada de metodo, é feito pelo RTS
+							//return new TokenMethodCall(Token.SELF, id);
+						}
+					}
+					else {
+						error("id or id: expected after .");
+					}
+				}
+				else {
+					return new SelfExpr();
+				}
+				return null;
 			default:
 				error("Factor expected");
 				return null;
 		}
-		
 	}
 	
+	private Expr readExpr() {
+		check(Token.DOT, "'.' expected after 'In'");
+		if(lexer.token == Token.ID && lexer.getStringValue().contentEquals("readInt")) {
+			return new ReadExpr("readInt");
+		}
+		else if(lexer.token == Token.ID && lexer.getStringValue().contentEquals("readString")) {
+			return new ReadExpr("readString");
+		}
+		else {
+			error("'readInt' or 'readString' expected after '.'");
+			return new ReadExpr("");
+		}
+	}
 	private void fieldDec(Qualifier qualifier) {
 		String name;
 		
@@ -694,7 +856,9 @@ public class Compiler {
 			while ( lexer.token == Token.ID  ) {
 				name = lexer.getStringValue();
 				classdec.addField(new FieldDec(qualifier, name, typeVar));
-				
+				if(!qualifier.isPrivate() || !qualifier.isVoid()) {
+					error("Attempt to declare public instance variable '" + name + "'");
+				}
 				lexer.nextToken();
 				if ( lexer.token == Token.COMMA ) {
 					lexer.nextToken();

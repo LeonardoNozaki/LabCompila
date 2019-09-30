@@ -11,7 +11,7 @@
 
 package ast;
 
-abstract public class Variable {
+abstract public class Variable extends Expr{
 	abstract public void genC(PW pw);
 	abstract public void genJava(PW pw);
 	abstract public Type getType();

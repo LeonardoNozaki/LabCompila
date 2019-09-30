@@ -28,7 +28,7 @@ public class Qualifier {
 		pw.printIdent(quali);
 	}
 	
-	public boolean getVoidQualifier() {
+	public boolean isVoid() {
 		if(quali.equals("")) {
 			return true;
 		}

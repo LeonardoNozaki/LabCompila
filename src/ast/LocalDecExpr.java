@@ -1,6 +1,6 @@
 package ast;
 
-public class LocalDecExpr extends LocalDec{
+public class LocalDecExpr extends Variable{
 	public LocalDecExpr(Type type, String id, Expr expr) {
 		this.id = id;
 		this.type = type;
@@ -17,6 +17,10 @@ public class LocalDecExpr extends LocalDec{
 		return type;
 	}
 	
+	public void genC( PW pw, boolean putParenthesis ) {
+		
+	}
+
 	private Type type;
 	private String id;
 	private Expr expr;

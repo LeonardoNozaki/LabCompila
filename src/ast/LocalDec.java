@@ -1,7 +1,14 @@
 package ast;
 
-abstract public class LocalDec extends Statement{
-	abstract public void genC(PW pw);
-	abstract public void genJava(PW pw);
-	abstract public Type getType();
+public class LocalDec extends Statement{
+	public LocalDec(Variable variable) {
+		this.variable = variable;
+	}
+	
+	@Override
+	public void genC(PW pw) {
+		
+	}
+	
+	private Variable variable;
 }

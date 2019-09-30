@@ -17,6 +17,10 @@ public class NullExpr extends Expr {
 	   pw.printIdent("NULL");
    }
    
+   public void genJava(PW pw) {
+	   
+   }
+   
    public Type getType() {
 	   return Type.nullType;
    }

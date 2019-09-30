@@ -21,6 +21,10 @@ public class PrimarySimpleId extends Expr{
 		
 	}
 	
+	public void genJava(PW pw) {
+		
+	}
+	
 	public Type getType() {
 		return variable.getType();
 	}

@@ -1,7 +1,7 @@
 package ast;
 import java.util.*;
 
-public class LocalDecList extends LocalDec{
+public class LocalDecList extends Variable{
 	public LocalDecList(Type type, ArrayList<String> id) {
 		this.id = id;
 		this.type = type;
@@ -17,6 +17,9 @@ public class LocalDecList extends LocalDec{
 		return type;
 	}
 	
+	public void genC( PW pw, boolean putParenthesis ) {
+		
+	}
 	private Type type;
 	private ArrayList<String> id;
 }

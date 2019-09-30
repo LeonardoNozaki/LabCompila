@@ -21,8 +21,16 @@ public class LocalVar extends Variable{
 		
 	}
 	
+	public void genJava(PW pw) {
+		
+	}
+	
 	public Type getType() {
 		return type;
+	}
+	
+	public void genC( PW pw, boolean putParenthesis ) {
+		
 	}
 	
 	private String id;

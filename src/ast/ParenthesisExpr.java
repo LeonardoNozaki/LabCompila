@@ -25,6 +25,10 @@ public class ParenthesisExpr extends Expr{
 		//this.genC(pw, false);
 	}
 	
+	public void genJava(PW pw) {
+		
+	}
+	
 	@Override
 	public Type getType() {
 		return expr.getType();

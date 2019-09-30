@@ -11,14 +11,14 @@
 
 package ast;
 
-abstract public class Expr extends Statement {
+abstract public class Expr {
     abstract public void genC( PW pw, boolean putParenthesis );
     abstract public void genJava(PW pw);
     
     // new method: the type of the expression
     abstract public Type getType();
     
-	@Override
+	
 	public void genC(PW pw) {
 		this.genC(pw, false);
 	}

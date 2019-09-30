@@ -21,6 +21,10 @@ public class LiteralInt extends Expr {
         return value;
     }
     
+    public void genJava(PW pw) {
+    	
+    }
+    
     @Override
     public void genC( PW pw, boolean putParenthesis ) {
         pw.printIdent("" + value);

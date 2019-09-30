@@ -28,6 +28,10 @@ public class MultipleExpr extends Expr{
 		//this.genC(pw, false);
 	}
 	
+	public void genJava(PW pw) {
+		
+	}
+	
 	@Override
 	public Type getType() {
 		int tam = this.op.size();

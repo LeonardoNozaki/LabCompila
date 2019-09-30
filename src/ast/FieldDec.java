@@ -22,6 +22,9 @@ public class FieldDec extends Variable {
 		
 	}
 	
+	public void genC( PW pw, boolean putParenthesis ) {
+		
+	}
 	public void genJava(PW pw) {
 		qualifier.genJava(pw);
 		pw.print(" " + this.type.getJavaname() + " ");
