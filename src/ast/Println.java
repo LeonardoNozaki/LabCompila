@@ -18,6 +18,12 @@ public class Println extends Statement{
 	public void genC(PW pw) {
 		
 	}
+	
+	public void genJava(PW pw) {
+		pw.print("System.out.println(\"\" + ");
+		this.expr.genJava(pw);
+		pw.print(")");
+	}
 
 	private Expr expr;
 }

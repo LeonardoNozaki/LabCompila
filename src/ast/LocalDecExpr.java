@@ -11,7 +11,9 @@ public class LocalDecExpr extends Variable{
 
 	}
 	public void genJava(PW pw) {
-		
+		pw.printIdent(this.type.getJavaname() + id + " = ");
+		this.expr.genJava(pw);
+		pw.println(";");
 	}
 	public Type getType() {
 		return type;

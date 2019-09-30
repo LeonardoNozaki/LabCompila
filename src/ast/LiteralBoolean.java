@@ -19,11 +19,11 @@ public class LiteralBoolean extends Expr {
 
     @Override
 	public void genC( PW pw, boolean putParenthesis ) {
-       pw.print( value ? "1" : "0" );
+    	pw.print( value ? "1" : "0" );
     }
     
     public void genJava(PW pw) {
-    	
+    	pw.print(value ? "true" : "false");
     }
 
     @Override

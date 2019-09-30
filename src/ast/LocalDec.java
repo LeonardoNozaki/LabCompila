@@ -10,5 +10,9 @@ public class LocalDec extends Statement{
 		
 	}
 	
+	public void genJava(PW pw) {
+		this.variable.genJava(pw);
+	}
+	
 	private Variable variable;
 }

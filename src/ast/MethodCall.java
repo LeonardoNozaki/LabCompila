@@ -17,7 +17,8 @@ public class MethodCall extends Expr{
 		this.methodName = methodName;
 	}
 	public void genJava(PW pw) {
-		
+		this.variable.genJava(pw);
+		pw.print("." + methodName + " ");
 	}
 	public void genC(PW pw) {
 		

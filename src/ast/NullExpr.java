@@ -18,7 +18,7 @@ public class NullExpr extends Expr {
    }
    
    public void genJava(PW pw) {
-	   
+	   pw.print("null");
    }
    
    public Type getType() {

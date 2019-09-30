@@ -18,5 +18,11 @@ public class Print extends Statement{
 	public void genC(PW pw) {
 		
 	}
+	
+	public void genJava(PW pw) {
+		pw.print("System.out.print(\"\" + ");
+		this.expr.genJava(pw);
+		pw.print(")");
+	}
 	private Expr expr;
 }

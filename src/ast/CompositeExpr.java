@@ -24,10 +24,10 @@ public class CompositeExpr extends Expr {
     }
     
     public void genJava( PW pw ) {
-    	left.genJava(pw);
-    	if(op != null && right != null) {
-    		pw.print(op.toString());
-    		right.genJava(pw);
+    	this.left.genJava(pw);
+    	if(this.op != null && this.right != null) {
+    		pw.print(" " + this.op.toString() + " ");
+    		this.right.genJava(pw);
     	}
     }   
     

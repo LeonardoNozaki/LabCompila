@@ -395,6 +395,7 @@ public class Compiler {
 		Type type = type();
 		boolean flag = false;
 		String id = "";
+		//array nao seria de LocalVar?
 		ArrayList<String> local = null;
 		
 		if(lexer.token == Token.ID) {

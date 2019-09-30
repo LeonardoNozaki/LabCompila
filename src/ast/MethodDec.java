@@ -28,7 +28,22 @@ public class MethodDec {
 	}
 	
 	public void genJava(PW pw) {
-		
+		this.qualifier.genJava(pw);
+		pw.print(this.type.getJavaname() + " " + id + "( ");
+		if(this.paramDec.size() > 0) {
+			this.paramDec.get(0).genJava(pw);
+		}
+		for(int i = 1; i < this.paramDec.size(); i++) {
+			pw.print(", ");
+			this.paramDec.get(i).genJava(pw);
+		}
+		pw.println("){");
+		pw.add();
+		for(int i = 0; i < this.stat.size(); i++) {
+			this.stat.get(i).genJava(pw);
+		}
+		pw.sub();
+		pw.printlnIdent("}");
 	}
 	
 	private Qualifier qualifier;

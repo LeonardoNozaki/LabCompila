@@ -29,7 +29,11 @@ public class MultipleExpr extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		
+		this.expr.get(0).genJava(pw);
+		for(int i = 0; i < this.expr.size(); i++) {
+			pw.print(" " + this.op.get(i-1).toString() + " ");
+			this.expr.get(i).genJava(pw);
+		}
 	}
 	
 	@Override

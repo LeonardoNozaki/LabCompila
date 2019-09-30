@@ -7,6 +7,16 @@ public class AssertStat extends Statement{
 		this.expr = expr;
 		this.message = message;
 	}
+	
+	public void genJava(PW pw) {
+		pw.printIdent("if(!( " );
+		this.expr.genJava(pw);
+		pw.println(" )){");
+		pw.add();
+		pw.printlnIdent("System.out.print(" + message + ");");
+		pw.sub();
+		pw.printlnIdent("}");
+	}
 
 	public void genC( PW pw ) {
 		

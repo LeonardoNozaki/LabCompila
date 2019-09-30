@@ -20,5 +20,11 @@ public class CompositeAssign extends AssignExpr {
 		
 	}
 	
+	public void genJava(PW pw) {
+		this.left.genJava(pw);
+		pw.print(" = ");
+		this.right.genJava(pw);
+	}
+	
 	private Expr left, right;
 }

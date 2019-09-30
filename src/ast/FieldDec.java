@@ -26,9 +26,9 @@ public class FieldDec extends Variable {
 		
 	}
 	public void genJava(PW pw) {
-		qualifier.genJava(pw);
+		this.qualifier.genJava(pw);
 		pw.print(" " + this.type.getJavaname() + " ");
-		pw.println(id + ";" );
+		pw.println(this.id + ";" );
 	}
 	
 	public Type getType() {

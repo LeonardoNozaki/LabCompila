@@ -23,7 +23,7 @@ public class LiteralString extends Expr {
     }
     
     public void genJava(PW pw) {
-    	
+    	pw.print(literalString);
     }
 
     @Override

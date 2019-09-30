@@ -26,7 +26,9 @@ public class ParenthesisExpr extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		
+		pw.print("( ");
+		this.expr.genJava(pw);
+		pw.print(" )");
 	}
 	
 	@Override

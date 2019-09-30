@@ -20,9 +20,17 @@ public class MethodCallPar extends Expr{
 		this.expr = expr;
 	}
 	public void genJava(PW pw) {
-		
+		this.variable.genJava(pw);
+		pw.print("." + methodName + "(");
+		this.expr.get(0).genJava(pw);	
+		for(int i = 1; i < this.expr.size(); i++) {
+			pw.print(", ");
+			this.expr.get(i).genJava(pw);	
+		}
+		pw.print(") ");
 	}
 	public void genC(PW pw) {
+		
 		
 	}
 	
