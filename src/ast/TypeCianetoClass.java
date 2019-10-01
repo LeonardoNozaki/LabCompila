@@ -52,6 +52,29 @@ public class TypeCianetoClass extends Type{
 	   privateMethodList.add(method);
    }
    
+   public void genJava(PW pw) {
+	   pw.println("");
+		pw.printlnIdent("class " + this.getJavaname() + " ");
+		if(superclass != null) {
+			pw.println("extends" + this.superclass.getJavaname() + "{");
+		}
+		else {
+			pw.println("{");
+		}
+		pw.add();
+		for(int i = 0; i < this.fieldList.size(); i++) {
+			this.fieldList.get(i).genJava(pw);
+		}
+		for(int i = 0; i < this.publicMethodList.size(); i++) {
+			this.publicMethodList.get(i).genJava(pw);
+		}
+		for(int i = 0; i < this.privateMethodList.size(); i++) {
+			this.privateMethodList.get(i).genJava(pw);
+		}
+		pw.sub();
+		pw.printlnIdent("}");
+   }
+   
    private boolean open;
    private TypeCianetoClass superclass = null;
    private ArrayList<FieldDec> fieldList = new ArrayList<FieldDec>();

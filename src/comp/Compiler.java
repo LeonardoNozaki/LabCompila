@@ -696,7 +696,6 @@ public class Compiler {
 				}
 				else if(lexer.token == Token.DOT){
 					lexer.nextToken();
-					System.out.println(lexer.getStringValue());
 					if(lexer.getStringValue().equals("new") && lexer.token == Token.ID) {
 						lexer.nextToken();
 						//procurar o typecianeto class na symbol table com o id para criar o objeto

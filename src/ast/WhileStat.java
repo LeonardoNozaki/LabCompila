@@ -22,6 +22,18 @@ public class WhileStat extends Statement{
 	public void genC( PW pw ) {
 		
 	}
+	
+	public void genJava(PW pw) {
+		pw.printIdent("while( ");
+		this.expr.genJava(pw);
+		pw.println(" ){");
+		pw.add();
+		for(int i = 0; i < this.stat.size(); i++) {
+			this.stat.get(i).genJava(pw);
+		}
+		pw.sub();
+		pw.println("}");
+	}
 
 	private Expr expr;
 	private ArrayList<Statement> stat = new ArrayList<Statement>();

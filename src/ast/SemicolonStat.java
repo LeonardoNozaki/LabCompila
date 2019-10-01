@@ -15,4 +15,8 @@ public class SemicolonStat extends Statement{
    public void genC( PW pw) {
 	   pw.printIdent(";");
    }
+   
+   public void genJava(PW pw) {
+	   pw.printIdent(";");
+   }
 }

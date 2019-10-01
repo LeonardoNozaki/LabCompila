@@ -20,8 +20,9 @@ public class TokenMethodCall extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		
+		pw.print(this.t.toString() + "." + methodName);
 	}
+	
 	public void genC(PW pw) {
 		
 	}

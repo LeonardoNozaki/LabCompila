@@ -17,7 +17,15 @@ public class ReadExpr extends Expr {
 	}
 	
 	public void genJava(PW pw) {
+		//pw.printlnIdent("Scanner scanner = new Scanner(System.in);");
+		if(this.name.equals("readInt")) {
+			pw.print("scanner.nextInt()");
+		}
+		if(this.name.equals("readString")) {
+			pw.print("scanner.nextLine()");
+		}
 		
+			
 	}
 	
 	public void genC(PW pw, boolean putParenthesis) {

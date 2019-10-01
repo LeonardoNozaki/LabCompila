@@ -25,7 +25,7 @@ public class Qualifier {
 	}
 	
 	public void genJava(PW pw) {
-		pw.printIdent(quali);
+		pw.printIdent(this.quali + " ");
 	}
 	
 	public boolean isVoid() {

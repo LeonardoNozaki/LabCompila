@@ -26,7 +26,7 @@ public class SimpleExpr extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		
+		this.expr.genJava(pw);
 	}
 	
 	@Override

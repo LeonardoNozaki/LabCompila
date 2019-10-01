@@ -34,7 +34,18 @@ public class Program {
 	*/
 		
 	public void genJava(PW pw) {
-		
+		pw.printlnIdent("public class " + this.mainJavaClassName + "{");
+		pw.add();
+		pw.printlnIdent("public static void main(String []args) {");
+		pw.add();
+		pw.printlnIdent("new Program().run();");
+		pw.sub();
+		pw.printlnIdent("}");
+		pw.sub();
+		pw.printlnIdent("}");
+		for(int i = 0; i < this.classList.size(); i++) {
+			this.classList.get(i).genJava(pw);
+		}
 	}
 
 	public void genC(PW pw) {

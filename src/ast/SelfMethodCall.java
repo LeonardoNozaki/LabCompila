@@ -20,8 +20,11 @@ public class SelfMethodCall {
 	}
 	
 	public void genJava(PW pw) {
-		
+		pw.print("self.");
+		this.variable.genJava(pw);
+		pw.print("." + this.methodName);
 	}
+	
 	public void genC(PW pw) {
 		
 	}

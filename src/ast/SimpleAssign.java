@@ -19,6 +19,10 @@ public class SimpleAssign extends AssignExpr {
 		
 	}
 	
+	public void genJava(PW pw) {
+		this.left.genJava(pw);
+	}
+	
 	private Expr left;
 }
 

@@ -28,7 +28,8 @@ public class SignalFactor extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		
+		pw.print(this.op.toString() +  " ");
+		this.expr.genJava(pw);
 	}
 	
 	@Override
