@@ -11,9 +11,7 @@
 
 package ast;
 import java.util.*;
-/*
- * Krakatoa Class
- */
+
 public class TypeCianetoClass extends Type{
 
    public TypeCianetoClass( String name) {
@@ -40,20 +38,81 @@ public class TypeCianetoClass extends Type{
       return getName();
    }
 
-   public void addField(FieldDec f) {
+   public boolean addField(FieldDec f) {
+	   int size = fieldList.size();
+	   for(int i = 0; i < size ; i++){
+		   if(fieldList.get(i).isEqualField(f)) {
+			   return false;
+		   }
+	   }
+	   size = publicMethodList.size();
+	   for(int i = 0; i < size ; i++){
+		   if(publicMethodList.get(i).isEqualField(f)) {
+			   return false;
+		   }
+	   }
+	   size = privateMethodList.size();
+	   for(int i = 0; i < size ; i++){
+		   if(privateMethodList.get(i).isEqualField(f)) {
+			   return false;
+		   }
+	   }
+
 	   fieldList.add(f);
+	   return true;
    }
+  
    
-   public void addMethodPublic(MethodDec method) {
+   public boolean addMethodPublic(MethodDec method) {
+	   int size = fieldList.size();
+	   for(int i = 0; i < size ; i++){
+		   if(fieldList.get(i).isEqualMethod(method)) {
+			   return false;
+		   }
+	   }
+	   size = publicMethodList.size();
+	   for(int i = 0; i < size ; i++){
+		   if(publicMethodList.get(i).isEqualMethod(method)) {
+			   return false;
+		   }
+	   }
+	   size = privateMethodList.size();
+	   for(int i = 0; i < size ; i++){
+		   if(privateMethodList.get(i).isEqualMethod(method)) {
+			   return false;
+		   }
+	   }
+
 	   publicMethodList.add(method);
+	   return true;
    }
    
-   public void addMethodPrivate(MethodDec method) {
+   public boolean addMethodPrivate(MethodDec method) {
+	   int size = fieldList.size();
+	   for(int i = 0; i < size ; i++){
+		   if(fieldList.get(i).isEqualMethod(method)) {
+			   return false;
+		   }
+	   }
+	   size = publicMethodList.size();
+	   for(int i = 0; i < size ; i++){
+		   if(publicMethodList.get(i).isEqualMethod(method)) {
+			   return false;
+		   }
+	   }
+	   size = privateMethodList.size();
+	   for(int i = 0; i < size ; i++){
+		   if(privateMethodList.get(i).isEqualMethod(method)) {
+			   return false;
+		   }
+	   }
+	   
 	   privateMethodList.add(method);
+	   return true;
    }
    
    public void genJava(PW pw) {
-	   pw.println("");
+	    pw.println("");
 		pw.printlnIdent("class " + this.getJavaname() + " ");
 		if(superclass != null) {
 			pw.println("extends" + this.superclass.getJavaname() + "{");

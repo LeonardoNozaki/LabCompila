@@ -46,6 +46,28 @@ public class MethodDec {
 		pw.printlnIdent("}");
 	}
 	
+	public String getName() {
+		return this.id;
+	}
+	
+	public boolean isEqualField(FieldDec f) {
+		if(this.id.equals(f.getName())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public boolean isEqualMethod(MethodDec f) {
+		if(this.id.equals(f.getName())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	private Qualifier qualifier;
 	private String id;
 	private ArrayList<ParamDec> paramDec;

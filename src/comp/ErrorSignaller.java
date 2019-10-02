@@ -39,6 +39,9 @@ public class ErrorSignaller {
         showError( strMessage, false);
     }
 
+    public void showErrorBefore( String strMessage ) {
+        showError( strMessage, true);
+    }
 
     public void showError( String strMessage, boolean goPreviousToken ) {
         // is goPreviousToken is true, the error is signalled at the line of the

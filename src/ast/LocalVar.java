@@ -12,6 +12,10 @@
 package ast;
 
 public class LocalVar extends Variable{
+	public LocalVar(String id) {
+		this.id = id;
+		this.type = Type.undefinedType;
+	}
 	public LocalVar(String id, Type type) {
 		this.type = type;
 		this.id = id;

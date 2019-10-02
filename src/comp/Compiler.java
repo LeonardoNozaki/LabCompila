@@ -179,12 +179,27 @@ public class Compiler {
 		
 		classdec = new TypeCianetoClass(className);
 		classdec.setOpen(open);
+		if(!className.isEmpty()) {
+			if(symbolTable.getInClass(className) == null) {
+				symbolTable.putInClass(className, classdec);
+			}
+			else {
+				error(className + " has already been declared");
+			}
+		}
 		
 		if ( lexer.token == Token.EXTENDS ) {
 			lexer.nextToken();
 			if ( lexer.token != Token.ID ) error("Identifier expected");
 			
 			superclassName = lexer.getStringValue();
+			TypeCianetoClass superclass = (TypeCianetoClass) symbolTable.getInClass(superclassName);
+			if(superclass == null){
+				error(superclassName + " does not existe");
+			}
+			else {
+				classdec.setSuperClass(superclass);
+			}
 			extend = true;
 			lexer.nextToken();
 		}
@@ -203,7 +218,7 @@ public class Compiler {
 		
 		memberList();
 		
-		if ( lexer.token != Token.END) error("'end' expected");
+		if ( lexer.token != Token.END) error("Class member or 'end' expected");
 		
 		lexer.nextToken();
 		
@@ -222,10 +237,14 @@ public class Compiler {
 			else if ( lexer.token == Token.FUNC ) {
 				methodDec = methodDec(quali);
 				if(quali.isPrivate()) {
-					classdec.addMethodPrivate(methodDec);
+					if(!classdec.addMethodPrivate(methodDec)) {
+						error(methodDec.getName() + " already been declared");
+					}
 				}
 				else {
-					classdec.addMethodPublic(methodDec);
+					if(!classdec.addMethodPublic(methodDec)) {
+						error(methodDec.getName() + " already been declared");
+					}
 				}
 			}
 			else {
@@ -236,6 +255,10 @@ public class Compiler {
 
 	private void error(String msg) {
 		this.signalError.showError(msg);
+	}
+	
+	private void errorBefore(String msg) {
+		this.signalError.showErrorBefore(msg);
 	}
 
 	private void check(Token shouldBe, String msg) {
@@ -374,7 +397,9 @@ public class Compiler {
 
 		}
 		if ( checkSemiColon ) {
-			check(Token.SEMICOLON, "';' expected");
+			if(lexer.token != Token.SEMICOLON) {
+				errorBefore("';' expected");
+			}
 		}
 		return stat;
 	}
@@ -426,7 +451,7 @@ public class Compiler {
 			}
 		}
 		else {
-			error("A variable name was expected");
+			error("Identifier expected");
 		}
 
 		if ( lexer.token == Token.ASSIGN ) {
@@ -453,7 +478,7 @@ public class Compiler {
 		lexer.nextToken();
 		ArrayList<Statement> stat = new ArrayList<Statement>();
 		
-		while ( lexer.token != Token.UNTIL && lexer.token != Token.END && lexer.token != Token.EOF) {
+		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.UNTIL && lexer.token != Token.END && lexer.token != Token.EOF) {
 			stat.add(statement());
 		}
 		
@@ -691,8 +716,12 @@ public class Compiler {
 				}
 				lexer.nextToken();
 				if(lexer.token != Token.DOT) {
-					//procurar o variable na symbol table com o nome id para retornar
-					//return variable;
+					Variable v = (Variable) symbolTable.getInLocal(idName);
+					if(v == null) {
+						error(idName + "had not been declared");
+						return new LocalVar(idName);
+					}
+					return v;
 				}
 				else if(lexer.token == Token.DOT){
 					lexer.nextToken();
@@ -822,7 +851,7 @@ public class Compiler {
 				}
 				return null;
 			default:
-				error("Factor expected");
+				error("Expression expected");
 				return null;
 		}
 	}
@@ -830,13 +859,15 @@ public class Compiler {
 	private Expr readExpr() {
 		check(Token.DOT, "'.' expected after 'In'");
 		if(lexer.token == Token.ID && lexer.getStringValue().contentEquals("readInt")) {
+			lexer.nextToken();
 			return new ReadExpr("readInt");
 		}
 		else if(lexer.token == Token.ID && lexer.getStringValue().contentEquals("readString")) {
+			lexer.nextToken();
 			return new ReadExpr("readString");
 		}
 		else {
-			error("'readInt' or 'readString' expected after '.'");
+			error("Command 'In.' without arguments");
 			return new ReadExpr("");
 		}
 	}
@@ -855,8 +886,10 @@ public class Compiler {
 		else {
 			while ( lexer.token == Token.ID  ) {
 				name = lexer.getStringValue();
-				classdec.addField(new FieldDec(qualifier, name, typeVar));
-				if(!qualifier.isPrivate() || !qualifier.isVoid()) {
+				if(!classdec.addField(new FieldDec(qualifier, name, typeVar))) {
+					error(name + " has been already declared");
+				}
+				if(!qualifier.isPrivate() && !qualifier.isVoid()) {
 					error("Attempt to declare public instance variable '" + name + "'");
 				}
 				lexer.nextToken();
@@ -992,5 +1025,6 @@ public class Compiler {
 	private Lexer			lexer;
 	private ErrorSignaller	signalError;
 	private TypeCianetoClass classdec;
+	
 
 }

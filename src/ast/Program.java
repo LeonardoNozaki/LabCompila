@@ -44,6 +44,7 @@ public class Program {
 		pw.sub();
 		pw.printlnIdent("}");
 		for(int i = 0; i < this.classList.size(); i++) {
+			System.out.print("entrou\n");
 			this.classList.get(i).genJava(pw);
 		}
 	}

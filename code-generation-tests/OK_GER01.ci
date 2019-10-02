@@ -1,4 +1,4 @@
-﻿@annot("check", "comparisonOperators", "if")
+@annot("check", "comparisonOperators", "if")
 @nce
 
 /*
@@ -82,8 +82,8 @@ class A
       if (1 <= 0) {
          Out.print:  14, " " ;
       }
-   }
-   
+   }   
+
 end
 
 class Program

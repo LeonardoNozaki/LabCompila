@@ -35,6 +35,28 @@ public class FieldDec extends Variable {
 		return type;
 	}
 	
+	public String getName() {
+		return this.id;
+	}
+	
+	public boolean isEqualField(FieldDec f) {
+		if(this.id.equals(f.getName())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public boolean isEqualMethod(MethodDec f) {
+		if(this.id.equals(f.getName())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	private String id;
 	private Qualifier qualifier;
 	private Type type;
