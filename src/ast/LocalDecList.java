@@ -2,7 +2,7 @@ package ast;
 import java.util.*;
 
 public class LocalDecList extends Variable{
-	public LocalDecList(Type type, ArrayList<String> id) {
+	public LocalDecList(Type type, ArrayList<Variable> id) {
 		this.id = id;
 		this.type = type;
 	}
@@ -25,5 +25,5 @@ public class LocalDecList extends Variable{
 		
 	}
 	private Type type;
-	private ArrayList<String> id;
+	private ArrayList<Variable> id;
 }

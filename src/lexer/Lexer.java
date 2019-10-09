@@ -234,6 +234,7 @@ public class Lexer {
                     		metaobjectName += input[tokenPos];
                     		++tokenPos;
                     	}
+                    	
                     	if ( metaobjectName.length() == 0 )
                     		error.showError("Identifier expected after '@'");
                     	token = Token.ANNOT;

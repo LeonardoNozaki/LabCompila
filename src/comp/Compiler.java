@@ -29,7 +29,6 @@ public class Compiler {
 		symbolTable = new SymbolTable();
 		lexer = new Lexer(input, signalError);
 		signalError.setLexer(lexer);
-
 		Program program = null;
 		lexer.nextToken();
 		program = program(compilationErrorList);
@@ -56,7 +55,6 @@ public class Compiler {
 				e.printStackTrace();
 				thereWasAnError = true;
 			}
-
 		} while ( lexer.token == Token.CLASS ||
 				(lexer.token == Token.ID && lexer.getStringValue().equals("open") ) ||
 				lexer.token == Token.ANNOT );
@@ -67,6 +65,7 @@ public class Compiler {
 			catch( CompilerError e) {
 			}
 		}
+		
 		return program;
 	}
 
@@ -159,7 +158,6 @@ public class Compiler {
 		boolean open = false;
 		String superclassName = "";
 		String className = "";
-		
 		if ( lexer.token == Token.ID && lexer.getStringValue().equals("open") ) {
 			//Verificar se precisa de mais algo para o open
 			lexer.nextToken();
@@ -176,7 +174,6 @@ public class Compiler {
 			className = lexer.getStringValue();
 			lexer.nextToken();
 		}
-		
 		classdec = new TypeCianetoClass(className);
 		classdec.setOpen(open);
 		if(!className.isEmpty()) {
@@ -221,7 +218,6 @@ public class Compiler {
 		if ( lexer.token != Token.END) error("Class member or 'end' expected");
 		
 		lexer.nextToken();
-		
 		return classdec;
 	}
 
@@ -241,6 +237,7 @@ public class Compiler {
 						error(methodDec.getName() + " already been declared");
 					}
 				}
+				
 				else {
 					if(!classdec.addMethodPublic(methodDec)) {
 						error(methodDec.getName() + " already been declared");
@@ -250,7 +247,9 @@ public class Compiler {
 			else {
 				break;
 			}
+			
 		}
+		
 	}
 
 	private void error(String msg) {
@@ -275,11 +274,13 @@ public class Compiler {
 
 	private MethodDec methodDec(Qualifier qualifier) {
 		lexer.nextToken();
+		returnFlag = false;
+		boolean returnNeed = false;
 		Type tipoRetorno = Type.voidType;
 		ArrayList<ParamDec> paramDec = null;
 		ArrayList<Statement> statementList = null;
 		String id = "";
-		
+		symbolTable.add();
 		if ( lexer.token == Token.ID ) {
 			// unary method
 			id = lexer.getStringValue();
@@ -288,6 +289,9 @@ public class Compiler {
 		else if ( lexer.token == Token.IDCOLON ) {
 			id = lexer.getStringValue();
 			paramDec = formalParamDec();
+			for(int i = 0; i < paramDec.size(); i++) {
+				symbolTable.putInLocal(paramDec.get(i).getName(), paramDec.get(i));
+			}
 		}
 		else {
 			error("An identifier or identifier: was expected after 'func'");
@@ -296,6 +300,7 @@ public class Compiler {
 		if ( lexer.token == Token.MINUS_GT ) {
 			// method declared a return type
 			lexer.nextToken();
+			returnNeed = true;
 			tipoRetorno = type();
 		}
 		if ( lexer.token != Token.LEFTCURBRACKET ) {
@@ -307,12 +312,25 @@ public class Compiler {
 
 		statementList = statementList();
 		
+		if(returnNeed) {
+			if(!returnFlag) {
+				error("missing 'return' statement");
+			}
+		}
+		
+		if(returnFlag) {
+			if(!returnNeed) {
+				error("'return' statement is not needed");
+			}
+		}
+		
 		if ( lexer.token != Token.RIGHTCURBRACKET ) {
 			error("'}' expected");
 		}
 		else {
 			lexer.nextToken();
 		}
+		symbolTable.sub();
 		
 		return new MethodDec(qualifier, id, paramDec, tipoRetorno, statementList);
 	}
@@ -357,6 +375,7 @@ public class Compiler {
 	}
 
 	private Statement statement() {
+		
 		boolean checkSemiColon = true;
 		Statement stat = null;
 		switch ( lexer.token ) {
@@ -420,13 +439,21 @@ public class Compiler {
 		Type type = type();
 		boolean flag = false;
 		String id = "";
+		LocalVar aux;
 		//array nao seria de LocalVar?
-		ArrayList<String> local = null;
+		ArrayList<Variable> local = null;
 		
 		if(lexer.token == Token.ID) {
 			id = lexer.getStringValue();
-			local = new ArrayList<String>();
-			local.add(id);
+			local = new ArrayList<Variable>();
+			if(symbolTable.getInLocal(id) != null) {
+				error("variable " + id + " already been declared");
+			}
+			else {
+				aux = new LocalVar(id, type);
+				symbolTable.putInLocal(id, aux);
+				local.add(aux);
+			}
 			lexer.nextToken();
 			if ( lexer.token == Token.COMMA ) {
 				flag = true;
@@ -436,7 +463,14 @@ public class Compiler {
 				}
 				while ( lexer.token == Token.ID ) {
 					id = lexer.getStringValue();
-					local.add(id);
+					if(symbolTable.getInLocal(id) != null) {
+						error("variable " + id + " already been declared");
+					}
+					else {
+						aux = new LocalVar(id, type);
+						symbolTable.putInLocal(id, aux);
+						local.add(aux);
+					}
 					lexer.nextToken();
 					if ( lexer.token == Token.COMMA ) {
 						lexer.nextToken();
@@ -477,12 +511,14 @@ public class Compiler {
 	private Statement repeatStat() {
 		lexer.nextToken();
 		ArrayList<Statement> stat = new ArrayList<Statement>();
+		symbolTable.add();
 		
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.UNTIL && lexer.token != Token.END && lexer.token != Token.EOF) {
 			stat.add(statement());
 		}
 		
 		check(Token.UNTIL, "missing keyword 'until'");
+		symbolTable.sub();
 		Expr expr = expr();
 		if(expr.getType() != Type.booleanType) {
 			error("'repeat' expression expected Boolean Type");
@@ -499,6 +535,7 @@ public class Compiler {
 		lexer.nextToken();
 		//verificar se tipo de retorno bate com o tipo do metodo
 		Expr expr = expr();
+		returnFlag = true;
 		return new ReturnStat(expr);
 	}
 
@@ -512,12 +549,14 @@ public class Compiler {
 		ArrayList<Statement> stat = new ArrayList<Statement>();
 		
 		check(Token.LEFTCURBRACKET, "missing '{' after the 'while' expression");
+		symbolTable.add();
 		
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.EOF ) {
 			stat.add(statement());
 		}
 		
 		check(Token.RIGHTCURBRACKET, "missing '}' after 'while' body");
+		symbolTable.sub();
 		
 		return new WhileStat(expr, stat);
 	}
@@ -533,22 +572,26 @@ public class Compiler {
 		ArrayList<Statement> rightStat = new ArrayList<Statement>();
 		
 		check(Token.LEFTCURBRACKET, "'{' expected after the 'if' expression");
+		symbolTable.add();
 		
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.ELSE && lexer.token != Token.EOF) {
 			leftStat.add(statement());
 		}
 		
 		check(Token.RIGHTCURBRACKET, "'}' was expected");
+		symbolTable.sub();
 		
 		if ( lexer.token == Token.ELSE ) {
 			lexer.nextToken();
 			check(Token.LEFTCURBRACKET, "'{' expected after 'else'");
+			symbolTable.add();
 			
 			while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.EOF) {
 				rightStat.add(statement());
 			}
 			
 			check(Token.RIGHTCURBRACKET, "'}' was expected");
+			symbolTable.sub();
 		}
 		
 		return new IfStat(expr, leftStat, rightStat);
@@ -718,14 +761,17 @@ public class Compiler {
 				if(lexer.token != Token.DOT) {
 					Variable v = (Variable) symbolTable.getInLocal(idName);
 					if(v == null) {
-						error(idName + "had not been declared");
+						error(idName + " had not been declared");
 						return new LocalVar(idName);
 					}
 					return v;
 				}
 				else if(lexer.token == Token.DOT){
 					lexer.nextToken();
-					if(lexer.getStringValue().equals("new") && lexer.token == Token.ID) {
+					if(lexer.getStringValue().equals("new:")) {
+						error("'new' does not take any parameter");
+					}
+					else if(lexer.getStringValue().equals("new") && lexer.token == Token.ID) {
 						lexer.nextToken();
 						//procurar o typecianeto class na symbol table com o id para criar o objeto
 						//return new ObjectCreation();
@@ -821,7 +867,7 @@ public class Compiler {
 									lexer.nextToken();
 									exprs.add(expr());
 								}
-								//verificar se o primeiro id é uma variable do tipo type cianeto class
+								//verificar se o primeiro i é uma variable do tipo type cianeto class
 								//chamada de metodo com parametro, é feito pelo RTS
 								//return new SelfMethodCallPar( id, idMethod, exprs);
 							}
@@ -1025,6 +1071,7 @@ public class Compiler {
 	private Lexer			lexer;
 	private ErrorSignaller	signalError;
 	private TypeCianetoClass classdec;
+	private boolean returnFlag;
 	
 
 }
