@@ -1,9 +1,17 @@
 package ast;
 
 public class SelfExpr extends Expr {
-	public void genJava(PW pw) {
-		pw.print("this");
+	public SelfExpr(TypeCianetoClass type) {
+		this.type = type;
 	}
+	
+	public void genJava(PW pw) {
+		pw.print("this;");
+	}
+	
+	public boolean isOnlyId() {
+    	return true;
+    }
 	
 	public void genC(PW pw) {
 		
@@ -14,7 +22,8 @@ public class SelfExpr extends Expr {
 	}
 	
 	public Type getType() {
-		return Type.undefinedType;
+		return type;
 	}
 
+	private TypeCianetoClass type;
 }

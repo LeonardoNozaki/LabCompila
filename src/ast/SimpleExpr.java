@@ -16,6 +16,10 @@ public class SimpleExpr extends Expr{
 		this.expr = expr;
 	}
 	
+	public boolean isOnlyId() {
+    	return true;
+    }
+	
 	public void genC( PW pw, boolean putParenthesis ) {
     	
     }

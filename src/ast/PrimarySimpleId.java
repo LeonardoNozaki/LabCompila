@@ -17,6 +17,10 @@ public class PrimarySimpleId extends Expr{
 		this.type = type;
 	}
 	
+	public boolean isOnlyId() {
+    	return true;
+    }
+	
 	public void genC( PW pw, boolean putParenthesis ) {
 		
 	}

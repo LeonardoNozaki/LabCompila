@@ -61,20 +61,48 @@ public class TypeCianetoClass extends Type{
 	   fieldList.add(f);
 	   return true;
    }
-  
-   public int searchMethod(String idMethod) {
+   
+   public FieldDec getField(String idField) {
+	   for(int i = 0; i < fieldList.size(); i++) {
+		   if(idField.equals(this.fieldList.get(i).getName())) {
+			   return this.fieldList.get(i);
+		   }
+	   }
+	   
+	   if(superclass != null) {
+		   return superclass.getField(idField);
+	   }
+	   return null;
+   }
+   
+   public MethodDec getMethod(String idMethod) {
 	   for(int i = 0; i < publicMethodList.size(); i++) {
 		   if(idMethod.equals(this.publicMethodList.get(i).getName())) {
-			   if(this.publicMethodList.get(i).getType() == Type.voidType) {
-				   return 1;
-			   }
-			   return 2;
+			   return this.publicMethodList.get(i);
+		   }
+	   }
+	   for(int i = 0; i < privateMethodList.size(); i++) {
+		   if(idMethod.equals(this.privateMethodList.get(i).getName())) {
+			   return this.privateMethodList.get(i);
 		   }
 	   }
 	   if(superclass != null) {
-		   return superclass.searchMethod(idMethod);
+		   return superclass.getMethod(idMethod);
 	   }
-	   return 0;
+	   return null;
+   }
+   
+   public MethodDec getMethodPublic(String idMethod) {
+	   for(int i = 0; i < publicMethodList.size(); i++) {
+		   if(idMethod.equals(this.publicMethodList.get(i).getName())) {
+			   return this.publicMethodList.get(i);
+		   }
+	   }
+	   
+	   if(superclass != null) {
+		   return superclass.getMethod(idMethod);
+	   }
+	   return null;
    }
    
    public boolean addMethodPublic(MethodDec method) {

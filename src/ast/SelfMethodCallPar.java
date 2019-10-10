@@ -3,11 +3,15 @@ package ast;
 import java.util.ArrayList;
 
 
-public class SelfMethodCallPar {
+public class SelfMethodCallPar extends Expr{
 	public SelfMethodCallPar(Variable variable, String methodName, ArrayList<Expr> expr){
 		this.methodName = methodName;
 		this.expr = expr;
 		this.variable = variable;
+	}
+	
+	public boolean isOnlyId() {
+		return false;
 	}
 	
 	public void genJava(PW pw) {

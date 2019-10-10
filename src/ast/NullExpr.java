@@ -21,6 +21,10 @@ public class NullExpr extends Expr {
 	   pw.print("null");
    }
    
+   public boolean isOnlyId() {
+   	return false;
+   }
+   
    public Type getType() {
 	   return Type.nullType;
    }

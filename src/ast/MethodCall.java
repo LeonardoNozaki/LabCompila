@@ -17,6 +17,7 @@ public class MethodCall extends Expr{
 		this.methodName = methodName;
 		this.retorno = retorno;
 	}
+	
 	public void genJava(PW pw) {
 		if(retorno == true) {
 			this.variable.genJava(pw);
@@ -28,6 +29,11 @@ public class MethodCall extends Expr{
 			pw.println("." + methodName + "();");
 		}
 	}
+	
+	public boolean isOnlyId() {
+    	return false;
+    }
+	
 	public void genC(PW pw) {
 		
 	}

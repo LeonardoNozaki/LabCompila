@@ -11,22 +11,17 @@
 
 package ast;
 
-import lexer.Token;
-
-public class SelfMethodCall extends Expr{
-	public SelfMethodCall(Variable variable, String methodName){
-		this.methodName = methodName;
-		this.variable = variable;
+public class SelfField extends Expr{
+	public SelfField(FieldDec fd){
+		this.fieldDec = fd;
 	}
 	
 	public boolean isOnlyId() {
-		return false;
-	}
+			return true;	
+    }
 	
 	public void genJava(PW pw) {
-		pw.print("self.");
-		this.variable.genJava(pw);
-		pw.print("." + this.methodName);
+		pw.printlnIdent("this." + fieldDec.getName() + "()");
 	}
 	
 	public void genC(PW pw) {
@@ -38,9 +33,8 @@ public class SelfMethodCall extends Expr{
 	}
 	
 	public Type getType() {
-		return Type.undefinedType;
+		return fieldDec.getType();
 	}
 
-	private String methodName;
-	private Variable variable;
+	private FieldDec fieldDec;
 }

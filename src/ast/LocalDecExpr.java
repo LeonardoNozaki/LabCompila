@@ -10,6 +10,11 @@ public class LocalDecExpr extends Variable{
 	public void genC(PW pw) {
 
 	}
+	
+	public boolean isOnlyId() {
+    	return false;
+    }
+	
 	public void genJava(PW pw) {
 		pw.printIdent(this.type.getJavaname() + id + " = ");
 		this.expr.genJava(pw);

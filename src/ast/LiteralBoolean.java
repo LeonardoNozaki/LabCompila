@@ -17,6 +17,10 @@ public class LiteralBoolean extends Expr {
         this.value = value;
     }
 
+    public boolean isOnlyId() {
+    	return false;
+    }
+    
     @Override
 	public void genC( PW pw, boolean putParenthesis ) {
     	pw.print( value ? "1" : "0" );

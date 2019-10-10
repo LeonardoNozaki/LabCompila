@@ -27,6 +27,18 @@ public class MethodDec {
 		
 	}
 	
+	public boolean comparePar(ArrayList<Expr> expr) {
+		if(expr.size() != paramDec.size()) {
+			return false;
+		}
+		for(int i = 0; i < expr.size(); i++) {
+			if(expr.get(i).getType() != paramDec.get(i).getType()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public void genJava(PW pw) {
 		this.qualifier.genJava(pw);
 		pw.print(this.type.getJavaname() + " " + id + "( ");

@@ -36,6 +36,16 @@ public class MultipleExpr extends Expr{
 		}
 	}
 	
+	public boolean isOnlyId() {
+    	int tam = this.expr.size();
+    	if(tam == 1) {
+    		return this.expr.get(0).isOnlyId();
+    	}
+    	else {
+    		return false;
+    	}
+    }
+	
 	@Override
 	public Type getType() {
 		int tam = this.op.size();

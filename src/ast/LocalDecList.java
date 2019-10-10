@@ -7,6 +7,10 @@ public class LocalDecList extends Variable{
 		this.type = type;
 	}
 	
+	public boolean isOnlyId() {
+    	return false;
+    }
+	
 	public void genC(PW pw) {
 
 	}

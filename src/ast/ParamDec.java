@@ -28,6 +28,10 @@ public class ParamDec extends Variable{
 		return type;
 	}
 	
+	public boolean isOnlyId() {
+    	return false;
+    }
+	
 	public String getName() {
 		return id;
 	}

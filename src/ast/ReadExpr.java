@@ -16,6 +16,10 @@ public class ReadExpr extends Expr {
 		this.name = name;
 	}
 	
+	public boolean isOnlyId() {
+    	return false;
+    }
+	
 	public void genJava(PW pw) {
 		//pw.printlnIdent("Scanner scanner = new Scanner(System.in);");
 		if(this.name.equals("readInt")) {

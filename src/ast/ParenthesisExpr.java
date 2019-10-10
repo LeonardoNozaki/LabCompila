@@ -20,6 +20,10 @@ public class ParenthesisExpr extends Expr{
     	
     }
 
+	public boolean isOnlyId() {
+    	return expr.isOnlyId();
+    }
+	
 	@Override
 	public void genC(PW pw) {
 		//this.genC(pw, false);

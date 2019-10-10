@@ -14,13 +14,22 @@ package ast;
 import lexer.Token;
 
 public class TokenMethodCall extends Expr{
-	public TokenMethodCall(Token t, String methodName){
-		this.methodName = methodName;
+	public TokenMethodCall(Token t, MethodDec method){
+		this. method = method;
 		this.t = t;
 	}
 	
+	public boolean isOnlyId() {
+		if(this.t == Token.SELF) {
+			return true;
+		}
+		else {
+			return false;
+		}
+    }
+	
 	public void genJava(PW pw) {
-		pw.print(this.t.toString() + "." + methodName);
+		pw.printlnIdent(this.t.toString() + "." + method.getName() + "()");
 	}
 	
 	public void genC(PW pw) {
@@ -32,9 +41,9 @@ public class TokenMethodCall extends Expr{
 	}
 	
 	public Type getType() {
-		return Type.undefinedType;
+		return method.getType();
 	}
 
-	private String methodName;
+	private MethodDec method;
 	private Token t;
 }

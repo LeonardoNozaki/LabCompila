@@ -18,6 +18,10 @@ public class FieldDec extends Variable {
 		this.qualifier = qualifier;
 	}
 	
+	public boolean isOnlyId() {
+		return true;
+	}
+	
 	public void genC( PW pw ) {
 		
 	}
@@ -32,7 +36,7 @@ public class FieldDec extends Variable {
 	}
 	
 	public Type getType() {
-		return type;
+		return this.type;
 	}
 	
 	public String getName() {
@@ -55,6 +59,10 @@ public class FieldDec extends Variable {
 		else {
 			return false;
 		}
+	}
+	
+	public String getTypeName() {
+		return type.getName();
 	}
 	
 	private String id;

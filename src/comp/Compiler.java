@@ -457,7 +457,7 @@ public class Compiler {
 				error("left-hand side is null");
 			}
 			else if(l == Type.voidType || r == Type.voidType) {
-				error("Assignment with void type");
+				error("Assignment without type");
 			}
 			//tratar type cianeto clas
 			return new CompositeAssign(left, right);
@@ -874,11 +874,11 @@ public class Compiler {
 							Type type = var.getType();
 							if(type instanceof TypeCianetoClass) {
 								TypeCianetoClass typecianeto = (TypeCianetoClass)type;
-								int rt = typecianeto.searchMethod(idMethod);
-								if(rt == 1) {
-									return new MethodCall(var, idMethod, false);
-								}
-								else if(rt == 2) {
+								MethodDec md = typecianeto.getMethodPublic(idMethod);
+								if(md != null) {
+									if(md.getType() == Type.voidType) {
+										return new MethodCall(var, idMethod, false);
+									}
 									return new MethodCall(var, idMethod, true);
 								}
 								else {
@@ -956,9 +956,17 @@ public class Compiler {
 							lexer.nextToken();
 							exprs.add(expr());
 						}
-						//verificar se o primeiro id é uma variable do tipo type cianeto class
-						//chamada de metodo com parametro, é feito pelo RTS
-						//return new TokenMethodCallPar(Token.SELF, idMethod, exprs);
+						
+						MethodDec md = classdec.getMethod(idMethod);
+						if(md != null) {
+							if(md.comparePar(exprs) == false) {
+								error(idMethod + "has different parameters");
+							}
+						}
+						else {
+							error(idMethod + "was not declared");
+						}
+						return new TokenMethodCallPar(Token.SELF, idMethod, exprs);
 					}
 					else if(lexer.token == Token.ID) {
 						String id = lexer.getStringValue();
@@ -974,35 +982,71 @@ public class Compiler {
 									lexer.nextToken();
 									exprs.add(expr());
 								}
-								//verificar se o primeiro i é uma variable do tipo type cianeto class
-								//chamada de metodo com parametro, é feito pelo RTS
-								//return new SelfMethodCallPar( id, idMethod, exprs);
+								
+								FieldDec fd = classdec.getField(id);
+								if(fd != null) {
+									TypeCianetoClass classFD = (TypeCianetoClass) symbolTable.getInClass(fd.getTypeName());
+									if(classFD != null) {
+										MethodDec md = classFD.getMethod(idMethod);
+										if(md != null) {
+											if(md.comparePar(exprs) == false) {
+												error(idMethod + " has different parameters");
+											}
+										}
+										else {
+											error(idMethod + " has not declared in " + id);
+										}
+									}
+								}
+								else {
+									error(id + "field was not declared");
+								}
+								return new SelfMethodCallPar(fd, idMethod, exprs);
 							}
 							else if(lexer.token == Token.ID) {
 								String idMethod = lexer.getStringValue();
 								lexer.nextToken();
-								//verificar se o primeiro id é uma variable do tipo type cianeto class
-								//chamada de metodo, é feito pelo RTS
-								//return new SelfMethodCall(id, idMethod);
+								
+								FieldDec fd = classdec.getField(id);
+								if(fd != null) {
+									TypeCianetoClass classFD = (TypeCianetoClass) symbolTable.getInClass(fd.getTypeName());
+									if(classFD != null) {
+										MethodDec md = classFD.getMethod(idMethod);
+										if(md == null) {
+											error(idMethod + " has not declared in " + id);
+										}
+									}
+								}
+								else {
+									error(id + "field was not declared");
+								}
+								return new SelfMethodCall(fd, idMethod);
 							}
 							else {
 								error("id or id: expected after .");
+								FieldDec fd = classdec.getField(id);
+								return new SelfField(fd);
 							}
 						}
 						else {
-							//verificar se o primeiro id é uma variable do tipo type cianeto class
-							//chamada de metodo, é feito pelo RTS
-							//return new TokenMethodCall(Token.SELF, id);
+							MethodDec md = classdec.getMethod(id);
+							if(md != null) {
+								return new TokenMethodCall(Token.SELF, md);
+							}
+							else {
+								FieldDec fd = classdec.getField(id);
+								return new SelfField(fd);
+							}
 						}
 					}
 					else {
 						error("id or id: expected after .");
+						return new SelfExpr(classdec);
 					}
 				}
 				else {
-					return new SelfExpr();
+					return new SelfExpr(classdec);
 				}
-				return null;
 			default:
 				error("Expression expected");
 				return null;

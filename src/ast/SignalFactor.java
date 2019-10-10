@@ -18,6 +18,13 @@ public class SignalFactor extends Expr{
 		this.expr = expr;
 	}
 	
+	public boolean isOnlyId() {
+		if(this.op == Token.NOT) {
+			return false;
+		}
+    	return expr.isOnlyId();
+    }
+	
 	public void genC( PW pw, boolean putParenthesis ) {
     	
     }
@@ -34,7 +41,7 @@ public class SignalFactor extends Expr{
 	
 	@Override
 	public Type getType() {
-		if(op == Token.NOT) {
+		if(this.op == Token.NOT) {
 			return Type.booleanType;
 		}
 		return expr.getType(); //Nao sei se precisa disso, ou é so return intType

@@ -19,6 +19,10 @@ public class CompositeExpr extends Expr {
 		this.right = right;
 	}
 	
+	public boolean isOnlyId() {
+		return false;
+	}
+	
     public void genC( PW pw, boolean putParenthesis ) {
     	
     }

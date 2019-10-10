@@ -21,6 +21,10 @@ public class LocalVar extends Variable{
 		this.id = id;
 	}
 	
+	public boolean isOnlyId() {
+    	return true;
+    }
+	
 	public void genC(PW pw) {
 		
 	}

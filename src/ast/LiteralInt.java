@@ -17,6 +17,10 @@ public class LiteralInt extends Expr {
         this.value = value;
     }
     
+    public boolean isOnlyId() {
+    	return false;
+    }
+    
     public int getValue() {
         return value;
     }

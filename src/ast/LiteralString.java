@@ -17,6 +17,10 @@ public class LiteralString extends Expr {
         this.literalString = literalString;
     }
     
+    public boolean isOnlyId() {
+    	return false;
+    }
+    
     @Override
     public void genC( PW pw, boolean putParenthesis ) {
         pw.print(literalString);

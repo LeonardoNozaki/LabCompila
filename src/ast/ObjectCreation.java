@@ -23,6 +23,10 @@ public class ObjectCreation extends Expr{
 		
 	}
 	
+	public boolean isOnlyId() {
+    	return false;
+    }
+	
 	public void genC( PW pw, boolean putParenthesis ) {
 		
 	}

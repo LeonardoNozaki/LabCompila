@@ -22,6 +22,10 @@ public class TokenMethodCallPar extends Expr{
 		this.t = t;
 	}
 	
+	public boolean isOnlyId() {
+		return false;
+	}
+	
 	public void genJava(PW pw) {
 		pw.print(this.t.toString() + "." + methodName + "( ");
 		if(this.expr.size() > 0) {
