@@ -718,7 +718,7 @@ public class Compiler {
 			r = right.getType();
 			
 			if(opAtual == Token.PLUS || opAtual == Token.MINUS) {
-				if((l == Type.intType && l == Type.undefinedType) && (r == Type.intType || r == Type.undefinedType)) {
+				if((l == Type.intType || l == Type.undefinedType) && (r == Type.intType || r == Type.undefinedType)) {
 					if(l == Type.undefinedType || r == Type.undefinedType) {
 						l = Type.undefinedType;
 					}
@@ -727,7 +727,7 @@ public class Compiler {
 					}
 				}
 				else {
-					error(opAtual + "expected int type");
+					error(opAtual + " expected int type");
 					l = Type.undefinedType;
 				}
 			}
@@ -741,7 +741,7 @@ public class Compiler {
 					}
 				}
 				else {
-					error(opAtual + "expected boolean type");
+					error(opAtual + " expected boolean type");
 					l = Type.undefinedType;
 				}
 			}

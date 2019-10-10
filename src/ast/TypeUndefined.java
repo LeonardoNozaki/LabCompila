@@ -17,11 +17,11 @@ public class TypeUndefined extends Type {
 	public TypeUndefined() { super("undefined"); }
    
    	public String getCname() {
-	   return "int";
+	   return "undefined";
    	}
    
    	@Override
   	public String getJavaname() {
-   		return "int";
+   		return "undefined";
    	} 
 }
