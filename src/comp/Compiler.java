@@ -889,7 +889,7 @@ public class Compiler {
 								}
 							}
 							else {
-								error(idName + " is not an object");
+								error("Variable " + idName + " is not an object");
 							}
 						}
 					}
