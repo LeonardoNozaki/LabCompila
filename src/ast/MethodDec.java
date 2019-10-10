@@ -40,7 +40,12 @@ public class MethodDec {
 	}
 	
 	public void genJava(PW pw) {
-		this.qualifier.genJava(pw);
+		if(this.qualifier.isVoid()) {
+			pw.printIdent("public ");
+		}
+		else {
+			this.qualifier.genJava(pw);
+		}
 		pw.print(this.type.getJavaname() + " " + id + "( ");
 		if(paramDec != null) {
 			if(this.paramDec.size() > 0) {

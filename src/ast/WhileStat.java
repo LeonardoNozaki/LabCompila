@@ -32,7 +32,7 @@ public class WhileStat extends Statement{
 			this.stat.get(i).genJava(pw);
 		}
 		pw.sub();
-		pw.println("}");
+		pw.printlnIdent("}");
 	}
 
 	private Expr expr;

@@ -17,7 +17,7 @@ public class ObjectCreation extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		pw.print("new " + this.type.getJavaname() + "();");
+		pw.print("new " + this.type.getJavaname() + "()");
 	}
 	public void genC(PW pw) {
 		
