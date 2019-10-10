@@ -413,13 +413,17 @@ public class Compiler {
 			else {
 				stat = assignExpr();
 			}
-
+			break;
 		}
 		if ( checkSemiColon ) {
 			if(lexer.token != Token.SEMICOLON) {
 				errorBefore("';' expected");
 			}
+			else {
+				lexer.nextToken();
+			}
 		}
+		
 		return stat;
 	}
 	
@@ -779,6 +783,14 @@ public class Compiler {
 						lexer.nextToken();
 						//procurar o typecianeto class na symbol table com o id para criar o objeto
 						//return new ObjectCreation();
+						Type type = (Type)symbolTable.getInClass(idName);
+						if(type != null) {
+							return new ObjectCreation(type);
+						}
+						else {
+							error("Cannot initialize undeclared class" + idName);
+							return new ObjectCreation(Type.undefinedType);
+						}
 					}
 					else if(lexer.token == Token.ID) {
 						String idMethod = lexer.getStringValue();
@@ -786,6 +798,29 @@ public class Compiler {
 						//verificar se o primeiro id é uma variable do tipo type cianeto class
 						//chamada de metodo, é feito pelo RTS
 						//return new MethodCall(Token.SUPER, idName, idMethod);
+						Variable var = (Variable)symbolTable.getInLocal(idName);
+						if(var == null) {
+							error(idName + " was not declared");
+						}
+						else {
+							Type type = var.getType();
+							if(type instanceof TypeCianetoClass) {
+								TypeCianetoClass typecianeto = (TypeCianetoClass)type;
+								int rt = typecianeto.searchMethod(idMethod);
+								if(rt == 1) {
+									return new MethodCall(var, idMethod, false);
+								}
+								else if(rt == 2) {
+									return new MethodCall(var, idMethod, true);
+								}
+								else {
+									error(idMethod + " was not declared in class of object " + idName);
+								}
+							}
+							else {
+								error(idName + " is not an object");
+							}
+						}
 					}
 					else if(lexer.token == Token.IDCOLON){
 						String idMethod = lexer.getStringValue();
@@ -972,8 +1007,18 @@ public class Compiler {
 		else if ( lexer.token == Token.ID ) {
 			//mudar para retornar a classe q ja existe 
 			//lexer.getStringValue();
-			lexer.nextToken();
-			return Type.intType;
+			Type type;
+			type = (Type)symbolTable.getInClass(lexer.getStringValue());
+			if(type != null) {
+				lexer.nextToken();
+				return type;
+			}
+			else {
+				error("type " + lexer.getStringValue() + "is not a valid type");
+				lexer.nextToken();
+				return Type.undefinedType;
+			}
+			
 		}
 		else {
 			this.error("A type was expected");

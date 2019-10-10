@@ -26,7 +26,7 @@ public class LocalVar extends Variable{
 	}
 	
 	public void genJava(PW pw) {
-		
+		pw.print(id);
 	}
 	
 	public Type getType() {

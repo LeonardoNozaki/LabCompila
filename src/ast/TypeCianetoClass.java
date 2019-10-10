@@ -62,6 +62,20 @@ public class TypeCianetoClass extends Type{
 	   return true;
    }
   
+   public int searchMethod(String idMethod) {
+	   for(int i = 0; i < publicMethodList.size(); i++) {
+		   if(idMethod.equals(this.publicMethodList.get(i).getName())) {
+			   if(this.publicMethodList.get(i).getType() == Type.voidType) {
+				   return 1;
+			   }
+			   return 2;
+		   }
+	   }
+	   if(superclass != null) {
+		   return superclass.searchMethod(idMethod);
+	   }
+	   return 0;
+   }
    
    public boolean addMethodPublic(MethodDec method) {
 	   int size = fieldList.size();

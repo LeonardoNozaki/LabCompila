@@ -3,8 +3,3 @@ public class OK_GER14{
       new Program().run();
    }
 }
-
-class A 
-{
-     int k;
-    int get_A( 

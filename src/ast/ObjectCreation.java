@@ -12,12 +12,12 @@
 package ast;
 
 public class ObjectCreation extends Expr{
-	public ObjectCreation(TypeCianetoClass type) {
+	public ObjectCreation(Type type) {
 		this.type = type;
 	}
 	
 	public void genJava(PW pw) {
-		pw.print("new " + this.type.getJavaname() + "()");
+		pw.print("new " + this.type.getJavaname() + "();");
 	}
 	public void genC(PW pw) {
 		
@@ -30,5 +30,5 @@ public class ObjectCreation extends Expr{
 	public Type getType() {
 		return this.type;
 	}
-	private TypeCianetoClass type;
+	private Type type;
 }

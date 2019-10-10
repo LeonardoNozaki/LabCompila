@@ -3,7 +3,3 @@ public class OK_GER05{
       new Program().run();
    }
 }
-
-class A 
-{
-    void m( 

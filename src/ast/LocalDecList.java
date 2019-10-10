@@ -11,9 +11,11 @@ public class LocalDecList extends Variable{
 
 	}
 	public void genJava(PW pw) {
-		pw.printIdent(this.type.getJavaname() + " " + this.id.get(0));
+		pw.printIdent(this.type.getJavaname() + " ");
+		this.id.get(0).genJava(pw);
 		for(int i = 1; i < this.id.size(); i++) {
-			pw.print(", " + this.id.get(i));
+			pw.print(", ");
+			this.id.get(i).genJava(pw);
 		}
 		pw.println(";");
 	}

@@ -22,7 +22,7 @@ public class Println extends Statement{
 	}
 	
 	public void genJava(PW pw) {
-		pw.print("System.out.println(\"\" + ");
+		pw.printIdent("System.out.println(\"\" + ");
 		if(expr.size() > 0) {
 			this.expr.get(0).genJava(pw);
 		}
@@ -30,7 +30,7 @@ public class Println extends Statement{
 			pw.print(" + ");
 			this.expr.get(i).genJava(pw);
 		}
-		pw.print(")");
+		pw.println(");");
 	}
 
 	private ArrayList<Expr> expr = null;

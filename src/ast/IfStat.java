@@ -34,13 +34,15 @@ public class IfStat extends Statement {
 		}
 		pw.sub();
 		pw.printlnIdent("}");
-		pw.printlnIdent("else{");
-		pw.add();
-		for(int i = 0; i < this.rightPart.size(); i++) {
-			this.rightPart.get(i).genJava(pw);
+		if(rightPart.size() > 0) {
+			pw.printlnIdent("else{");
+			pw.add();
+			for(int i = 0; i < this.rightPart.size(); i++) {
+				this.rightPart.get(i).genJava(pw);
+			}
+			pw.sub();
+			pw.printlnIdent("}");
 		}
-		pw.sub();
-		pw.printlnIdent("}");
 	}
 
 	private Expr expr;
