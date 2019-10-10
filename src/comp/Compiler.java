@@ -431,23 +431,26 @@ public class Compiler {
 		Expr left = null, right = null;
 		left = expr();
 		if(lexer.token == Token.ASSIGN) {
+			if(left.isOnlyId() == false) {
+				error("Variable expected at the left-hand side of a assignment");
+			}
 			lexer.nextToken();
 			right = expr();
 			Type l = left.getType();
 			Type r = right.getType();
 			if(l == Type.booleanType){
 				if(r != Type.booleanType) {
-					error("Type error: value of the right-hand side is not subtype of the variable of the left-hand side.");
+					error("Type error: value of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}
 			else if(l == Type.intType) {
 				if(r != Type.intType) {
-					error("Type error: value of the right-hand side is not subtype of the variable of the left-hand side.");
+					error("Type error: value of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}
 			else if(l == Type.stringType) {
 				if(r != Type.stringType) {
-					error("Type error: value of the right-hand side is not subtype of the variable of the left-hand side.");
+					error("Type error: value of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}			
 			else if(l == Type.undefinedType || r == Type.undefinedType || r == Type.nullType){
@@ -727,7 +730,7 @@ public class Compiler {
 					}
 				}
 				else {
-					error(opAtual + " expected int type");
+					error("Operator " + opAtual + " expected int type");
 					l = Type.undefinedType;
 				}
 			}
@@ -741,7 +744,7 @@ public class Compiler {
 					}
 				}
 				else {
-					error(opAtual + " expected boolean type");
+					error("Operator " + opAtual + " expected boolean type");
 					l = Type.undefinedType;
 				}
 			}
@@ -837,10 +840,10 @@ public class Compiler {
 				if(lexer.token != Token.DOT) {
 					Variable v = (Variable) symbolTable.getInLocal(idName);
 					if(v == null) {
-						error(idName + " had not been declared");
+						error("Variable '" + idName + "' was not declared");
 						return new LocalVar(idName);
 					}
-					return v;
+					return new LocalVar(idName, v.getType());
 				}
 				else if(lexer.token == Token.DOT){
 					lexer.nextToken();
@@ -1126,7 +1129,7 @@ public class Compiler {
 				return type;
 			}
 			else {
-				error("type " + lexer.getStringValue() + "is not a valid type");
+				error("type " + lexer.getStringValue() + " is not a valid type");
 				lexer.nextToken();
 				return Type.undefinedType;
 			}
