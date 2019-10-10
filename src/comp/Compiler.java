@@ -433,6 +433,33 @@ public class Compiler {
 		if(lexer.token == Token.ASSIGN) {
 			lexer.nextToken();
 			right = expr();
+			Type l = left.getType();
+			Type r = right.getType();
+			if(l == Type.booleanType){
+				if(r != Type.booleanType) {
+					error("Type error: value of the right-hand side is not subtype of the variable of the left-hand side.");
+				}
+			}
+			else if(l == Type.intType) {
+				if(r != Type.intType) {
+					error("Type error: value of the right-hand side is not subtype of the variable of the left-hand side.");
+				}
+			}
+			else if(l == Type.stringType) {
+				if(r != Type.stringType) {
+					error("Type error: value of the right-hand side is not subtype of the variable of the left-hand side.");
+				}
+			}			
+			else if(l == Type.undefinedType || r == Type.undefinedType || r == Type.nullType){
+				//Tipo indefinido, nao se sabe o tipo correto
+			}
+			else if(l == Type.nullType) {
+				error("left-hand side is null");
+			}
+			else if(l == Type.voidType || r == Type.voidType) {
+				error("Assignment with void type");
+			}
+			//tratar type cianeto clas
 			return new CompositeAssign(left, right);
 		}
 		return new SimpleAssign(left);
@@ -639,6 +666,7 @@ public class Compiler {
 			op = lexer.token;
 			lexer.nextToken();
 			right = simpleExpr();
+			//fazer semantico
 			return new CompositeExpr(op, left, right);
 		}
 		return left;
@@ -670,13 +698,53 @@ public class Compiler {
 		ArrayList<Token> op = new ArrayList<Token>();
 		
 		boolean flag = false;
+		Token opAtual;
 		Expr left = term();
+		Expr right;
 		expr.add(left);
+		Type l = left.getType();
+		Type r = Type.undefinedType;
+		
 		while(lexer.token == Token.PLUS || lexer.token == Token.MINUS || lexer.token == Token.OR) {
+			opAtual = lexer.token;
 			op.add(lexer.token);
+			
 			lexer.nextToken();
-			expr.add(term());
+			
+			right = term();
+			expr.add(right);
 			flag = true;
+			
+			r = right.getType();
+			
+			if(opAtual == Token.PLUS || opAtual == Token.MINUS) {
+				if((l == Type.intType && l == Type.undefinedType) && (r == Type.intType || r == Type.undefinedType)) {
+					if(l == Type.undefinedType || r == Type.undefinedType) {
+						l = Type.undefinedType;
+					}
+					else {
+						l = Type.intType;
+					}
+				}
+				else {
+					error(opAtual + "expected int type");
+					l = Type.undefinedType;
+				}
+			}
+			else {
+				if((l == Type.booleanType && l == Type.undefinedType) && (r == Type.booleanType || r == Type.undefinedType)) {
+					if(l == Type.undefinedType || r == Type.undefinedType) {
+						l = Type.undefinedType;
+					}
+					else {
+						l = Type.booleanType;
+					}
+				}
+				else {
+					error(opAtual + "expected boolean type");
+					l = Type.undefinedType;
+				}
+			}
 		}
 		if(!flag) {
 			return left;
