@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class OK_GER01{
    public static void main(String []args) {
       new Program().run();
@@ -6,6 +8,7 @@ public class OK_GER01{
 
 class A 
 {
+    private Scanner scanner = new Scanner(System.in);
    public void m( ){
       System.out.print("" + 7 + " ");
       if( ( 1 > 0 ) ){
@@ -55,6 +58,7 @@ class A
 
 class Program 
 {
+    private Scanner scanner = new Scanner(System.in);
    public void run( ){
       A a;
       System.out.println("" + "7 0 1 2 3 4 5 6 7");

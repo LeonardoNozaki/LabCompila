@@ -163,6 +163,7 @@ public class TypeCianetoClass extends Type{
 			pw.println("{");
 		}
 		pw.add();
+		pw.printlnIdent(" private Scanner scanner = new Scanner(System.in);");
 		for(int i = 0; i < this.fieldList.size(); i++) {
 			this.fieldList.get(i).genJava(pw);
 		}
