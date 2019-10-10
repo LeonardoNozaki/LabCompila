@@ -14,21 +14,35 @@ package ast;
 import java.util.ArrayList;
 
 public class MethodCallPar extends Expr{
-	public MethodCallPar(Variable variable, String methodName, ArrayList<Expr> expr){
+	public MethodCallPar(Variable variable, String methodName, ArrayList<Expr> expr, boolean retorno){
 		this.variable = variable;
 		this.methodName = methodName;
 		this.expr = expr;
+		this.retorno = retorno;
 	}
 	
 	public void genJava(PW pw) {
-		this.variable.genJava(pw);
-		pw.print("." + methodName + "(");
-		this.expr.get(0).genJava(pw);	
-		for(int i = 1; i < this.expr.size(); i++) {
-			pw.print(", ");
-			this.expr.get(i).genJava(pw);	
+		if(retorno == true) {
+			this.variable.genJava(pw);
+			pw.print("." + methodName + "(");
+			this.expr.get(0).genJava(pw);	
+			for(int i = 1; i < this.expr.size(); i++) {
+				pw.print(", ");
+				this.expr.get(i).genJava(pw);	
+			}
+			pw.print(") ");
 		}
-		pw.print(") ");
+		else {
+			pw.printIdent("");
+			this.variable.genJava(pw);
+			pw.print("." + methodName + "(");
+			this.expr.get(0).genJava(pw);	
+			for(int i = 1; i < this.expr.size(); i++) {
+				pw.print(", ");
+				this.expr.get(i).genJava(pw);	
+			}
+			pw.println(");");
+		}
 	}
 	
 	public boolean isOnlyId() {
@@ -50,4 +64,5 @@ public class MethodCallPar extends Expr{
 	private Variable variable;
 	private String methodName;
 	private ArrayList<Expr> expr;
+	private boolean retorno;
 }

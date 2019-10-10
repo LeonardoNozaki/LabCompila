@@ -905,6 +905,29 @@ public class Compiler {
 						//verificar se o primeiro id é uma variable do tipo type cianeto class
 						//chamada de metodo com parametro, é feito pelo RTS
 						//return new MethodCallPar(Token.SUPER, idName, idMethod, exprs);
+						Variable var = (Variable)symbolTable.getInLocal(idName);
+						if(var == null) {
+							error(idName + " was not declared");
+						}
+						else {
+							Type type = var.getType();
+							if(type instanceof TypeCianetoClass) {
+								TypeCianetoClass typecianeto = (TypeCianetoClass)type;
+								MethodDec md = typecianeto.getMethodPublic(idMethod);
+								if(md != null) {
+									if(md.getType() == Type.voidType) {
+										return new MethodCallPar(var, idMethod, exprs, false);
+									}
+									return new MethodCallPar(var, idMethod, exprs, true);
+								}
+								else {
+									error(idMethod + " was not declared in class of object " + idName);
+								}
+							}
+							else {
+								error(idName + " is not an object");
+							}
+						}
 					}
 					else {
 						error("new, id or id: expected after .");
