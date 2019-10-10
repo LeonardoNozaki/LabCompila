@@ -330,7 +330,7 @@ public class Compiler {
 		else {
 			lexer.nextToken();
 		}
-		symbolTable.sub();
+		symbolTable.removeLocalIdent();
 		
 		return new MethodDec(qualifier, id, paramDec, tipoRetorno, statementList);
 	}
@@ -768,7 +768,7 @@ public class Compiler {
 				}
 				else if(lexer.token == Token.DOT){
 					lexer.nextToken();
-					if(lexer.getStringValue().equals("new:")) {
+					if(lexer.getStringValue().equals("new:") && lexer.token == Token.IDCOLON) {
 						error("'new' does not take any parameter");
 					}
 					else if(lexer.getStringValue().equals("new") && lexer.token == Token.ID) {

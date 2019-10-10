@@ -3,3 +3,8 @@ public class OK_GER21{
       new Program().run();
    }
 }
+
+class A 
+{
+     int n;
+    void set:( int n){

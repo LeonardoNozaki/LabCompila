@@ -3,3 +3,7 @@ public class OK_GER22{
       new Program().run();
    }
 }
+
+class Program 
+{
+   public void run( 

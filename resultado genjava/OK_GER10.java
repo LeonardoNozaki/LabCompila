@@ -3,3 +3,8 @@ public class OK_GER10{
       new Program().run();
    }
 }
+
+class A 
+{
+     int k;
+    void m1:( int n){
