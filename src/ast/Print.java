@@ -23,11 +23,25 @@ public class Print extends Statement{
 	public void genJava(PW pw) {
 		pw.printIdent("System.out.print(\"\" + ");
 		if(expr.size() > 0) {
-			this.expr.get(0).genJava(pw);
+			if(this.expr.get(0).getType() == Type.intType) {
+				pw.print("(");
+				this.expr.get(0).genJava(pw);
+				pw.print(")");
+			}
+			else {
+				this.expr.get(0).genJava(pw);
+			}	
 		}
 		for(int i = 1; i < expr.size(); i++) {
 			pw.print(" + ");
-			this.expr.get(i).genJava(pw);
+			if(this.expr.get(i).getType() == Type.intType) {
+				pw.print("(");
+				this.expr.get(i).genJava(pw);
+				pw.print(")");
+			}
+			else {
+				this.expr.get(i).genJava(pw);
+			}	
 		}
 		pw.println(");");
 	}
