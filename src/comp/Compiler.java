@@ -732,7 +732,7 @@ public class Compiler {
 				}
 			}
 			else {
-				if((l == Type.booleanType && l == Type.undefinedType) && (r == Type.booleanType || r == Type.undefinedType)) {
+				if((l == Type.booleanType || l == Type.undefinedType) && (r == Type.booleanType || r == Type.undefinedType)) {
 					if(l == Type.undefinedType || r == Type.undefinedType) {
 						l = Type.undefinedType;
 					}
