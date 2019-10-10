@@ -10,9 +10,10 @@
  * ========================================================================== */
 
 package ast;
+import java.util.ArrayList;
 
 public class Print extends Statement{
-	public Print(Expr expr){
+	public Print(ArrayList<Expr> expr){
 		this.expr = expr;
 	}
 	public void genC(PW pw) {
@@ -21,8 +22,14 @@ public class Print extends Statement{
 	
 	public void genJava(PW pw) {
 		pw.print("System.out.print(\"\" + ");
-		this.expr.genJava(pw);
+		if(expr.size() > 0) {
+			this.expr.get(0).genJava(pw);
+		}
+		for(int i = 1; i < expr.size(); i++) {
+			pw.print(" + ");
+			this.expr.get(i).genJava(pw);
+		}
 		pw.print(")");
 	}
-	private Expr expr;
+	private ArrayList<Expr> expr = null;
 }

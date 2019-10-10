@@ -603,16 +603,20 @@ public class Compiler {
 	private Statement writeStat() {
 		lexer.nextToken();
 		check(Token.DOT, "a '.' was expected after 'Out'");
-		Expr expr = null;
+		ArrayList<Expr> expr = new ArrayList<Expr>();
 		
 		if(lexer.token == Token.IDCOLON && lexer.getStringValue().equals("print:")){
-			lexer.nextToken();
-			expr = expr();
+			do{
+				lexer.nextToken();
+				expr.add(expr());
+			} while(lexer.token == Token.COMMA);
 			return new Print(expr);
 		}	
 		else if(lexer.token == Token.IDCOLON && lexer.getStringValue().equals("println:")) {
-			lexer.nextToken();
-			expr = expr();
+			do{
+				lexer.nextToken();
+				expr.add(expr());
+			} while(lexer.token == Token.COMMA);
 			return new Println(expr);
 		}
 		else {
