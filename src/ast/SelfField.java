@@ -21,7 +21,7 @@ public class SelfField extends Expr{
     }
 	
 	public void genJava(PW pw) {
-		pw.printlnIdent("this." + fieldDec.getName() + "()");
+		pw.print("this." + fieldDec.getName());
 	}
 	
 	public void genC(PW pw) {

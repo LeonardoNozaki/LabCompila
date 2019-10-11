@@ -46,7 +46,12 @@ public class MethodDec {
 		else {
 			this.qualifier.genJava(pw);
 		}
-		pw.print(this.type.getJavaname() + " " + id + "( ");
+		if(id.charAt(id.length() -1) == ':') {
+			pw.print(this.type.getJavaname() + " " + id.substring(0, id.length()-1) + "( ");
+		}
+		else {
+			pw.print(this.type.getJavaname() + " " + id + "( ");
+		}
 		if(paramDec != null) {
 			if(this.paramDec.size() > 0) {
 				this.paramDec.get(0).genJava(pw);

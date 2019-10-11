@@ -30,7 +30,12 @@ public class FieldDec extends Variable {
 		
 	}
 	public void genJava(PW pw) {
-		this.qualifier.genJava(pw);
+		if(qualifier.isVoid()) {
+			pw.printIdent("private");
+		}
+		else {
+			this.qualifier.genJava(pw);
+		}
 		pw.print(" " + this.type.getJavaname() + " ");
 		pw.println(this.id + ";" );
 	}

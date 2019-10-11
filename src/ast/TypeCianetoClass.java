@@ -22,6 +22,10 @@ public class TypeCianetoClass extends Type{
 	   this.superclass = superclass;
    }
    
+   public TypeCianetoClass getSuper() {
+	   return superclass;
+   }
+   
    public void setOpen(boolean open) {
 	   this.open = open;
    }
@@ -155,9 +159,15 @@ public class TypeCianetoClass extends Type{
    
    public void genJava(PW pw) {
 	    pw.println("");
-		pw.printlnIdent("class " + this.getJavaname() + " ");
+	    if(open) {
+	    	pw.printIdent("");
+	    }
+	    else {
+	    	pw.printIdent("final ");
+	    }
+	    pw.print("class " + this.getJavaname() + " ");
 		if(superclass != null) {
-			pw.println("extends" + this.superclass.getJavaname() + "{");
+			pw.println("extends " + this.superclass.getJavaname() + "{");
 		}
 		else {
 			pw.println("{");

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 
 public class SelfMethodCallPar extends Expr{
-	public SelfMethodCallPar(Variable variable, String methodName, ArrayList<Expr> expr){
-		this.methodName = methodName;
+	public SelfMethodCallPar(Variable variable, MethodDec method, ArrayList<Expr> expr){
+		this.method = method;
 		this.expr = expr;
 		this.variable = variable;
 	}
@@ -15,9 +15,9 @@ public class SelfMethodCallPar extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		pw.print("self.");
+		pw.print("this.");
 		this.variable.genJava(pw);
-		pw.print("." + this.methodName + "( ");
+		pw.print("." + this.method.getName() + "( ");
 		if(this.expr.size() > 0) {
 			this.expr.get(0).genJava(pw);
 		}
@@ -40,7 +40,7 @@ public class SelfMethodCallPar extends Expr{
 		return Type.undefinedType;
 	}
 
-	private String methodName;
+	private MethodDec method;
 	private ArrayList<Expr> expr;
 	private Variable variable; 
 }

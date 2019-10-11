@@ -14,8 +14,8 @@ package ast;
 import lexer.Token;
 
 public class SelfMethodCall extends Expr{
-	public SelfMethodCall(Variable variable, String methodName){
-		this.methodName = methodName;
+	public SelfMethodCall(Variable variable, MethodDec method){
+		this.method = method;
 		this.variable = variable;
 	}
 	
@@ -24,9 +24,9 @@ public class SelfMethodCall extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		pw.print("self.");
+		pw.print("this.");
 		this.variable.genJava(pw);
-		pw.print("." + this.methodName);
+		pw.print("." + this.method.getName());
 	}
 	
 	public void genC(PW pw) {
@@ -41,6 +41,6 @@ public class SelfMethodCall extends Expr{
 		return Type.undefinedType;
 	}
 
-	private String methodName;
+	private MethodDec method;
 	private Variable variable;
 }

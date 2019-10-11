@@ -24,7 +24,7 @@ public class MethodCallPar extends Expr{
 	public void genJava(PW pw) {
 		if(retorno == true) {
 			this.variable.genJava(pw);
-			pw.print("." + methodName + "(");
+			pw.print("." + methodName.substring(0,  methodName.length()-1) + "(");
 			this.expr.get(0).genJava(pw);	
 			for(int i = 1; i < this.expr.size(); i++) {
 				pw.print(", ");
@@ -35,7 +35,7 @@ public class MethodCallPar extends Expr{
 		else {
 			pw.printIdent("");
 			this.variable.genJava(pw);
-			pw.print("." + methodName + "(");
+			pw.print("." + methodName.substring(0,  methodName.length()-1) + "(");
 			this.expr.get(0).genJava(pw);	
 			for(int i = 1; i < this.expr.size(); i++) {
 				pw.print(", ");

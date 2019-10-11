@@ -25,7 +25,24 @@ public class Qualifier {
 	}
 	
 	public void genJava(PW pw) {
-		pw.printIdent(this.quali + " ");
+		if(quali.equals("override") || quali.equals("override public")) {
+			pw.printIdent("public ");
+		}
+		else if(quali.equals("final override") || quali.equals("final override public") || quali.equals("final") || quali.equals("final public")) {
+			pw.printIdent("final public ");
+		}
+		else {
+			pw.printIdent(this.quali + " ");
+		}
+	}
+	
+	public boolean hasOverride() {
+		if(quali.equals("override") || quali.equals("override public") || quali.equals("final override") || quali.equals("final override public")) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	public boolean isVoid() {

@@ -154,7 +154,6 @@ public class Compiler {
 	}
 
 	private TypeCianetoClass classDec() {
-		boolean extend = false;
 		boolean open = false;
 		String superclassName = "";
 		String className = "";
@@ -194,10 +193,12 @@ public class Compiler {
 			if(superclass == null){
 				error(superclassName + " does not existe");
 			}
-			else {
+			else if(superclass.getOpen()){
 				classdec.setSuperClass(superclass);
 			}
-			extend = true;
+			else {
+				error(superclassName + "cannot be extended");
+			}
 			lexer.nextToken();
 		}
 
@@ -206,12 +207,6 @@ public class Compiler {
 		
 		lexer.nextToken();
 		*/
-		
-		
-		if(extend == true) {
-			//Setar a superclasse passando a superclasse no metodo abaixo
-			//classdec.setSuperClass();
-		}
 		
 		memberList();
 		
@@ -296,7 +291,11 @@ public class Compiler {
 		else {
 			error("An identifier or identifier: was expected after 'func'");
 		}
-		
+		if(qualifier.hasOverride()) {
+			if(classdec.getMethodPublic(id) == null) {
+				error("There is no method with the same name as " + id + " to override");
+			}
+		}
 		if ( lexer.token == Token.MINUS_GT ) {
 			// method declared a return type
 			lexer.nextToken();
@@ -945,6 +944,18 @@ public class Compiler {
 						//verificar se o primeiro id é uma variable do tipo type cianeto class
 						//chamada de metodo, é feito pelo RTS
 						//return new TokenMethodCall(Token.SUPER, idMethod);
+						TypeCianetoClass superclass = classdec.getSuper();
+						MethodDec md = null;
+						if(superclass != null) {
+							md = superclass.getMethodPublic(idMethod);
+							if(md == null) {
+								error("superclass " + superclass.getName() + " does not have the public method " + idMethod);
+							}
+						}
+						else {
+							error(classdec.getName() + " does not extend from any class");
+						}
+						return new TokenMethodCall(Token.SUPER, md);
 					}
 					else if(lexer.token == Token.IDCOLON){
 						String idMethod = lexer.getStringValue();
@@ -958,6 +969,18 @@ public class Compiler {
 						//verificar se o primeiro id é uma variable do tipo type cianeto class
 						//chamada de metodo com parametro, é feito pelo RTS
 						//return new TokenMethodCallPar(Token.SUPER, idMethod, exprs);
+						TypeCianetoClass superclass = classdec.getSuper();
+						MethodDec md = null;
+						if(superclass != null) {
+							md = superclass.getMethodPublic(idMethod);
+							if(md == null) {
+								error("superclass " + superclass.getName() + " does not have the public method " + idMethod);
+							}
+						}
+						else {
+							error(classdec.getName() + " does not extend from any class");
+						}
+						return new TokenMethodCallPar(Token.SUPER, md, exprs);
 					}
 					else {
 						error("id or id: expected after .");
@@ -968,7 +991,6 @@ public class Compiler {
 					error("'.' expected after super");
 					return null;
 				}
-				return null;
 			case SELF:
 				lexer.nextToken();
 				if(lexer.token == Token.DOT) {
@@ -992,7 +1014,7 @@ public class Compiler {
 						else {
 							error(idMethod + "was not declared");
 						}
-						return new TokenMethodCallPar(Token.SELF, idMethod, exprs);
+						return new TokenMethodCallPar(Token.SELF, md, exprs);
 					}
 					else if(lexer.token == Token.ID) {
 						String id = lexer.getStringValue();
@@ -1010,10 +1032,11 @@ public class Compiler {
 								}
 								
 								FieldDec fd = classdec.getField(id);
+								MethodDec md = null;
 								if(fd != null) {
 									TypeCianetoClass classFD = (TypeCianetoClass) symbolTable.getInClass(fd.getTypeName());
 									if(classFD != null) {
-										MethodDec md = classFD.getMethod(idMethod);
+										md = classFD.getMethodPublic(idMethod);
 										if(md != null) {
 											if(md.comparePar(exprs) == false) {
 												error(idMethod + " has different parameters");
@@ -1023,21 +1046,25 @@ public class Compiler {
 											error(idMethod + " has not declared in " + id);
 										}
 									}
+									else {
+										error("type of " + id + "does not exist");
+									}
 								}
 								else {
 									error(id + "field was not declared");
 								}
-								return new SelfMethodCallPar(fd, idMethod, exprs);
+								return new SelfMethodCallPar(fd, md, exprs);
 							}
 							else if(lexer.token == Token.ID) {
 								String idMethod = lexer.getStringValue();
 								lexer.nextToken();
 								
 								FieldDec fd = classdec.getField(id);
+								MethodDec md = null;
 								if(fd != null) {
 									TypeCianetoClass classFD = (TypeCianetoClass) symbolTable.getInClass(fd.getTypeName());
 									if(classFD != null) {
-										MethodDec md = classFD.getMethod(idMethod);
+										md = classFD.getMethodPublic(idMethod);
 										if(md == null) {
 											error(idMethod + " has not declared in " + id);
 										}
@@ -1046,7 +1073,7 @@ public class Compiler {
 								else {
 									error(id + "field was not declared");
 								}
-								return new SelfMethodCall(fd, idMethod);
+								return new SelfMethodCall(fd, md);
 							}
 							else {
 								error("id or id: expected after .");
@@ -1061,7 +1088,13 @@ public class Compiler {
 							}
 							else {
 								FieldDec fd = classdec.getField(id);
-								return new SelfField(fd);
+								if(fd != null) {
+									return new SelfField(fd);
+								}
+								else {
+									error("Field or Method " + id + "has not been declared");
+									return new SelfField(fd);
+								}
 							}
 						}
 					}
