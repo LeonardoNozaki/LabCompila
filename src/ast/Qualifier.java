@@ -26,9 +26,11 @@ public class Qualifier {
 	
 	public void genJava(PW pw) {
 		if(quali.equals("override") || quali.equals("override public")) {
+			pw.printlnIdent("@Override");
 			pw.printIdent("public ");
 		}
-		else if(quali.equals("final override") || quali.equals("final override public") || quali.equals("final") || quali.equals("final public")) {
+		else if(quali.equals("final override") || quali.equals("final override public")) {
+			pw.printlnIdent("@Override");
 			pw.printIdent("final public ");
 		}
 		else {

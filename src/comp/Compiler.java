@@ -914,6 +914,9 @@ public class Compiler {
 								TypeCianetoClass typecianeto = (TypeCianetoClass)type;
 								MethodDec md = typecianeto.getMethodPublic(idMethod);
 								if(md != null) {
+									if(md.comparePar(exprs) == false) {
+										error(idMethod + " has different parameters");
+									}
 									if(md.getType() == Type.voidType) {
 										return new MethodCallPar(var, idMethod, exprs, false);
 									}
@@ -976,6 +979,11 @@ public class Compiler {
 							if(md == null) {
 								error("superclass " + superclass.getName() + " does not have the public method " + idMethod);
 							}
+							else {
+								if(md.comparePar(exprs) == false) {
+									error(idMethod + " has different parameters");
+								}
+							}
 						}
 						else {
 							error(classdec.getName() + " does not extend from any class");
@@ -1008,7 +1016,7 @@ public class Compiler {
 						MethodDec md = classdec.getMethod(idMethod);
 						if(md != null) {
 							if(md.comparePar(exprs) == false) {
-								error(idMethod + "has different parameters");
+								error(idMethod + " has different parameters");
 							}
 						}
 						else {

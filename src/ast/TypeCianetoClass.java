@@ -41,6 +41,18 @@ public class TypeCianetoClass extends Type{
    public String getJavaname() {
       return getName();
    }
+   
+   public boolean searchType(String id) {
+	   if(this.getName().equals(id)) {
+		   return true;
+	   }
+	   else if(superclass != null) {
+		   return this.superclass.searchType(id);
+	   }
+	   else {
+		   return false;
+	   }
+   }
 
    public boolean addField(FieldDec f) {
 	   int size = fieldList.size();

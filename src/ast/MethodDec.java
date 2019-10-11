@@ -31,12 +31,22 @@ public class MethodDec {
 		if(expr.size() != paramDec.size()) {
 			return false;
 		}
-		for(int i = 0; i < expr.size(); i++) {
-			if(expr.get(i).getType() != paramDec.get(i).getType()) {
-				return false;
+		else {
+			for(int i = 0; i < expr.size(); i++) {
+				if(expr.get(i).getType().getClass() == paramDec.get(i).getType().getClass()) {
+					if(expr.get(i).getType() instanceof TypeCianetoClass) {
+						TypeCianetoClass classtype = (TypeCianetoClass)expr.get(i).getType();
+						if(!classtype.searchType(paramDec.get(i).getType().getName())) {
+							return false;
+						}
+					}
+				}
+				else {
+					return false;
+				}
 			}
+			return true;
 		}
-		return true;
 	}
 	
 	public void genJava(PW pw) {
