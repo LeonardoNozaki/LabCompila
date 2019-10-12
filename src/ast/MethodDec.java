@@ -106,6 +106,10 @@ public class MethodDec {
 		return this.type;
 	}
 	
+	public ArrayList<Expr> getParamDec(){
+		return this.getParamDec();
+	}
+	
 	private Qualifier qualifier;
 	private String id;
 	private ArrayList<ParamDec> paramDec;

@@ -14,6 +14,10 @@ public class SelfMethodCallPar extends Expr{
 		return false;
 	}
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public void genJava(PW pw) {
 		pw.print("this.");
 		this.variable.genJava(pw);

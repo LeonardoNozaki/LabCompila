@@ -17,6 +17,10 @@ public class LiteralString extends Expr {
         this.literalString = literalString;
     }
     
+    public boolean isObjectCreation() {
+		return false;
+	}
+    
     public boolean isOnlyId() {
     	return false;
     }

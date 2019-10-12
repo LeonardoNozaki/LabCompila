@@ -24,6 +24,10 @@ public class SimpleExpr extends Expr{
     	
     }
 
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	@Override
 	public void genC(PW pw) {
 		//this.genC(pw, false);

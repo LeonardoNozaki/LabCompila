@@ -17,6 +17,10 @@ public class LiteralInt extends Expr {
         this.value = value;
     }
     
+    public boolean isObjectCreation() {
+		return false;
+	}
+    
     public boolean isOnlyId() {
     	return false;
     }

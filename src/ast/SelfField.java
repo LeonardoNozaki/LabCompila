@@ -20,6 +20,10 @@ public class SelfField extends Expr{
 			return true;	
     }
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public void genJava(PW pw) {
 		pw.print("this." + fieldDec.getName());
 	}

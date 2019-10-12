@@ -15,6 +15,15 @@ public class ParamDec extends Variable{
 	public ParamDec(String id, Type type){
 		this.type = type;
 		this.id = id;
+		this.init = false;
+	}
+	
+	public boolean getInit() {
+		return this.init;
+	}
+	
+	public boolean isObjectCreation() {
+		return false;
 	}
 	
 	public void genC( PW pw ) {
@@ -42,4 +51,5 @@ public class ParamDec extends Variable{
 
 	private String id;
 	private Type type;
+	private boolean init;
 }

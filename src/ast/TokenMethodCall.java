@@ -19,6 +19,10 @@ public class TokenMethodCall extends Expr{
 		this.t = t;
 	}
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public boolean isOnlyId() {
 		if(this.t == Token.SELF) {
 			return true;

@@ -20,6 +20,10 @@ public class ReadExpr extends Expr {
     	return false;
     }
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public void genJava(PW pw) {
 		//pw.printlnIdent("Scanner scanner = new Scanner(System.in);");
 		if(this.name.equals("readInt")) {

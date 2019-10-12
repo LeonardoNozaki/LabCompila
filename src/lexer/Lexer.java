@@ -276,7 +276,7 @@ public class Lexer {
                        	token = Token.LITERALSTRING;
                        	break;
                     default :
-                    	error.showError("Unknown character", false);
+                    	error.showError("Unknown character '" + ch + "'", false);
                 }
             }
         }

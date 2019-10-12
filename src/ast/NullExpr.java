@@ -17,6 +17,10 @@ public class NullExpr extends Expr {
 	   pw.printIdent("NULL");
    }
    
+   public boolean isObjectCreation() {
+		return false;
+	}
+   
    public void genJava(PW pw) {
 	   pw.print("null");
    }

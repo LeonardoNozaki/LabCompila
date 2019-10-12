@@ -20,6 +20,10 @@ public class ParenthesisExpr extends Expr{
     	
     }
 
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public boolean isOnlyId() {
     	return expr.isOnlyId();
     }

@@ -21,6 +21,10 @@ public class PrimarySimpleId extends Expr{
     	return true;
     }
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public void genC( PW pw, boolean putParenthesis ) {
 		
 	}

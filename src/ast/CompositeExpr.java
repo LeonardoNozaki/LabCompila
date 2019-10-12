@@ -19,6 +19,10 @@ public class CompositeExpr extends Expr {
 		this.right = right;
 	}
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public boolean isOnlyId() {
 		return false;
 	}

@@ -13,11 +13,11 @@ package ast;
 import java.util.*;
 
 public class TypeCianetoClass extends Type{
-
+	
    public TypeCianetoClass( String name) {
       super(name);
    }
-
+   
    public void setSuperClass(TypeCianetoClass superclass) {
 	   this.superclass = superclass;
    }
@@ -197,6 +197,24 @@ public class TypeCianetoClass extends Type{
 		}
 		pw.sub();
 		pw.printlnIdent("}");
+   }
+   
+   public boolean sameSignature(MethodDec md) {
+	   MethodDec supermd = this.getMethodPublic(md.getName());
+	   if(supermd != null) {
+		   if(supermd.getName() == md.getName() && supermd.getType() == md.getType() && supermd.comparePar(md.getParamDec())) {
+			   return true;
+		   }
+		   else {
+			   return false;
+		   }
+	   }
+	   else if (this.superclass != null){
+		   return this.superclass.sameSignature(md);
+	   }
+	   else {
+		   return false;
+	   }
    }
    
    private boolean open;

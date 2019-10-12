@@ -18,6 +18,10 @@ public class MethodCall extends Expr{
 		this.retorno = retorno;
 	}
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public void genJava(PW pw) {
 		if(retorno == true) {
 			this.variable.genJava(pw);

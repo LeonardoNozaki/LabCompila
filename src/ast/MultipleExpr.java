@@ -19,6 +19,10 @@ public class MultipleExpr extends Expr{
 		this.op = op;
 	}
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
     public void genC( PW pw, boolean putParenthesis ) {
     	
     }

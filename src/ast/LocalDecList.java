@@ -5,6 +5,15 @@ public class LocalDecList extends Variable{
 	public LocalDecList(Type type, ArrayList<Variable> id) {
 		this.id = id;
 		this.type = type;
+		this.init = false;
+	}
+	
+	public boolean getInit() {
+		return this.init;
+	}
+	
+	public boolean isObjectCreation() {
+		return false;
 	}
 	
 	public boolean isOnlyId() {
@@ -32,4 +41,5 @@ public class LocalDecList extends Variable{
 	}
 	private Type type;
 	private ArrayList<Variable> id;
+	private boolean init;
 }

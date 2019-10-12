@@ -16,6 +16,15 @@ public class FieldDec extends Variable {
 		this.type = type;
 		this.id = id;
 		this.qualifier = qualifier;
+		this.init = false;
+	}
+	
+	public boolean getInit() {
+		return this.init;
+	}
+	
+	public boolean isObjectCreation() {
+		return false;
 	}
 	
 	public boolean isOnlyId() {
@@ -73,5 +82,6 @@ public class FieldDec extends Variable {
 	private String id;
 	private Qualifier qualifier;
 	private Type type;
+	private boolean init;
 }
  

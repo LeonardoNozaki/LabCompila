@@ -25,6 +25,10 @@ public class SignalFactor extends Expr{
     	return expr.isOnlyId();
     }
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public void genC( PW pw, boolean putParenthesis ) {
     	
     }

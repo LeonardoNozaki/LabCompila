@@ -9,6 +9,10 @@ public class SelfExpr extends Expr {
 		pw.print("this");
 	}
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public boolean isOnlyId() {
     	return true;
     }

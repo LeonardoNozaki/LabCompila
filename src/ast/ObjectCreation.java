@@ -16,6 +16,10 @@ public class ObjectCreation extends Expr{
 		this.type = type;
 	}
 	
+	public boolean isObjectCreation() {
+		return true;
+	}
+	
 	public void genJava(PW pw) {
 		pw.print("new " + this.type.getJavaname() + "()");
 	}

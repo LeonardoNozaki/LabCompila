@@ -22,6 +22,10 @@ public class TokenMethodCallPar extends Expr{
 		this.t = t;
 	}
 	
+	public boolean isObjectCreation() {
+		return false;
+	}
+	
 	public boolean isOnlyId() {
 		return false;
 	}

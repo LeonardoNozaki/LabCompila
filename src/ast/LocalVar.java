@@ -15,10 +15,20 @@ public class LocalVar extends Variable{
 	public LocalVar(String id) {
 		this.id = id;
 		this.type = Type.undefinedType;
+		this.init = false;
 	}
 	public LocalVar(String id, Type type) {
 		this.type = type;
 		this.id = id;
+		this.init = false;
+	}
+	
+	public boolean getInit() {
+		return this.init;
+	}
+	
+	public boolean isObjectCreation() {
+		return false;
 	}
 	
 	public boolean isOnlyId() {
@@ -43,4 +53,5 @@ public class LocalVar extends Variable{
 	
 	private String id;
 	private Type type;
+	private boolean init;
 }

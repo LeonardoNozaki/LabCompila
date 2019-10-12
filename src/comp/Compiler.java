@@ -302,6 +302,16 @@ public class Compiler {
 			returnNeed = true;
 			tipoRetorno = type();
 		}
+		if(qualifier.hasOverride()) {
+			if(classdec.getSuper() != null) {
+					MethodDec methodDec = new MethodDec(qualifier, id, paramDec, tipoRetorno, statementList);
+					if(!classdec.getSuper().sameSignature(methodDec)) {
+						error("Method '" + methodDec.getName() + "' of the subclass '" + classdec.getName() + 
+								"' has a signature different from the same method of superclass '" + classdec.getSuper().getName() + "'");
+					}
+				
+			}
+		}
 		if ( lexer.token != Token.LEFTCURBRACKET ) {
 			error("'{' expected");
 		}
@@ -416,7 +426,7 @@ public class Compiler {
 		}
 		if ( checkSemiColon ) {
 			if(lexer.token != Token.SEMICOLON) {
-				errorBefore("';' expected");
+				errorBefore("';' expected before '"+ lexer.token + "'");
 			}
 			else {
 				lexer.nextToken();
@@ -433,10 +443,17 @@ public class Compiler {
 			if(left.isOnlyId() == false) {
 				error("Variable expected at the left-hand side of a assignment");
 			}
+			
 			lexer.nextToken();
 			right = expr();
 			Type l = left.getType();
 			Type r = right.getType();
+			TypeCianetoClass tcc = (TypeCianetoClass) symbolTable.getInClass(l.getName());
+			if(tcc != null && right != null) {
+				if(right.isObjectCreation()) {
+					
+				}
+			}
 			if(l == Type.booleanType){
 				if(r != Type.booleanType) {
 					error("Type error: value of the right-hand side is not type of the variable of the left-hand side.");
@@ -637,18 +654,27 @@ public class Compiler {
 		lexer.nextToken();
 		check(Token.DOT, "a '.' was expected after 'Out'");
 		ArrayList<Expr> expr = new ArrayList<Expr>();
+		Expr aux;
 		
 		if(lexer.token == Token.IDCOLON && lexer.getStringValue().equals("print:")){
 			do{
 				lexer.nextToken();
-				expr.add(expr());
+				aux = expr();
+				expr.add(aux);
+				if(aux.getType() == Type.booleanType) {
+					error("Attempt to print a boolean expression");
+				}
 			} while(lexer.token == Token.COMMA);
 			return new Print(expr);
 		}	
 		else if(lexer.token == Token.IDCOLON && lexer.getStringValue().equals("println:")) {
 			do{
 				lexer.nextToken();
-				expr.add(expr());
+				aux = expr();
+				expr.add(aux);
+				if(aux.getType() == Type.booleanType) {
+					error("Attempt to print a boolean expression");
+				}
 			} while(lexer.token == Token.COMMA);
 			return new Println(expr);
 		}
@@ -729,7 +755,7 @@ public class Compiler {
 					}
 				}
 				else {
-					error("Operator " + opAtual + " expected int type");
+					error("Operator '" + opAtual + "' expected int type");
 					l = Type.undefinedType;
 				}
 			}
@@ -743,7 +769,7 @@ public class Compiler {
 					}
 				}
 				else {
-					error("Operator " + opAtual + " expected boolean type");
+					error("Operator '" + opAtual + "' expected boolean type");
 					l = Type.undefinedType;
 				}
 			}
@@ -761,13 +787,51 @@ public class Compiler {
 		ArrayList<Token> op = new ArrayList<Token>();
 		
 		boolean flag = false;
+		Token opAtual;
 		Expr left = signalFactor();
+		Expr right;
 		expr.add(left);
+		Type l = left.getType();
+		Type r = Type.undefinedType;
+		
 		while(lexer.token == Token.MULT || lexer.token == Token.DIV || lexer.token == Token.AND) {
+			opAtual = lexer.token;
 			op.add(lexer.token);
 			lexer.nextToken();
-			expr.add(signalFactor());
+			
+			right = signalFactor();
+			expr.add(right);
 			flag = true;
+			
+			r = right.getType();
+			if(opAtual == Token.MULT || opAtual == Token.DIV) {
+				if((l == Type.intType || l == Type.undefinedType) && (r == Type.intType || r == Type.undefinedType)) {
+					if(l == Type.undefinedType || r == Type.undefinedType) {
+						l = Type.undefinedType;
+					}
+					else {
+						l = Type.intType;
+					}
+				}
+				else {
+					error("Operator '" + opAtual + "' expected int type");
+					l = Type.undefinedType;
+				}
+			}
+			else {
+				if((l == Type.booleanType || l == Type.undefinedType) && (r == Type.booleanType || r == Type.undefinedType)) {
+					if(l == Type.undefinedType || r == Type.undefinedType) {
+						l = Type.undefinedType;
+					}
+					else {
+						l = Type.booleanType;
+					}
+				}
+				else {
+					error("Operator '" + opAtual + "' expected boolean type");
+					l = Type.undefinedType;
+				}
+			}
 		}
 		if(!flag) {
 			return left;
@@ -793,7 +857,7 @@ public class Compiler {
 			return new SignalFactor(op, expr);
 		}
 		else if(flag == true && expr.getType() != Type.intType) {
-			error("Signal only expected before int value");
+			error("Signal '" + op + "' only expected before int value");
 		}
 		return expr;
 	}
@@ -820,11 +884,14 @@ public class Compiler {
 			case LEFTPAR:
 				lexer.nextToken();
 				expr = expr();
-				check(Token.RIGHTPAR, "Right parenthesis expected after expression");
+				check(Token.RIGHTPAR, "')' expected");
 				return new ParenthesisExpr(expr);
 			case NOT:
 				lexer.nextToken();
 				expr = factor();
+				if(expr.getType() != Type.booleanType) {
+					error("Operator '!' does not accepts '" + expr.getType().getName() + "' values");
+				}
 				return new SignalFactor(Token.NOT, expr);
 			case NULL:
 				lexer.nextToken();
@@ -848,11 +915,10 @@ public class Compiler {
 					lexer.nextToken();
 					if(lexer.getStringValue().equals("new:") && lexer.token == Token.IDCOLON) {
 						error("'new' does not take any parameter");
+						return new ObjectCreation(Type.undefinedType);
 					}
 					else if(lexer.getStringValue().equals("new") && lexer.token == Token.ID) {
 						lexer.nextToken();
-						//procurar o typecianeto class na symbol table com o id para criar o objeto
-						//return new ObjectCreation();
 						Type type = (Type)symbolTable.getInClass(idName);
 						if(type != null) {
 							return new ObjectCreation(type);
@@ -888,7 +954,7 @@ public class Compiler {
 								}
 							}
 							else {
-								error("Variable " + idName + " is not an object");
+								error("Variable '" + idName + "' is not an object");
 							}
 						}
 					}
@@ -1131,7 +1197,7 @@ public class Compiler {
 			return new ReadExpr("readString");
 		}
 		else {
-			error("Command 'In.' without arguments");
+			error("Method " + lexer.getStringValue() + " does not belong to the command 'In.");
 			return new ReadExpr("");
 		}
 	}
@@ -1193,7 +1259,7 @@ public class Compiler {
 				return type;
 			}
 			else {
-				error("type " + lexer.getStringValue() + " is not a valid type");
+				error("type '" + lexer.getStringValue() + "' is not a valid type");
 				lexer.nextToken();
 				return Type.undefinedType;
 			}

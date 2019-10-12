@@ -5,6 +5,15 @@ public class LocalDecExpr extends Variable{
 		this.id = id;
 		this.type = type;
 		this.expr = expr;
+		this.init = false;
+	}
+	
+	public boolean getInit() {
+		return this.init;
+	}
+	
+	public boolean isObjectCreation() {
+		return false;
 	}
 	
 	public void genC(PW pw) {
@@ -31,5 +40,5 @@ public class LocalDecExpr extends Variable{
 	private Type type;
 	private String id;
 	private Expr expr;
-
+	private boolean init;
 }
