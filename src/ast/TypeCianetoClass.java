@@ -202,7 +202,7 @@ public class TypeCianetoClass extends Type{
    public boolean sameSignature(MethodDec md) {
 	   MethodDec supermd = this.getMethodPublic(md.getName());
 	   if(supermd != null) {
-		   if(supermd.getName().equals(md.getName()) && supermd.getType() == md.getType() && supermd.comparePar(md.getParamDec())) {
+		   if(supermd.getName().equals(md.getName()) && supermd.getType() == md.getType() && supermd.compareParOverrite(md.getParamDec())) {
 			   return true;
 		   }
 		   else {

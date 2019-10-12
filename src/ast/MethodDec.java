@@ -61,6 +61,34 @@ public class MethodDec {
 		}
 	}
 	
+	public boolean compareParOverrite(ArrayList<ParamDec> expr) {
+		if(expr == null && paramDec == null) {
+			return true;
+		}
+		else if((expr == null && paramDec != null) || (expr != null && paramDec == null)) {
+			return false;
+		}
+		else if(expr.size() != paramDec.size()) {
+			return false;
+		}
+		else {
+			for(int i = 0; i < expr.size(); i++) {
+				if(expr.get(i).getType().getClass() == paramDec.get(i).getType().getClass()) {
+					if(expr.get(i).getType() instanceof TypeCianetoClass) {
+						TypeCianetoClass classtype = (TypeCianetoClass)expr.get(i).getType();
+						if(!classtype.searchType(paramDec.get(i).getType().getName())) {
+							return false;
+						}
+					}
+				}
+				else {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	
 	public void genJava(PW pw) {
 		if(this.qualifier.isVoid()) {
 			pw.printIdent("public ");
@@ -118,8 +146,8 @@ public class MethodDec {
 		return this.type;
 	}
 	
-	public ArrayList<Expr> getParamDec(){
-		return this.getParamDec();
+	public ArrayList<ParamDec> getParamDec(){
+		return this.paramDec;
 	}
 	
 	private Qualifier qualifier;
