@@ -30,7 +30,7 @@ public class ParamDec extends Variable{
 		
 	}
 	public void genJava(PW pw) {
-		pw.print(this.type.getJavaname() + " " + id);
+		pw.print(id);
 	}
 	
 	public Type getType() {

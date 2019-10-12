@@ -39,14 +39,15 @@ public class FieldDec extends Variable {
 		
 	}
 	public void genJava(PW pw) {
-		if(qualifier.isVoid()) {
+		/*if(qualifier.isVoid()) {
 			pw.printIdent("private");
 		}
 		else {
 			this.qualifier.genJava(pw);
 		}
 		pw.print(" " + this.type.getJavaname() + " ");
-		pw.println(this.id + ";" );
+		pw.println(this.id + ";" );*/
+		pw.print(id);
 	}
 	
 	public Type getType() {
@@ -77,6 +78,10 @@ public class FieldDec extends Variable {
 	
 	public String getTypeName() {
 		return type.getName();
+	}
+	
+	public Qualifier getQuali() {
+		return qualifier;
 	}
 	
 	private String id;

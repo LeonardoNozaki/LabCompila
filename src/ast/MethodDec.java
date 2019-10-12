@@ -104,10 +104,12 @@ public class MethodDec {
 		}
 		if(paramDec != null) {
 			if(this.paramDec.size() > 0) {
+				pw.print(this.paramDec.get(0).getType().getJavaname()+ " ");
 				this.paramDec.get(0).genJava(pw);
 			}
 			for(int i = 1; i < this.paramDec.size(); i++) {
 				pw.print(", ");
+				pw.print(this.paramDec.get(0).getType().getJavaname()+ " ");
 				this.paramDec.get(i).genJava(pw);
 			}
 		}

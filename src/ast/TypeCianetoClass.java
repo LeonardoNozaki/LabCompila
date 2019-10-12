@@ -187,7 +187,15 @@ public class TypeCianetoClass extends Type{
 		pw.add();
 		pw.printlnIdent("private Scanner scanner = new Scanner(System.in);");
 		for(int i = 0; i < this.fieldList.size(); i++) {
-			this.fieldList.get(i).genJava(pw);
+			//this.fieldList.get(i).genJava(pw);
+			if(fieldList.get(i).getQuali().isVoid()) {
+				pw.printIdent("private");
+			}
+			else {
+				fieldList.get(i).getQuali().genJava(pw);
+			}
+			pw.print(" " + fieldList.get(i).getType().getJavaname() + " ");
+			pw.println(fieldList.get(i).getName() + ";" );
 		}
 		for(int i = 0; i < this.publicMethodList.size(); i++) {
 			this.publicMethodList.get(i).genJava(pw);
