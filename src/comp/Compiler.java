@@ -32,6 +32,7 @@ public class Compiler {
 		Program program = null;
 		lexer.nextToken();
 		program = program(compilationErrorList);
+		isRepetitionState = false;
 		return program;
 	}
 
@@ -196,8 +197,11 @@ public class Compiler {
 			else if(superclass.getOpen()){
 				classdec.setSuperClass(superclass);
 			}
+			else if(className.equals(superclassName)) {
+				error("Class '" + className + "' is inheriting from itself");
+			}
 			else {
-				error(superclassName + "cannot be extended");
+				error(superclassName + " cannot be extended");
 			}
 			lexer.nextToken();
 		}
@@ -384,7 +388,6 @@ public class Compiler {
 	}
 
 	private Statement statement() {
-		
 		boolean checkSemiColon = true;
 		Statement stat = null;
 		switch ( lexer.token ) {
@@ -497,7 +500,7 @@ public class Compiler {
 			id = lexer.getStringValue();
 			local = new ArrayList<Variable>();
 			if(symbolTable.getInLocal(id) != null) {
-				error("variable " + id + " already been declared");
+				error("Variable '" + id + "' already been declared");
 			}
 			else {
 				aux = new LocalVar(id, type);
@@ -514,7 +517,7 @@ public class Compiler {
 				while ( lexer.token == Token.ID ) {
 					id = lexer.getStringValue();
 					if(symbolTable.getInLocal(id) != null) {
-						error("variable " + id + " already been declared");
+						error("Variable '" + id + "' already been declared");
 					}
 					else {
 						aux = new LocalVar(id, type);
@@ -563,9 +566,11 @@ public class Compiler {
 		ArrayList<Statement> stat = new ArrayList<Statement>();
 		symbolTable.add();
 		
+		isRepetitionState = true;
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.UNTIL && lexer.token != Token.END && lexer.token != Token.EOF) {
 			stat.add(statement());
 		}
+		isRepetitionState = false;
 		
 		check(Token.UNTIL, "missing keyword 'until'");
 		symbolTable.sub();
@@ -578,6 +583,9 @@ public class Compiler {
 
 	private Statement breakStat() {
 		lexer.nextToken();
+		if(isRepetitionState == false) {
+			error("'break' statement found outside a 'while' or 'repeat-until' statement");
+		}
 		return new BreakStat();
 	}
 
@@ -601,9 +609,11 @@ public class Compiler {
 		check(Token.LEFTCURBRACKET, "missing '{' after the 'while' expression");
 		symbolTable.add();
 		
+		isRepetitionState = true;
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.EOF ) {
 			stat.add(statement());
 		}
+		isRepetitionState = false;
 		
 		check(Token.RIGHTCURBRACKET, "missing '}' after 'while' body");
 		symbolTable.sub();
@@ -1217,7 +1227,7 @@ public class Compiler {
 			while ( lexer.token == Token.ID  ) {
 				name = lexer.getStringValue();
 				if(!classdec.addField(new FieldDec(qualifier, name, typeVar))) {
-					error(name + " has been already declared");
+					error("Variable '" + name + "' has been already declared");
 				}
 				if(!qualifier.isPrivate() && !qualifier.isVoid()) {
 					error("Attempt to declare public instance variable '" + name + "'");
@@ -1366,6 +1376,6 @@ public class Compiler {
 	private ErrorSignaller	signalError;
 	private TypeCianetoClass classdec;
 	private boolean returnFlag;
-	
+	private boolean isRepetitionState;
 
 }
