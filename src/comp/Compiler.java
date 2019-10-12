@@ -273,7 +273,7 @@ public class Compiler {
 		String id = "";
 		MethodDec methodDec = null;
 		
-		
+		symbolTable.add();
 		if ( lexer.token == Token.ID ) {
 			id = lexer.getStringValue();
 			lexer.nextToken();
@@ -330,7 +330,6 @@ public class Compiler {
 			lexer.nextToken();
 		}
 
-		symbolTable.add();
 		statementList = statementList();
 		symbolTable.sub();
 		methodDec.setStatement(statementList);
