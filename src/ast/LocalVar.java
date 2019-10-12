@@ -51,6 +51,10 @@ public class LocalVar extends Variable{
 		
 	}
 	
+	public String getName() {
+		return this.id;
+	}
+	
 	private String id;
 	private Type type;
 	private boolean init;

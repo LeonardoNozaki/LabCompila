@@ -37,6 +37,10 @@ public class LocalDecExpr extends Variable{
 		
 	}
 
+	public String getName() {
+		return this.id;
+	}
+	
 	private Type type;
 	private String id;
 	private Expr expr;

@@ -155,6 +155,8 @@ public class Compiler {
 	}
 
 	private TypeCianetoClass classDec() {
+		symbolTable.removeLocalIdent();
+		
 		boolean open = false;
 		String superclassName = "";
 		String className = "";
@@ -181,7 +183,7 @@ public class Compiler {
 				symbolTable.putInClass(className, classdec);
 			}
 			else {
-				error(className + " has already been declared");
+				error("Class '" + className + "' has already been declared");
 			}
 		}
 		
@@ -217,6 +219,7 @@ public class Compiler {
 		if ( lexer.token != Token.END) error("Class member or 'end' expected");
 		
 		lexer.nextToken();
+		symbolTable.removeLocalIdent();
 		return classdec;
 	}
 
@@ -230,18 +233,7 @@ public class Compiler {
 				fieldDec(quali);
 			}
 			else if ( lexer.token == Token.FUNC ) {
-				methodDec = methodDec(quali);
-				if(quali.isPrivate()) {
-					if(!classdec.addMethodPrivate(methodDec)) {
-						error(methodDec.getName() + " already been declared");
-					}
-				}
-				
-				else {
-					if(!classdec.addMethodPublic(methodDec)) {
-						error(methodDec.getName() + " already been declared");
-					}
-				}
+				methodDec(quali);
 			}
 			else {
 				break;
@@ -271,51 +263,66 @@ public class Compiler {
 		}
 	}
 
-	private MethodDec methodDec(Qualifier qualifier) {
+	private void methodDec(Qualifier qualifier) {
 		lexer.nextToken();
 		returnFlag = false;
-		boolean returnNeed = false;
-		Type tipoRetorno = Type.voidType;
+		returnNeed = false;
+		returnType = Type.voidType;
 		ArrayList<ParamDec> paramDec = null;
 		ArrayList<Statement> statementList = null;
 		String id = "";
-		symbolTable.add();
+		MethodDec methodDec = null;
+		
+		
 		if ( lexer.token == Token.ID ) {
-			// unary method
 			id = lexer.getStringValue();
 			lexer.nextToken();
 		}
 		else if ( lexer.token == Token.IDCOLON ) {
 			id = lexer.getStringValue();
 			paramDec = formalParamDec();
-			for(int i = 0; i < paramDec.size(); i++) {
-				symbolTable.putInLocal(paramDec.get(i).getName(), paramDec.get(i));
-			}
 		}
 		else {
 			error("An identifier or identifier: was expected after 'func'");
 		}
-		if(qualifier.hasOverride()) {
+		
+		methodDec = new MethodDec(qualifier, id);
+		methodDec.setParamDec(paramDec);
+		methodDec.setReturn(Type.voidType);
+		
+		if(qualifier.isPrivate()) {
+			if(!classdec.addMethodPrivate(methodDec)) {
+				error("Method '" + methodDec.getName() + "' already been declared");
+			}
+		}
+		else {
+			if(!classdec.addMethodPublic(methodDec)) {
+				error("Method '" + methodDec.getName() + "' already been declared");
+			}
+		}
+		
+		/*if(qualifier.hasOverride()) {
 			if(classdec.getMethodPublic(id) == null) {
 				error("There is no method with the same name as " + id + " to override");
 			}
-		}
+		}*/
+		
 		if ( lexer.token == Token.MINUS_GT ) {
-			// method declared a return type
 			lexer.nextToken();
 			returnNeed = true;
-			tipoRetorno = type();
+			returnType = type();
+			methodDec.setReturn(returnType);
 		}
+		
 		if(qualifier.hasOverride()) {
 			if(classdec.getSuper() != null) {
-					MethodDec methodDec = new MethodDec(qualifier, id, paramDec, tipoRetorno, statementList);
-					if(!classdec.getSuper().sameSignature(methodDec)) {
-						error("Method '" + methodDec.getName() + "' of the subclass '" + classdec.getName() + 
-								"' has a signature different from the same method of superclass '" + classdec.getSuper().getName() + "'");
-					}
-				
+				if(!classdec.getSuper().sameSignature(methodDec)) {
+					error("Method '" + methodDec.getName() + "' of the subclass '" + classdec.getName() + 
+							"' has a signature different from the same method of superclass '" + classdec.getSuper().getName() + "'");
+				}
 			}
 		}
+		
 		if ( lexer.token != Token.LEFTCURBRACKET ) {
 			error("'{' expected");
 		}
@@ -323,29 +330,23 @@ public class Compiler {
 			lexer.nextToken();
 		}
 
+		symbolTable.add();
 		statementList = statementList();
+		symbolTable.sub();
+		methodDec.setStatement(statementList);
 		
 		if(returnNeed) {
 			if(!returnFlag) {
 				error("missing 'return' statement");
 			}
-		}
-		
-		if(returnFlag) {
-			if(!returnNeed) {
-				error("'return' statement is not needed");
-			}
-		}
+		}	
 		
 		if ( lexer.token != Token.RIGHTCURBRACKET ) {
 			error("'}' expected");
 		}
 		else {
 			lexer.nextToken();
-		}
-		symbolTable.removeLocalIdent();
-		
-		return new MethodDec(qualifier, id, paramDec, tipoRetorno, statementList);
+		}	
 	}
 
 	private ArrayList<ParamDec> formalParamDec(){
@@ -363,6 +364,13 @@ public class Compiler {
 				id = lexer.getStringValue();
 				param = new ParamDec(id, tipo);
 				p.add(param);
+				Variable v = (Variable) symbolTable.getInLocal(id);
+				if(v != null) {
+					error("Parameter '" + id + "' already been declared");
+				}
+				else{
+					symbolTable.putInLocal(id, param);
+				}
 				lexer.nextToken();
 			}
 			else {
@@ -451,25 +459,21 @@ public class Compiler {
 			right = expr();
 			Type l = left.getType();
 			Type r = right.getType();
-			TypeCianetoClass tcc = (TypeCianetoClass) symbolTable.getInClass(l.getName());
-			if(tcc != null && right != null) {
-				if(right.isObjectCreation()) {
-					
-				}
-			}
+			
+			
 			if(l == Type.booleanType){
 				if(r != Type.booleanType) {
-					error("Type error: value of the right-hand side is not type of the variable of the left-hand side.");
+					error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}
 			else if(l == Type.intType) {
 				if(r != Type.intType) {
-					error("Type error: value of the right-hand side is not type of the variable of the left-hand side.");
+					error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}
 			else if(l == Type.stringType) {
 				if(r != Type.stringType) {
-					error("Type error: value of the right-hand side is not type of the variable of the left-hand side.");
+					error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}			
 			else if(l == Type.undefinedType || r == Type.undefinedType || r == Type.nullType){
@@ -481,10 +485,35 @@ public class Compiler {
 			else if(l == Type.voidType || r == Type.voidType) {
 				error("Assignment without type");
 			}
-			//tratar type cianeto clas
+			else if(l instanceof TypeCianetoClass) {
+				if(right instanceof ObjectCreation) {
+					//falta terminar, nao encontrei um teste desse tipo
+				}
+				else if(r instanceof TypeCianetoClass) {
+					TypeCianetoClass classtype = (TypeCianetoClass) r;
+					if(!classtype.searchType(l.getName())) {
+						error("Type error: type of the right-hand side of the assignment is not a subclass of the left-hand side");
+					}
+				}
+				else {
+					error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
+				}
+			}
+				
+			
+			
 			return new CompositeAssign(left, right);
 		}
-		return new SimpleAssign(left);
+		else {
+			if(left instanceof MethodCall) {
+				MethodCall mc = (MethodCall) left;
+				if(mc.getRetorno()) {
+					error("Message send '" + mc.getName() + "' returns a value that is not used");
+				}
+			}
+			return new SimpleAssign(left);
+		}
+		
 	}
 
 	private LocalDec localDec() {
@@ -594,6 +623,22 @@ public class Compiler {
 		//verificar se tipo de retorno bate com o tipo do metodo
 		Expr expr = expr();
 		returnFlag = true;
+		if(!returnNeed) {
+			error("Illegal 'return' statement. Method returns 'void'");
+		}
+		else {
+			if(returnType.getClass() == expr.getType().getClass()) {
+				if(returnType instanceof TypeCianetoClass) {
+					TypeCianetoClass classtype = (TypeCianetoClass) expr.getType();
+					if(!classtype.searchType(returnType.getName())) {
+						error("Type error: type of the expression returned is not subclass of the method return type");
+					}
+				}
+			}
+			else {
+				error("Type error: type of the expression returned is not type of the method return type");
+			}
+		}
 		return new ReturnStat(expr);
 	}
 
@@ -955,9 +1000,9 @@ public class Compiler {
 								MethodDec md = typecianeto.getMethodPublic(idMethod);
 								if(md != null) {
 									if(md.getType() == Type.voidType) {
-										return new MethodCall(var, idMethod, false);
+										return new MethodCall(var, md, false);
 									}
-									return new MethodCall(var, idMethod, true);
+									return new MethodCall(var, md, true);
 								}
 								else {
 									error(idMethod + " was not declared in class of object " + idName);
@@ -999,7 +1044,7 @@ public class Compiler {
 									return new MethodCallPar(var, idMethod, exprs, true);
 								}
 								else {
-									error(idMethod + " was not declared in class of object " + idName);
+									error("Method '" + idMethod + "' was not found in class '" + typecianeto.getName() + "' or its superclasses");
 								}
 							}
 							else {
@@ -1096,7 +1141,7 @@ public class Compiler {
 							}
 						}
 						else {
-							error(idMethod + "was not declared");
+							error("Method '" + idMethod + "' was not found in self class or its superclasses");
 						}
 						return new TokenMethodCallPar(Token.SELF, md, exprs);
 					}
@@ -1207,7 +1252,7 @@ public class Compiler {
 			return new ReadExpr("readString");
 		}
 		else {
-			error("Method " + lexer.getStringValue() + " does not belong to the command 'In.");
+			error("Method '" + lexer.getStringValue() + "' does not belong to the command 'In.");
 			return new ReadExpr("");
 		}
 	}
@@ -1376,6 +1421,7 @@ public class Compiler {
 	private ErrorSignaller	signalError;
 	private TypeCianetoClass classdec;
 	private boolean returnFlag;
+	private boolean returnNeed;
 	private boolean isRepetitionState;
-
+	private Type returnType;
 }

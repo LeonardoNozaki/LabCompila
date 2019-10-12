@@ -15,11 +15,23 @@ import java.util.ArrayList;
 
 public class MethodDec {
 	
-	public MethodDec(Qualifier qualifier, String id, ArrayList<ParamDec> paramDec, Type type, ArrayList<Statement> stat) {
+	public MethodDec(Qualifier qualifier, String id) {
 		this.qualifier = qualifier;
 		this.id = id;
+		this.paramDec = null;
+		this.type = Type.voidType;
+		this.stat = null;
+	}
+	
+	public void setParamDec(ArrayList<ParamDec> paramDec) {
 		this.paramDec = paramDec;
+	}
+	
+	public void setReturn(Type type) {
 		this.type = type;
+	}
+	
+	public void setStatement(ArrayList<Statement> stat) {
 		this.stat = stat;
 	}
 	

@@ -39,6 +39,11 @@ public class LocalDecList extends Variable{
 	public void genC( PW pw, boolean putParenthesis ) {
 		
 	}
+	
+	public String getName() {
+		return "";
+	}
+	
 	private Type type;
 	private ArrayList<Variable> id;
 	private boolean init;
