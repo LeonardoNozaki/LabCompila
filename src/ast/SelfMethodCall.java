@@ -11,8 +11,6 @@
 
 package ast;
 
-import lexer.Token;
-
 public class SelfMethodCall extends Expr{
 	public SelfMethodCall(Variable variable, MethodDec method){
 		this.method = method;

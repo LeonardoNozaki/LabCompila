@@ -40,13 +40,23 @@ public class Compiler {
 		ArrayList<MetaobjectAnnotation> metaobjectCallList = new ArrayList<>();
 		ArrayList<TypeCianetoClass> CianetoClassList = new ArrayList<>();
 		Program program = new Program(CianetoClassList, metaobjectCallList, compilationErrorList);
+		TypeCianetoClass classAtual = null;		
+		boolean flagProgram = false;
 		boolean thereWasAnError = false;
+	
 		do {
 			try {
 				while ( lexer.token == Token.ANNOT ) {
 					metaobjectAnnotation(metaobjectCallList);
 				}
-				CianetoClassList.add(classDec());
+				classAtual = classDec();		
+				CianetoClassList.add(classAtual);		
+				if(classAtual.getName().equals("Program")) {		
+					flagProgram = true;		
+					if(classAtual.getMethod("run") == null) {		
+						errorBefore("Class 'Program' must have a method called 'run'");		
+					}		
+				}
 			}
 			catch( CompilerError e) {
 				// if there was an exception, there is a compilation error
@@ -59,6 +69,14 @@ public class Compiler {
 		} while ( lexer.token == Token.CLASS ||
 				(lexer.token == Token.ID && lexer.getStringValue().equals("open") ) ||
 				lexer.token == Token.ANNOT );
+		if(flagProgram == false) {		
+			try{
+				errorBefore("Class 'Program' expected");		
+			}
+			catch( CompilerError e) {
+				thereWasAnError = true;
+			}
+		}
 		if ( !thereWasAnError && lexer.token != Token.EOF ) {
 			try {
 				error("End of file expected");
@@ -189,7 +207,7 @@ public class Compiler {
 		
 		if ( lexer.token == Token.EXTENDS ) {
 			lexer.nextToken();
-			if ( lexer.token != Token.ID ) error("Identifier expected");
+			if ( lexer.token != Token.ID ) error("Name of superclass expected");
 			
 			superclassName = lexer.getStringValue();
 			TypeCianetoClass superclass = (TypeCianetoClass) symbolTable.getInClass(superclassName);
@@ -283,6 +301,10 @@ public class Compiler {
 		}
 		else {
 			error("An identifier or identifier: was expected after 'func'");
+		}
+		
+		if(classdec.getName().equals("Program") && id.equals("run:")) {		
+			error("Method 'run:' of class 'Program' cannot take parameters");		
 		}
 		
 		methodDec = new MethodDec(qualifier, id);
@@ -474,9 +496,6 @@ public class Compiler {
 					error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}			
-			else if(l == Type.undefinedType || r == Type.undefinedType || r == Type.nullType){
-				//Tipo indefinido, nao se sabe o tipo correto
-			}
 			else if(l == Type.nullType) {
 				error("left-hand side is null");
 			}
@@ -493,7 +512,7 @@ public class Compiler {
 						error("Type error: type of the right-hand side of the assignment is not a subclass of the left-hand side");
 					}
 				}
-				else {
+				else if(r != Type.nullType){
 					error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}
@@ -511,7 +530,6 @@ public class Compiler {
 			}
 			return new SimpleAssign(left);
 		}
-		
 	}
 
 	private LocalDec localDec() {
@@ -717,6 +735,12 @@ public class Compiler {
 				if(aux.getType() == Type.booleanType) {
 					error("Attempt to print a boolean expression");
 				}
+				else if(aux.getType() instanceof TypeCianetoClass) {		
+					error("Command 'write' does not accept objects");		
+				}		
+				else if(aux.getType() != Type.intType && aux.getType() != Type.stringType) {		
+					error("Command 'write' accept only Int or String expression");		
+				}
 			} while(lexer.token == Token.COMMA);
 			return new Print(expr);
 		}	
@@ -727,6 +751,12 @@ public class Compiler {
 				expr.add(aux);
 				if(aux.getType() == Type.booleanType) {
 					error("Attempt to print a boolean expression");
+				}
+				else if(aux.getType() instanceof TypeCianetoClass) {		
+					error("Command 'write' does not accept objects");		
+				}		
+				else if(aux.getType() != Type.intType && aux.getType() != Type.stringType) {		
+					error("Command 'write' accept only Int or String expression");		
 				}
 			} while(lexer.token == Token.COMMA);
 			return new Println(expr);
@@ -760,10 +790,19 @@ public class Compiler {
 		boolean flag = false;
 		Expr left = sumSubExpr();
 		expr.add(left);
+		if(lexer.token == Token.PLUSPLUS) {		
+			if(left.getType() != Type.intType && left.getType() != Type.stringType) {		
+				error("Illegal types with ++, only Int and String are allowed");		
+			}		
+		}
 		while(lexer.token == Token.PLUSPLUS) {
 			op.add(lexer.token);
 			lexer.nextToken();
-			expr.add(sumSubExpr());
+			left = sumSubExpr();
+			expr.add(left);		
+			if(left.getType() != Type.intType && left.getType() != Type.stringType) {		
+				error("Illegal types with ++, only Int and String are allowed");		
+			}
 			flag = true;
 		}
 		if(!flag) {
@@ -989,22 +1028,17 @@ public class Compiler {
 						//return new MethodCall(Token.SUPER, idName, idMethod);
 						Variable var = (Variable)symbolTable.getInLocal(idName);
 						if(var == null) {
-							error(idName + " was not declared");
+							error("Variable '" + idName + "' was not declared");
 						}
 						else {
 							Type type = var.getType();
 							if(type instanceof TypeCianetoClass) {
 								TypeCianetoClass typecianeto = (TypeCianetoClass)type;
 								MethodDec md = typecianeto.getMethodPublic(idMethod);
-								if(md != null) {
-									if(md.getType() == Type.voidType) {
-										return new MethodCall(var, md);
-									}
-									return new MethodCall(var, md);
+								if(md == null) {
+									error("Method '" + idMethod + "' was not declared in class of object '" + idName + "'");
 								}
-								else {
-									error(idMethod + " was not declared in class of object " + idName);
-								}
+								return new MethodCall(var, md);
 							}
 							else {
 								error("Variable '" + idName + "' is not an object");
@@ -1034,7 +1068,7 @@ public class Compiler {
 								MethodDec md = typecianeto.getMethodPublic(idMethod);
 								if(md != null) {
 									if(md.comparePar(exprs) == false) {
-										error(idMethod + " has different parameters");
+										error("Method '" + idMethod + "' has different parameters types");
 									}
 									if(md.getType() == Type.voidType) {
 										return new MethodCallPar(var, md, exprs);
@@ -1046,7 +1080,7 @@ public class Compiler {
 								}
 							}
 							else {
-								error(idName + " is not an object");
+								error("Variable '" + idName + "' is not an object");
 							}
 						}
 					}
@@ -1071,11 +1105,11 @@ public class Compiler {
 						if(superclass != null) {
 							md = superclass.getMethodPublic(idMethod);
 							if(md == null) {
-								error("superclass " + superclass.getName() + " does not have the public method " + idMethod);
+								error("superclass '" + superclass.getName() + "' does not have the public method '" + idMethod + "'");
 							}
 						}
 						else {
-							error(classdec.getName() + " does not extend from any class");
+							error("'super' used in class '" + classdec.getName() + "' that does not have a superclass");
 						}
 						return new TokenMethodCall(Token.SUPER, md);
 					}
@@ -1096,16 +1130,16 @@ public class Compiler {
 						if(superclass != null) {
 							md = superclass.getMethodPublic(idMethod);
 							if(md == null) {
-								error("superclass " + superclass.getName() + " does not have the public method " + idMethod);
+								error("Superclass '" + superclass.getName() + "' does not have the public method '" + idMethod + "'");
 							}
 							else {
 								if(md.comparePar(exprs) == false) {
-									error(idMethod + " has different parameters");
+									error("Method '" + idMethod + "' has different parameters types");
 								}
 							}
 						}
 						else {
-							error(classdec.getName() + " does not extend from any class");
+							error("'super' used in class '" + classdec.getName() + "' that does not have a superclass");
 						}
 						return new TokenMethodCallPar(Token.SUPER, md, exprs);
 					}
@@ -1135,7 +1169,7 @@ public class Compiler {
 						MethodDec md = classdec.getMethod(idMethod);
 						if(md != null) {
 							if(md.comparePar(exprs) == false) {
-								error(idMethod + " has different parameters");
+								error("Method '" + idMethod + "' has different parameters types");
 							}
 						}
 						else {
@@ -1166,11 +1200,11 @@ public class Compiler {
 										md = classFD.getMethodPublic(idMethod);
 										if(md != null) {
 											if(md.comparePar(exprs) == false) {
-												error(idMethod + " has different parameters");
+												error("Method '" + idMethod + "' has different parameters types");
 											}
 										}
 										else {
-											error(idMethod + " has not declared in " + id);
+											error("Method '" + idMethod + "' has not declared in '" + id + "'");
 										}
 									}
 									else {
@@ -1215,13 +1249,10 @@ public class Compiler {
 							}
 							else {
 								FieldDec fd = classdec.getField(id);
-								if(fd != null) {
-									return new SelfField(fd);
+								if(fd == null) {
+									error("Field or Method '" + id + "' has not been declared");
 								}
-								else {
-									error("Field or Method " + id + "has not been declared");
-									return new SelfField(fd);
-								}
+								return new SelfField(fd);
 							}
 						}
 					}
