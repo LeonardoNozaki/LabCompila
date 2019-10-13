@@ -332,12 +332,6 @@ public class Compiler {
 			}
 		}
 		
-		/*if(qualifier.hasOverride()) {
-			if(classdec.getMethodPublic(id) == null) {
-				error("There is no method with the same name as " + id + " to override");
-			}
-		}*/
-		
 		if ( lexer.token == Token.MINUS_GT ) {
 			if(flagRun == true) {
 				error("Method 'run' of class 'Program' with a return value type");
@@ -352,8 +346,11 @@ public class Compiler {
 			if(classdec.getSuper() != null) {
 				if(!classdec.getSuper().sameSignature(methodDec)) {
 					error("Method '" + methodDec.getName() + "' of the subclass '" + classdec.getName() + 
-							"' has a signature different from the same method of superclass '" + classdec.getSuper().getName() + "'");
+							"' cannot redefine the same method of superclass '" + classdec.getSuper().getName() + "'");
 				}
+			}
+			else {
+				error("method does not override or implement a method from a supertype");
 			}
 		}
 		

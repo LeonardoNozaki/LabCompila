@@ -164,6 +164,10 @@ public class MethodDec {
 		return this.paramDec;
 	}
 	
+	public Qualifier getQuali() {
+		return qualifier;
+	}
+	
 	private Qualifier qualifier;
 	private String id;
 	private ArrayList<ParamDec> paramDec;

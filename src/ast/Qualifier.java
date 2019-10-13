@@ -56,6 +56,15 @@ public class Qualifier {
 		}
 	}
 	
+	public boolean hasFinal() {
+		if(quali.equals("final") || quali.equals("final public") || quali.equals("final override") || quali.equals("final override public")) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	public boolean isPrivate() {
 		return quali.equals("private");
 	}

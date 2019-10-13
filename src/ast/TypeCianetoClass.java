@@ -211,7 +211,12 @@ public class TypeCianetoClass extends Type{
 	   MethodDec supermd = this.getMethodPublic(md.getName());
 	   if(supermd != null) {
 		   if(supermd.getName().equals(md.getName()) && supermd.getType() == md.getType() && supermd.compareParOverrite(md.getParamDec())) {
-			   return true;
+			   if(supermd.getQuali().hasFinal() || supermd.getQuali().isPrivate()) {
+				   return false;
+			   }
+			   else {
+				   return true;
+			   }
 		   }
 		   else {
 			   return false;
