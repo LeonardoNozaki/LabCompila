@@ -179,7 +179,6 @@ public class Compiler {
 		String superclassName = "";
 		String className = "";
 		if ( lexer.token == Token.ID && lexer.getStringValue().equals("open") ) {
-			//Verificar se precisa de mais algo para o open
 			lexer.nextToken();
 			open = true;
 		}
@@ -225,12 +224,6 @@ public class Compiler {
 			}
 			lexer.nextToken();
 		}
-
-		/*memberList();
-		if ( lexer.token != Token.END) error("'end' expected");
-		
-		lexer.nextToken();
-		*/
 		
 		memberList();
 		
@@ -269,9 +262,6 @@ public class Compiler {
 	}
 
 	private void check(Token shouldBe, String msg) {
-		//Se o token for diferente, exibe a mensagem e nao vai para o proximo token
-		//Se o token for igual, vai para o proximo token
-		
 		if ( lexer.token != shouldBe ) {
 			error(msg);
 		}
@@ -418,7 +408,6 @@ public class Compiler {
 	
 	private ArrayList<Statement> statementList() {
 		ArrayList<Statement> statementList = new ArrayList<Statement>();
-		  // only(?) '}' is necessary in this test
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.EOF) {
 			statementList.add(statement());
 		}
@@ -734,9 +723,6 @@ public class Compiler {
 		return new IfStat(expr, leftStat, rightStat);
 	}
 
-	/**
-
-	 */
 	private Statement writeStat() {
 		lexer.nextToken();
 		check(Token.DOT, "a '.' was expected after 'Out'");
@@ -1066,9 +1052,6 @@ public class Compiler {
 					else if(lexer.token == Token.ID) {
 						String idMethod = lexer.getStringValue();
 						lexer.nextToken();
-						//verificar se o primeiro id é uma variable do tipo type cianeto class
-						//chamada de metodo, é feito pelo RTS
-						//return new MethodCall(Token.SUPER, idName, idMethod);
 						Variable var = (Variable)symbolTable.getInLocal(idName);
 						if(var == null) {
 							error("Variable '" + idName + "' was not declared");
@@ -1097,9 +1080,7 @@ public class Compiler {
 							lexer.nextToken();
 							exprs.add(expr());
 						}
-						//verificar se o primeiro id é uma variable do tipo type cianeto class
-						//chamada de metodo com parametro, é feito pelo RTS
-						//return new MethodCallPar(Token.SUPER, idName, idMethod, exprs);
+						
 						Variable var = (Variable)symbolTable.getInLocal(idName);
 						if(var == null) {
 							error(idName + " was not declared");
@@ -1140,9 +1121,7 @@ public class Compiler {
 					if(lexer.token == Token.ID) {
 						String idMethod = lexer.getStringValue();
 						lexer.nextToken();
-						//verificar se o primeiro id é uma variable do tipo type cianeto class
-						//chamada de metodo, é feito pelo RTS
-						//return new TokenMethodCall(Token.SUPER, idMethod);
+						
 						TypeCianetoClass superclass = classdec.getSuper();
 						MethodDec md = null;
 						if(superclass != null) {
@@ -1165,9 +1144,7 @@ public class Compiler {
 							lexer.nextToken();
 							exprs.add(expr());
 						}
-						//verificar se o primeiro id é uma variable do tipo type cianeto class
-						//chamada de metodo com parametro, é feito pelo RTS
-						//return new TokenMethodCallPar(Token.SUPER, idMethod, exprs);
+						
 						TypeCianetoClass superclass = classdec.getSuper();
 						MethodDec md = null;
 						if(superclass != null) {
@@ -1380,8 +1357,6 @@ public class Compiler {
 			return Type.stringType;
 		}
 		else if ( lexer.token == Token.ID ) {
-			//mudar para retornar a classe q ja existe 
-			//lexer.getStringValue();
 			Type type;
 			type = (Type)symbolTable.getInClass(lexer.getStringValue());
 			if(type != null) {

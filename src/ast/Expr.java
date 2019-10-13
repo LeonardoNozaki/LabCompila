@@ -16,8 +16,6 @@ abstract public class Expr {
     abstract public void genJava(PW pw);
     abstract public boolean isOnlyId();
     abstract public boolean isObjectCreation();
-    
-    // new method: the type of the expression
     abstract public Type getType();
     
 	

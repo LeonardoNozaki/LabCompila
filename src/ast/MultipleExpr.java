@@ -29,7 +29,6 @@ public class MultipleExpr extends Expr{
     
 	@Override
 	public void genC(PW pw) {
-		//this.genC(pw, false);
 	}
 	
 	public void genJava(PW pw) {

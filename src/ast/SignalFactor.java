@@ -48,7 +48,7 @@ public class SignalFactor extends Expr{
 		if(this.op == Token.NOT) {
 			return Type.booleanType;
 		}
-		return expr.getType(); //Nao sei se precisa disso, ou é so return intType
+		return expr.getType(); 
 	}
 	
 	private Token op;

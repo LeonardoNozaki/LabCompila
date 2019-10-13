@@ -41,7 +41,6 @@ public class CompositeExpr extends Expr {
     
 	@Override
 	public void genC(PW pw) {
-		//this.genC(pw, false);
 	}
 	
 	@Override
