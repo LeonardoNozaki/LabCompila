@@ -289,6 +289,7 @@ public class Compiler {
 		ArrayList<Statement> statementList = null;
 		String id = "";
 		MethodDec methodDec = null;
+		boolean flagRun = false;
 		
 		symbolTable.add();
 		if ( lexer.token == Token.ID ) {
@@ -305,6 +306,12 @@ public class Compiler {
 		
 		if(classdec.getName().equals("Program") && id.equals("run:")) {		
 			error("Method 'run:' of class 'Program' cannot take parameters");		
+		}
+		if(classdec.getName().equals("Program") && id.equals("run")) {		
+			flagRun = true;
+			if(qualifier.isPrivate()) {
+				error("Method 'run' of class 'Program' cannot be private");
+			}
 		}
 		
 		methodDec = new MethodDec(qualifier, id);
@@ -329,6 +336,9 @@ public class Compiler {
 		}*/
 		
 		if ( lexer.token == Token.MINUS_GT ) {
+			if(flagRun == true) {
+				error("Method 'run' of class 'Program' with a return value type");
+			}
 			lexer.nextToken();
 			returnNeed = true;
 			returnType = type();
@@ -516,13 +526,10 @@ public class Compiler {
 						error("Type error: type of the right-hand side of the assignment is not a subclass of the left-hand side");
 					}
 				}
-				else if(r != Type.nullType){
-					//error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
+				else if(r != Type.nullType && r != Type.undefinedType){
+					error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}
-				
-			
-			
 			return new CompositeAssign(left, right);
 		}
 		else {
@@ -797,7 +804,7 @@ public class Compiler {
 		expr.add(left);
 		if(lexer.token == Token.PLUSPLUS) {		
 			if(left.getType() != Type.intType && left.getType() != Type.stringType) {		
-				error("Illegal types with ++, only Int and String are allowed");		
+				error("Illegal types with '++', only Int and String are allowed");		
 			}		
 		}
 		while(lexer.token == Token.PLUSPLUS) {
@@ -806,7 +813,7 @@ public class Compiler {
 			left = sumSubExpr();
 			expr.add(left);		
 			if(left.getType() != Type.intType && left.getType() != Type.stringType) {		
-				error("Illegal types with ++, only Int and String are allowed");		
+				error("Illegal types with '++', only Int and String are allowed");		
 			}
 			flag = true;
 		}
@@ -1021,7 +1028,7 @@ public class Compiler {
 							return new ObjectCreation(type);
 						}
 						else {
-							error("Cannot initialize undeclared class" + idName);
+							error("Cannot initialize undeclared class '" + idName + "'");
 							return new ObjectCreation(Type.undefinedType);
 						}
 					}

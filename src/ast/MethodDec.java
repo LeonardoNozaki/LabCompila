@@ -53,6 +53,9 @@ public class MethodDec {
 						}
 					}
 				}
+				else if(paramDec.get(i).getType() instanceof TypeCianetoClass && expr.get(i).getType() == Type.nullType) {
+					continue;
+				}
 				else {
 					return false;
 				}
