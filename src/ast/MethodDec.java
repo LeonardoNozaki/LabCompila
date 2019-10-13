@@ -53,6 +53,9 @@ public class MethodDec {
 						}
 					}
 				}
+				else if(paramDec.get(i).getType() == Type.stringType && expr.get(i).getType() == Type.nullType) {
+					continue;
+				}
 				else if(paramDec.get(i).getType() instanceof TypeCianetoClass && expr.get(i).getType() == Type.nullType) {
 					continue;
 				}
@@ -83,6 +86,12 @@ public class MethodDec {
 							return false;
 						}
 					}
+				}
+				else if(paramDec.get(i).getType() == Type.stringType && expr.get(i).getType() == Type.nullType) {
+					continue;
+				}
+				else if(paramDec.get(i).getType() instanceof TypeCianetoClass && expr.get(i).getType() == Type.nullType) {
+					continue;
 				}
 				else {
 					return false;

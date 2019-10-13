@@ -505,7 +505,7 @@ public class Compiler {
 				}
 			}
 			else if(l == Type.stringType) {
-				if(r != Type.stringType) {
+				if(r != Type.nullType && r != Type.stringType) {
 					error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}			
@@ -517,7 +517,6 @@ public class Compiler {
 			}
 			else if(l instanceof TypeCianetoClass) {
 				if(right instanceof ObjectCreation) {
-					//falta terminar, nao encontrei um teste desse tipo
 					TypeCianetoClass classtype = (TypeCianetoClass) r;
 					if(!classtype.searchType(l.getName())) {
 						error("Type error: type of the right-hand side of the assignment is not an instance of the left-hand side");
@@ -601,7 +600,6 @@ public class Compiler {
 
 		if ( lexer.token == Token.ASSIGN ) {
 			lexer.nextToken();
-			// check if there is just one variable
 			if(flag) {
 				error("there are two or more variable in assignment");
 			}
@@ -662,6 +660,9 @@ public class Compiler {
 						error("Type error: type of the expression returned is not subclass of the method return type");
 					}
 				}
+			}
+			else if(returnType == Type.stringType && expr.getType() == Type.nullType) {
+				return new ReturnStat(expr);
 			}
 			else if(returnType instanceof TypeCianetoClass && expr.getType() == Type.nullType) {
 				return new ReturnStat(expr);
