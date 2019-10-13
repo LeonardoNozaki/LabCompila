@@ -490,6 +490,9 @@ public class Compiler {
 			Type l = left.getType();
 			Type r = right.getType();
 			
+			if(left instanceof SelfExpr) {
+				error("Cannot change the value of self");
+			}
 			
 			if(l == Type.booleanType){
 				if(r != Type.booleanType) {
@@ -1417,6 +1420,9 @@ public class Compiler {
 			return new Qualifier("override");
 		}
 		else if ( lexer.token == Token.FINAL ) {
+			if(!classdec.getOpen()) {
+				error("Cannot declare a final method inside a final class");
+			}
 			lexer.nextToken();
 			if ( lexer.token == Token.PUBLIC ) {
 				lexer.nextToken();
