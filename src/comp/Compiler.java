@@ -221,7 +221,7 @@ public class Compiler {
 				error("Class '" + className + "' is inheriting from itself");
 			}
 			else {
-				error(superclassName + " cannot be extended");
+				error("Class '" + superclassName + "' cannot be extended");
 			}
 			lexer.nextToken();
 		}
@@ -304,6 +304,9 @@ public class Compiler {
 			error("An identifier or identifier: was expected after 'func'");
 		}
 		
+		if(symbolTable.getInClass(id) != null) {
+			error("Method '" + id + "' has same name of an Class");
+		}
 		if(classdec.getName().equals("Program") && id.equals("run:")) {		
 			error("Method 'run:' of class 'Program' cannot take parameters");		
 		}
@@ -549,9 +552,8 @@ public class Compiler {
 		boolean flag = false;
 		String id = "";
 		LocalVar aux;
-		//array nao seria de LocalVar?
 		ArrayList<Variable> local = null;
-		
+
 		if(lexer.token == Token.ID) {
 			id = lexer.getStringValue();
 			local = new ArrayList<Variable>();
@@ -647,7 +649,6 @@ public class Compiler {
 
 	private Statement returnStat() {
 		lexer.nextToken();
-		//verificar se tipo de retorno bate com o tipo do metodo
 		Expr expr = expr();
 		returnFlag = true;
 		if(!returnNeed) {
@@ -661,6 +662,9 @@ public class Compiler {
 						error("Type error: type of the expression returned is not subclass of the method return type");
 					}
 				}
+			}
+			else if(returnType instanceof TypeCianetoClass && expr.getType() == Type.nullType) {
+				return new ReturnStat(expr);
 			}
 			else {
 				error("Type error: type of the expression returned is not type of the method return type");
@@ -785,11 +789,37 @@ public class Compiler {
 		left = simpleExpr();
 		
 		Token op = null;
-		if(lexer.token == Token.EQ || lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE || lexer.token == Token.NEQ) {
+		if(lexer.token == Token.LT || lexer.token == Token.GT || lexer.token == Token.LE || lexer.token == Token.GE) {
 			op = lexer.token;
 			lexer.nextToken();
 			right = simpleExpr();
-			//fazer semantico
+			if(left.getType() != Type.intType || right.getType() != Type.intType) {
+				error("Operator '" + op + "' can only be applied to Int values");
+			}
+			return new CompositeExpr(op, left, right);
+		}
+		else if(lexer.token == Token.EQ || lexer.token == Token.NEQ) {
+			op = lexer.token;
+			lexer.nextToken();
+			right = simpleExpr();
+			if(left.getType() == Type.nullType && right.getType() == Type.nullType) {
+				error("Type nil cannot be compared with Type nil");
+			}
+			else if(left.getType() instanceof TypeCianetoClass && right.getType() instanceof TypeCianetoClass) {
+				TypeCianetoClass leftclasstype = (TypeCianetoClass) left.getType();
+				TypeCianetoClass rightclasstype = (TypeCianetoClass) right.getType();
+				if(!leftclasstype.searchType(right.getType().getName()) && !rightclasstype.searchType(left.getType().getName())) {
+					error("Left is not convertible to RightType and Right is not convertible to LeftType");
+				}
+			}
+			else if(left.getType() != right.getType()) {
+				if(left.getType() == Type.stringType && right.getType() != Type.nullType){
+					error("LeftType is String, RightType must be String or nil");
+				}
+				else if(right.getType() == Type.stringType && left.getType() != Type.nullType){
+					error("Right is String, LeftType must be String or nil");
+				}	
+			}	
 			return new CompositeExpr(op, left, right);
 		}
 		return left;
@@ -1314,6 +1344,9 @@ public class Compiler {
 				name = lexer.getStringValue();
 				if(!classdec.addField(new FieldDec(qualifier, name, typeVar))) {
 					error("Variable '" + name + "' has been already declared");
+				}
+				if(symbolTable.getInClass(name) != null) {
+					error("Field '" + name + "' has same name of an Class");
 				}
 				if(!qualifier.isPrivate() && !qualifier.isVoid()) {
 					error("Attempt to declare public instance variable '" + name + "'");

@@ -66,7 +66,6 @@ public enum Token {
     TRUE("true"),
     UNTIL("until"),
     VAR("var"),
-    VOID("void"),
     WHILE("while");
 
 	Token(String name) {
