@@ -19,17 +19,31 @@ public class SelfMethodCallPar extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		pw.print("this.");
-		this.variable.genJava(pw);
-		pw.print("." + this.method.getName() + "( ");
-		if(this.expr.size() > 0) {
-			this.expr.get(0).genJava(pw);
+		if(method.getType() == Type.voidType) {
+			pw.printIdent("this.");
+			this.variable.genJava(pw);
+			pw.print("." + this.method.getName() + "( ");
+			if(this.expr.size() > 0) {
+				this.expr.get(0).genJava(pw);
+			}
+			for(int i = 1; i < this.expr.size(); i++) {
+				pw.print(", ");
+				this.expr.get(i).genJava(pw);
+			}
+			pw.println(" );");
+		}else {
+			pw.print("this.");
+			this.variable.genJava(pw);
+			pw.print("." + this.method.getName() + "( ");
+			if(this.expr.size() > 0) {
+				this.expr.get(0).genJava(pw);
+			}
+			for(int i = 1; i < this.expr.size(); i++) {
+				pw.print(", ");
+				this.expr.get(i).genJava(pw);
+			}
+			pw.print(" )");
 		}
-		for(int i = 1; i < this.expr.size(); i++) {
-			pw.print(", ");
-			this.expr.get(i).genJava(pw);
-		}
-		pw.print(" )");
 	}
 	
 	public void genC(PW pw) {
@@ -41,7 +55,7 @@ public class SelfMethodCallPar extends Expr{
 	}
 	
 	public Type getType() {
-		return Type.undefinedType;
+		return method.getType();
 	}
 
 	private MethodDec method;

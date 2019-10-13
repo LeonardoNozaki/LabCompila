@@ -505,6 +505,10 @@ public class Compiler {
 			else if(l instanceof TypeCianetoClass) {
 				if(right instanceof ObjectCreation) {
 					//falta terminar, nao encontrei um teste desse tipo
+					TypeCianetoClass classtype = (TypeCianetoClass) r;
+					if(!classtype.searchType(l.getName())) {
+						error("Type error: type of the right-hand side of the assignment is not an instance of the left-hand side");
+					}
 				}
 				else if(r instanceof TypeCianetoClass) {
 					TypeCianetoClass classtype = (TypeCianetoClass) r;
@@ -513,7 +517,7 @@ public class Compiler {
 					}
 				}
 				else if(r != Type.nullType){
-					error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
+					//error("Type error: type of the right-hand side is not type of the variable of the left-hand side.");
 				}
 			}
 				
@@ -736,10 +740,10 @@ public class Compiler {
 					error("Attempt to print a boolean expression");
 				}
 				else if(aux.getType() instanceof TypeCianetoClass) {		
-					error("Command 'write' does not accept objects");		
+					error("Command 'print' does not accept objects");		
 				}		
 				else if(aux.getType() != Type.intType && aux.getType() != Type.stringType) {		
-					error("Command 'write' accept only Int or String expression");		
+					error("Command 'print' accept only Int or String expression");		
 				}
 			} while(lexer.token == Token.COMMA);
 			return new Print(expr);
@@ -749,14 +753,15 @@ public class Compiler {
 				lexer.nextToken();
 				aux = expr();
 				expr.add(aux);
+				
 				if(aux.getType() == Type.booleanType) {
 					error("Attempt to print a boolean expression");
 				}
-				else if(aux.getType() instanceof TypeCianetoClass) {		
-					error("Command 'write' does not accept objects");		
+				else if(aux.getType() instanceof TypeCianetoClass) {
+					error("Command 'println' does not accept objects");		
 				}		
 				else if(aux.getType() != Type.intType && aux.getType() != Type.stringType) {		
-					error("Command 'write' accept only Int or String expression");		
+					error("Command 'println' accept only Int or String expression");		
 				}
 			} while(lexer.token == Token.COMMA);
 			return new Println(expr);

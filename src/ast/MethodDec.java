@@ -109,7 +109,7 @@ public class MethodDec {
 			}
 			for(int i = 1; i < this.paramDec.size(); i++) {
 				pw.print(", ");
-				pw.print(this.paramDec.get(0).getType().getJavaname()+ " ");
+				pw.print(this.paramDec.get(i).getType().getJavaname()+ " ");
 				this.paramDec.get(i).genJava(pw);
 			}
 		}

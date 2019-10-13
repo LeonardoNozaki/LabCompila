@@ -83,7 +83,7 @@ public class TokenMethodCallPar extends Expr{
 	}
 	
 	public Type getType() {
-		return Type.undefinedType;
+		return method.getType();
 	}
 
 	private MethodDec method;

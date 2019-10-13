@@ -13,7 +13,7 @@ public class AssertStat extends Statement{
 		this.expr.genJava(pw);
 		pw.println(" )){");
 		pw.add();
-		pw.printlnIdent("System.out.print(" + message + ");");
+		pw.printlnIdent("System.out.print(\"" + message + "\");");
 		pw.sub();
 		pw.printlnIdent("}");
 	}

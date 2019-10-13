@@ -30,9 +30,9 @@ public class RepeatStat extends Statement{
 			this.stat.get(i).genJava(pw);
 		}
 		pw.sub();
-		pw.printIdent("} while(");
+		pw.printIdent("} while(!(");
 		this.expr.genJava(pw);
-		pw.println(");");
+		pw.println("));");
 	}
 
 	private Expr expr;

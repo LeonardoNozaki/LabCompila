@@ -26,9 +26,16 @@ public class SelfMethodCall extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		pw.print("this.");
-		this.variable.genJava(pw);
-		pw.print("." + this.method.getName());
+		if(method.getType() == Type.voidType) {
+			pw.printIdent("this.");
+			this.variable.genJava(pw);
+			pw.println("." + this.method.getName() + "();");
+		}
+		else {
+			pw.print("this.");
+			this.variable.genJava(pw);
+			pw.print("." + this.method.getName() + "()");
+		}
 	}
 	
 	public void genC(PW pw) {
@@ -40,7 +47,7 @@ public class SelfMethodCall extends Expr{
 	}
 	
 	public Type getType() {
-		return Type.undefinedType;
+		return method.getType();
 	}
 
 	private MethodDec method;
