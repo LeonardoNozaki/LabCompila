@@ -12,14 +12,9 @@
 package ast;
 
 public class MethodCall extends Expr{
-	public MethodCall(Variable variable, MethodDec methodDec, boolean retorno){
+	public MethodCall(Variable variable, MethodDec methodDec){
 		this.variable = variable;
 		this.methodDec = methodDec;
-		this.retorno = retorno;
-	}
-	
-	public boolean getRetorno() {
-		return this.retorno;
 	}
 	
 	public String getName() {
@@ -31,7 +26,7 @@ public class MethodCall extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		if(retorno == true) {
+		if(this.methodDec.getType() != Type.voidType) {
 			this.variable.genJava(pw);
 			pw.print("." + methodDec.getName() + "() ");
 		}
@@ -60,5 +55,4 @@ public class MethodCall extends Expr{
 	
 	private Variable variable;
 	private MethodDec methodDec;
-	private boolean retorno;
 }

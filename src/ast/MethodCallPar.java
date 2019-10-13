@@ -14,11 +14,10 @@ package ast;
 import java.util.ArrayList;
 
 public class MethodCallPar extends Expr{
-	public MethodCallPar(Variable variable, String methodName, ArrayList<Expr> expr, boolean retorno){
+	public MethodCallPar(Variable variable, MethodDec methodDec, ArrayList<Expr> expr){
 		this.variable = variable;
-		this.methodName = methodName;
+		this.methodDec = methodDec;
 		this.expr = expr;
-		this.retorno = retorno;
 	}
 	
 	public boolean isObjectCreation() {
@@ -26,9 +25,9 @@ public class MethodCallPar extends Expr{
 	}
 	
 	public void genJava(PW pw) {
-		if(retorno == true) {
+		if(this.methodDec.getType() != Type.voidType) {
 			this.variable.genJava(pw);
-			pw.print("." + methodName.substring(0,  methodName.length()-1) + "(");
+			pw.print("." + methodDec.getName().substring(0,  methodDec.getName().length()-1) + "(");
 			this.expr.get(0).genJava(pw);	
 			for(int i = 1; i < this.expr.size(); i++) {
 				pw.print(", ");
@@ -39,7 +38,7 @@ public class MethodCallPar extends Expr{
 		else {
 			pw.printIdent("");
 			this.variable.genJava(pw);
-			pw.print("." + methodName.substring(0,  methodName.length()-1) + "(");
+			pw.print("." + methodDec.getName().substring(0,  methodDec.getName().length()-1) + "(");
 			this.expr.get(0).genJava(pw);	
 			for(int i = 1; i < this.expr.size(); i++) {
 				pw.print(", ");
@@ -63,10 +62,10 @@ public class MethodCallPar extends Expr{
 	}
 	
 	public Type getType() {
-		return Type.undefinedType;
+		return methodDec.getType();
 	}
+	
 	private Variable variable;
-	private String methodName;
+	private MethodDec methodDec;
 	private ArrayList<Expr> expr;
-	private boolean retorno;
 }

@@ -32,7 +32,7 @@ public class Compiler {
 		Program program = null;
 		lexer.nextToken();
 		program = program(compilationErrorList);
-		isRepetitionState = false;
+		isRepetitionState = 0;
 		return program;
 	}
 
@@ -225,7 +225,6 @@ public class Compiler {
 
 	private void memberList() {
 		Qualifier quali;
-		MethodDec methodDec;
 		
 		while ( true ) {
 			quali = qualifier();
@@ -506,7 +505,7 @@ public class Compiler {
 		else {
 			if(left instanceof MethodCall) {
 				MethodCall mc = (MethodCall) left;
-				if(mc.getRetorno()) {
+				if(mc.getType() != Type.voidType) {
 					error("Message send '" + mc.getName() + "' returns a value that is not used");
 				}
 			}
@@ -594,11 +593,11 @@ public class Compiler {
 		ArrayList<Statement> stat = new ArrayList<Statement>();
 		symbolTable.add();
 		
-		isRepetitionState = true;
+		isRepetitionState = isRepetitionState + 1;
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.UNTIL && lexer.token != Token.END && lexer.token != Token.EOF) {
 			stat.add(statement());
 		}
-		isRepetitionState = false;
+		isRepetitionState = isRepetitionState - 1;
 		
 		check(Token.UNTIL, "missing keyword 'until'");
 		symbolTable.sub();
@@ -611,7 +610,7 @@ public class Compiler {
 
 	private Statement breakStat() {
 		lexer.nextToken();
-		if(isRepetitionState == false) {
+		if(isRepetitionState == 0) {
 			error("'break' statement found outside a 'while' or 'repeat-until' statement");
 		}
 		return new BreakStat();
@@ -653,11 +652,11 @@ public class Compiler {
 		check(Token.LEFTCURBRACKET, "missing '{' after the 'while' expression");
 		symbolTable.add();
 		
-		isRepetitionState = true;
+		isRepetitionState = isRepetitionState + 1;
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.EOF ) {
 			stat.add(statement());
 		}
-		isRepetitionState = false;
+		isRepetitionState = isRepetitionState - 1;
 		
 		check(Token.RIGHTCURBRACKET, "missing '}' after 'while' body");
 		symbolTable.sub();
@@ -999,9 +998,9 @@ public class Compiler {
 								MethodDec md = typecianeto.getMethodPublic(idMethod);
 								if(md != null) {
 									if(md.getType() == Type.voidType) {
-										return new MethodCall(var, md, false);
+										return new MethodCall(var, md);
 									}
-									return new MethodCall(var, md, true);
+									return new MethodCall(var, md);
 								}
 								else {
 									error(idMethod + " was not declared in class of object " + idName);
@@ -1038,9 +1037,9 @@ public class Compiler {
 										error(idMethod + " has different parameters");
 									}
 									if(md.getType() == Type.voidType) {
-										return new MethodCallPar(var, idMethod, exprs, false);
+										return new MethodCallPar(var, md, exprs);
 									}
-									return new MethodCallPar(var, idMethod, exprs, true);
+									return new MethodCallPar(var, md, exprs);
 								}
 								else {
 									error("Method '" + idMethod + "' was not found in class '" + typecianeto.getName() + "' or its superclasses");
@@ -1390,37 +1389,13 @@ public class Compiler {
 		return new AssertStat(expr, message);
 	}
 
-
-
-
-	private LiteralInt literalInt() {
-
-		LiteralInt e = null;
-
-		// the number value is stored in lexer.getToken().value as an object of
-		// Integer.
-		// Method intValue returns that value as an value of type int.
-		int value = lexer.getNumberValue();
-		lexer.nextToken();
-		return new LiteralInt(value);
-	}
-
-	private static boolean startExpr(Token token) {
-
-		return token == Token.FALSE || token == Token.TRUE
-				|| token == Token.NOT || token == Token.SELF
-				|| token == Token.LITERALINT || token == Token.SUPER
-				|| token == Token.LEFTPAR || token == Token.NULL
-				|| token == Token.ID || token == Token.LITERALSTRING;
-
-	}
-
 	private SymbolTable		symbolTable;
 	private Lexer			lexer;
 	private ErrorSignaller	signalError;
 	private TypeCianetoClass classdec;
 	private boolean returnFlag;
 	private boolean returnNeed;
-	private boolean isRepetitionState;
 	private Type returnType;
+	
+	private int isRepetitionState;
 }
