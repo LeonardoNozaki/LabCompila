@@ -343,6 +343,16 @@ public class Compiler {
 				error("method does not override or implement a method from a supertype");
 			}
 		}
+		else if(classdec.getSuper() != null) {
+			if(classdec.getSuper().getMethodPublic(id) != null) {
+				if(classdec.getSuper().sameSignature(methodDec)) {
+					error("'override' expected before overridden method '" + id + "'");
+				}
+				else {
+					error("Method '" + id + "' is being redefined in subclass '" +  classdec.getName() + "' with a signature different from the method of superclass '" + classdec.getSuper().getNameSuper(id) + "'");
+				}
+			}
+		}
 		
 		if ( lexer.token != Token.LEFTCURBRACKET ) {
 			error("'{' expected");
