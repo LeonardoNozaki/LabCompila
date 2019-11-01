@@ -35,9 +35,7 @@ public class MethodDec {
 		this.stat = stat;
 	}
 	
-	public void genC( PW pw ) {
-		
-	}
+	
 	
 	public boolean comparePar(ArrayList<Expr> expr) {
 		if(expr.size() != paramDec.size()) {
@@ -101,6 +99,35 @@ public class MethodDec {
 		}
 	}
 	
+	public void genC( PW pw , String className) {
+		if(id.charAt(id.length() -1) == ':') {
+			pw.printIdent(this.type.getCname() + " _" + className + "_" + id.substring(0, id.length()-1) + "( ");
+		}
+		else {
+			pw.printIdent(this.type.getCname() + " _" + className + "_" + id + "( ");
+		}
+		
+		pw.print(" _class_" + className + " *self");
+		
+		if(paramDec != null) {
+			for(int i = 0; i < this.paramDec.size(); i++) {
+				pw.print(", ");
+				pw.print(this.paramDec.get(i).getType().getCname()+ " ");
+				this.paramDec.get(i).genC(pw);
+			}
+		}
+		
+		pw.println("){");
+		pw.add();
+		
+		for(int i = 0; i < this.stat.size(); i++) {
+			this.stat.get(i).genC(pw);
+		}
+		
+		pw.sub();
+		pw.printlnIdent("}");
+	}
+
 	public void genJava(PW pw) {
 		if(this.qualifier.isVoid()) {
 			pw.printIdent("public ");

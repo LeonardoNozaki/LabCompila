@@ -51,6 +51,54 @@ public class Program {
 	}
 
 	public void genC(PW pw) {
+		pw.printlnIdent("#include <malloc.h>");
+		pw.printlnIdent("#include <stdlib.h>");
+		pw.printlnIdent("#include <stdio.h>");
+		pw.println("");
+		
+		pw.printlnIdent("typedef int boolean;");
+		pw.printlnIdent("#define true 1");
+		pw.printlnIdent("#define false 0");
+		pw.println("");
+		
+		pw.printlnIdent("int readInt() {");
+		pw.add();
+		pw.printlnIdent("int n;");
+		pw.printlnIdent("char __s[512];");
+		pw.printlnIdent("gets(__s);");
+		pw.printlnIdent("sscanf(__s, \"%d\", &_n);");
+		pw.printlnIdent("return n;");
+		pw.sub();
+		pw.printlnIdent("}");
+		pw.println("");
+		
+		pw.printlnIdent("char *readString() {");
+		pw.add();
+		pw.printlnIdent("char s[512];");
+		pw.printlnIdent("gets(s);");
+		pw.printlnIdent("char *ret = malloc(strlen(s) + 1);");
+		pw.printlnIdent("strcpy(ret, s);");
+		pw.printlnIdent("return ret;");
+		pw.sub();
+		pw.printlnIdent("}");
+		pw.println("");
+		
+		pw.printlnIdent("typedef void (*Func)();");
+		pw.println("");
+		
+		for(int i = 0; i < this.classList.size(); i++) {
+			this.classList.get(i).genC(pw);
+		}
+		
+		pw.println("");
+		pw.printlnIdent("int main() {");
+		pw.add();
+		pw.printlnIdent("_class_Program *program;");
+		pw.printlnIdent("program = new_Program();");
+		pw.printlnIdent("_Program_run(program);");
+		pw.printlnIdent("return 0;");
+		pw.sub();
+		pw.printlnIdent("}");
 	}
 	
 	public ArrayList<TypeCianetoClass> getClassList() {

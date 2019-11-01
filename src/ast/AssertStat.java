@@ -28,7 +28,13 @@ public class AssertStat extends Statement{
 	}
 
 	public void genC( PW pw ) {
-		
+		pw.printIdent("if( " );
+		this.expr.genC(pw, true);
+		pw.println(" == false){");
+		pw.add();
+		pw.printlnIdent("puts(\"" + message + "\");");
+		pw.sub();
+		pw.printlnIdent("}");
 	}
 
 	private Expr expr;

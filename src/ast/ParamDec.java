@@ -27,7 +27,7 @@ public class ParamDec extends Variable{
 	}
 	
 	public void genC( PW pw ) {
-		
+		pw.print(id);
 	}
 	public void genJava(PW pw) {
 		pw.print(id);

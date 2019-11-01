@@ -182,6 +182,91 @@ public class TypeCianetoClass extends Type{
 	   return true;
    }
    
+	public void genC(PW pw) {
+		String className = this.getCname();
+		pw.printlnIdent("typedef");
+		pw.add();
+		pw.printlnIdent("struct" + " _St_" + className + " {");
+		pw.add();
+		pw.printlnIdent("Func *vt;");
+		   
+		this.genFieldC(pw);
+
+		pw.sub();
+		pw.printlnIdent("} _class_" + className + ";");
+		pw.sub();
+		
+		pw.printlnIdent("_class_" + className + " *new_" + className + "(void);");
+		
+		for(int i = 0; i < this.privateMethodList.size(); i++) {
+			this.privateMethodList.get(i).genC(pw, className);
+		}
+		for(int i = 0; i < this.publicMethodList.size(); i++) {
+			this.publicMethodList.get(i).genC(pw, className);
+		}
+		
+		this.genArrayMethodC(pw);
+		
+		pw.printlnIdent("_class_" + className + " *new_" + className + "() {");
+		pw.add();
+		pw.printlnIdent("_class_" + className + " *t;");
+		pw.printlnIdent("if ( (t = malloc(sizeof(_class_" + className + "))) != NULL )");
+		pw.printlnIdent("t->vt = VTclass_" + className + ";");
+		pw.printlnIdent("return t;");
+		pw.sub();
+		pw.printlnIdent("}");
+		
+	}
+   
+	public void genFieldC(PW pw) {
+		if(superclass != null) {
+			superclass.genFieldC(pw);
+		}
+	  
+		for(int i = 0; i < this.fieldList.size(); i++) {
+			pw.printIdent(fieldList.get(i).getType().getCname() + " ");
+			pw.println("_" + getCname() + "_" + fieldList.get(i).getName() + ";" );
+		}
+	}
+	
+	public void genArrayMethodC(PW pw) {
+		ArrayList<String> globalNames = new ArrayList<String>();
+		String className = this.getCname();
+		pw.printlnIdent("Func VTclass_" + className + "[] = {");
+		pw.add();
+		this.genMethodC(pw, globalNames);
+		pw.sub();
+		pw.printlnIdent("};");
+	}
+	
+	public void genMethodC(PW pw, ArrayList<String> globalNames) {
+		ArrayList<String> localNames = new ArrayList<String>();
+		for(int i = 0; i < this.publicMethodList.size(); i++) {
+			if(globalNames.contains(this.publicMethodList.get(i).getName()) == false) {
+				globalNames.add(this.publicMethodList.get(i).getName());
+				localNames.add(this.publicMethodList.get(i).getName());
+			}
+		}
+		
+		if(superclass != null) {
+			superclass.genMethodC(pw, globalNames);
+		}
+		
+		String className = this.getCname();
+		boolean flag = false;
+		for(int i = 0; i < this.publicMethodList.size(); i++) {
+			if(localNames.contains(this.publicMethodList.get(i).getName()) == true 
+					&& this.publicMethodList.get(i).getQuali().hasFinal() == false) {
+				if(flag == true) {
+					pw.println(",");
+				}
+				pw.printIdent("( void (*)() )" + " _" + className + "_" +  this.publicMethodList.get(i).getName());
+				flag = true;
+			}
+		}
+		pw.println("");
+	}
+	
    public void genJava(PW pw) {
 	    pw.println("");
 	    if(open) {

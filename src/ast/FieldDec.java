@@ -32,12 +32,18 @@ public class FieldDec extends Variable {
 	}
 	
 	public void genC( PW pw ) {
-		
+		pw.print(id);
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		if(putParenthesis == true) {
+			pw.print("(" + id + ")");
+		}
+		else{
+			pw.print(id);
+		}
 	}
+	
 	public void genJava(PW pw) {
 		pw.print(id);
 	}
