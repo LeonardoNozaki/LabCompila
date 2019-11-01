@@ -12,11 +12,11 @@ class Program
 
         if num < 15 { 
             Out.println: "pequeno"; 
-            assert n < 15, "n < 15";
+            assert num < 15, "n < 15";
         } 
         else {
             Out.println: "grande";
-            assert n >= 15, "n >= 15";
+            assert num >= 15, "n >= 15";
         }
          
    }   

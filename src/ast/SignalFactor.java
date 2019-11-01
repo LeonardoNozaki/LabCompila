@@ -36,6 +36,7 @@ public class SignalFactor extends Expr{
 	@Override
 	public void genC(PW pw) {
 		//this.genC(pw, false);
+		//nao precisa tratar o caso do not
 	}
 	
 	public void genJava(PW pw) {

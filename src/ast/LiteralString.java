@@ -27,7 +27,16 @@ public class LiteralString extends Expr {
     
     @Override
     public void genC( PW pw, boolean putParenthesis ) {
-        pw.print(literalString);
+    	if(putParenthesis == true) {
+	    	pw.print("(\"");
+	    	pw.print(literalString);
+	    	pw.print("\")");
+    	}
+    	else {
+    		pw.print("\"");
+        	pw.print(literalString);
+        	pw.print("\"");
+    	}
     }
     
     public void genJava(PW pw) {

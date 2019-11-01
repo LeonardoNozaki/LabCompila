@@ -21,7 +21,32 @@ public class IfStat extends Statement {
 	}
 
 	public void genC( PW pw ) {
+		if(this.expr instanceof SignalFactor) {
+			pw.printIdent("if( ");
+			this.expr.genC(pw, true);
+			pw.println(" == false ){");
+		}
+		else {
+			pw.printIdent("if( ");
+			this.expr.genC(pw, true);
+			pw.println(" != false ){");
+		}
 		
+		pw.add();
+		for(int i = 0; i < this.leftPart.size(); i++) {
+			this.leftPart.get(i).genC(pw);
+		}
+		pw.sub();
+		pw.printlnIdent("}");
+		if(rightPart.size() > 0) {
+			pw.printlnIdent("else{");
+			pw.add();
+			for(int i = 0; i < this.rightPart.size(); i++) {
+				this.rightPart.get(i).genC(pw);
+			}
+			pw.sub();
+			pw.printlnIdent("}");
+		}
 	}
 	
 	public void genJava(PW pw) {

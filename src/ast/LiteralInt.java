@@ -35,7 +35,12 @@ public class LiteralInt extends Expr {
     
     @Override
     public void genC( PW pw, boolean putParenthesis ) {
-        pw.printIdent("" + value);
+        if(putParenthesis == true) {
+        	pw.print("( " + this.value + " )");
+        }
+        else {
+        	pw.print("" + this.value);
+        }
     }
     
     @Override
