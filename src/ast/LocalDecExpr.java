@@ -27,7 +27,9 @@ public class LocalDecExpr extends Variable{
 	}
 	
 	public void genC(PW pw) {
-
+		pw.printIdent(this.type.getCname() + " _" + id + " = ");
+		this.expr.genC(pw, false);
+		pw.println(";");
 	}
 	
 	public boolean isOnlyId() {
@@ -35,7 +37,7 @@ public class LocalDecExpr extends Variable{
     }
 	
 	public void genJava(PW pw) {
-		pw.printIdent(this.type.getJavaname() + id + " = ");
+		pw.printIdent(this.type.getJavaname() + " " + id + " = ");
 		this.expr.genJava(pw);
 		pw.println(";");
 	}

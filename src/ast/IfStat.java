@@ -22,11 +22,11 @@ public class IfStat extends Statement {
 
 	public void genC( PW pw ) {
 		if(this.expr instanceof SignalFactor) {
+			SignalFactor sf = (SignalFactor) this.expr;
+			sf.nullOP();
 			pw.printIdent("if( ");
 			this.expr.genC(pw, true);
 			pw.println(" == false ){");
-			SignalFactor sf = (SignalFactor) this.expr;
-			sf.nullOP();
 		}
 		else {
 			pw.printIdent("if( ");
