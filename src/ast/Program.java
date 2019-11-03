@@ -88,9 +88,9 @@ public class Program {
 		
 		for(int i = 0; i < this.classList.size(); i++) {
 			this.classList.get(i).genC(pw);
+			pw.println("");
 		}
-		
-		pw.println("");
+
 		pw.printlnIdent("int main() {");
 		pw.add();
 		pw.printlnIdent("_class_Program *program;");

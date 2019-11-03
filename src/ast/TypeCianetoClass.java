@@ -195,17 +195,22 @@ public class TypeCianetoClass extends Type{
 		pw.sub();
 		pw.printlnIdent("} _class_" + className + ";");
 		pw.sub();
+		pw.println("");
 		
 		pw.printlnIdent("_class_" + className + " *new_" + className + "(void);");
+		pw.println("");
 		
 		for(int i = 0; i < this.privateMethodList.size(); i++) {
 			this.privateMethodList.get(i).genC(pw, className);
+			pw.println("");
 		}
 		for(int i = 0; i < this.publicMethodList.size(); i++) {
 			this.publicMethodList.get(i).genC(pw, className);
+			pw.println("");
 		}
 		
 		this.genArrayMethodC(pw);
+		pw.println("");
 		
 		pw.printlnIdent("_class_" + className + " *new_" + className + "() {");
 		pw.add();

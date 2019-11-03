@@ -107,7 +107,7 @@ public class MethodDec {
 			pw.printIdent(this.type.getCname() + " _" + className + "_" + id + "( ");
 		}
 		
-		pw.print(" _class_" + className + " *self");
+		pw.print("_class_" + className + " *self ");
 		
 		if(paramDec != null) {
 			for(int i = 0; i < this.paramDec.size(); i++) {
