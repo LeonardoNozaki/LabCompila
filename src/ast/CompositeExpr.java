@@ -28,7 +28,18 @@ public class CompositeExpr extends Expr {
 	}
 	
     public void genC( PW pw, boolean putParenthesis ) {
+    	if(putParenthesis == true) {
+    		pw.print("( ");
+    	}
     	
+    	this.left.genC(pw, false);
+    	if(this.op != null && this.right != null) {
+    		pw.print(" " + this.op.toString() + " ");
+    		this.right.genC(pw, false);
+    	}
+    	if(putParenthesis == true) {
+    		pw.print(" )");
+    	}
     }
     
     public void genJava( PW pw ) {
@@ -38,10 +49,6 @@ public class CompositeExpr extends Expr {
     		this.right.genJava(pw);
     	}
     }   
-    
-	@Override
-	public void genC(PW pw) {
-	}
 	
 	@Override
 	public Type getType() {

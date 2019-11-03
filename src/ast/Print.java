@@ -20,12 +20,12 @@ public class Print extends Statement{
 		for(int i = 0; i < expr.size(); i++) {
 			if(this.expr.get(i).getType() == Type.intType) {
 				pw.printIdent("printf(\"%d\", ");
-				this.expr.get(i).genC(pw);
+				this.expr.get(i).genC(pw, false);
 				pw.println(");");
 			}
 			else {
 				pw.printIdent("printf(\"%s\", ");
-				this.expr.get(i).genC(pw);
+				this.expr.get(i).genC(pw, false);
 				pw.println(");");
 			}	
 		}

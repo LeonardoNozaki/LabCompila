@@ -26,11 +26,7 @@ public class MultipleExpr extends Expr{
     public void genC( PW pw, boolean putParenthesis ) {
     	
     }
-    
-	@Override
-	public void genC(PW pw) {
-	}
-	
+   
 	public void genJava(PW pw) {
 		this.expr.get(0).genJava(pw);
 		for(int i = 1; i < this.expr.size(); i++) {

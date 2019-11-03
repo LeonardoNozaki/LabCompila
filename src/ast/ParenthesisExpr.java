@@ -17,7 +17,9 @@ public class ParenthesisExpr extends Expr{
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-    	
+		pw.print("( ");
+		this.expr.genC(pw, putParenthesis);
+		pw.print(" )");
     }
 
 	public boolean isObjectCreation() {
@@ -27,11 +29,6 @@ public class ParenthesisExpr extends Expr{
 	public boolean isOnlyId() {
     	return expr.isOnlyId();
     }
-	
-	@Override
-	public void genC(PW pw) {
-		//this.genC(pw, false);
-	}
 	
 	public void genJava(PW pw) {
 		pw.print("( ");

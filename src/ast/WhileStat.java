@@ -20,8 +20,17 @@ public class WhileStat extends Statement{
 	}
 
 	public void genC( PW pw ) {
-		
+		pw.printIdent("while( ");
+		this.expr.genC(pw, false);
+		pw.println(" ) {");
+		pw.add();
+		for(int i = 0; i < this.stat.size(); i++) {
+			this.stat.get(i).genC(pw);
+		}
+		pw.sub();
+		pw.printlnIdent("}");
 	}
+	
 	
 	public void genJava(PW pw) {
 		pw.printIdent("while( ");

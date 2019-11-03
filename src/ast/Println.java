@@ -22,24 +22,24 @@ public class Println extends Statement{
 			if(i < expr.size() - 1) {
 				if(this.expr.get(i).getType() == Type.intType) {
 					pw.printIdent("printf(\"%d\", ");
-					this.expr.get(i).genC(pw);
+					this.expr.get(i).genC(pw, false);
 					pw.println(");");
 				}
 				else {
 					pw.printIdent("printf(\"%s\", ");
-					this.expr.get(i).genC(pw);
+					this.expr.get(i).genC(pw, false);
 					pw.println(");");
 				}	
 			}
 			else {
 				if(this.expr.get(i).getType() == Type.intType) {
 					pw.printIdent("printf(\"%d\\n\", ");
-					this.expr.get(i).genC(pw);
+					this.expr.get(i).genC(pw, false);
 					pw.println(");");
 				}
 				else {
 					pw.printIdent("printf(\"%s\\n\", ");
-					this.expr.get(i).genC(pw);
+					this.expr.get(i).genC(pw, false);
 					pw.println(");");
 				}	
 			}

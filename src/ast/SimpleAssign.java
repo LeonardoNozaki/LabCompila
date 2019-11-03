@@ -16,10 +16,12 @@ public class SimpleAssign extends AssignExpr {
 		this.left = left;
 	}
 	public void genC(PW pw) {
-		
+		pw.printIdent("");
+		this.left.genC(pw, false);
 	}
 	
 	public void genJava(PW pw) {
+		pw.printIdent("");
 		this.left.genJava(pw);
 	}
 	

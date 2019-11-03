@@ -23,16 +23,13 @@ public class ObjectCreation extends Expr{
 	public void genJava(PW pw) {
 		pw.print("new " + this.type.getJavaname() + "()");
 	}
-	public void genC(PW pw) {
-		
-	}
 	
 	public boolean isOnlyId() {
     	return false;
     }
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		pw.print("new_" + this.type.getCname() + "()");
 	}
 	
 	public Type getType() {

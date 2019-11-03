@@ -21,16 +21,11 @@ public class SimpleExpr extends Expr{
     }
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-    	
+		this.expr.genC(pw, true);
     }
 
 	public boolean isObjectCreation() {
 		return false;
-	}
-	
-	@Override
-	public void genC(PW pw) {
-		//this.genC(pw, false);
 	}
 	
 	public void genJava(PW pw) {

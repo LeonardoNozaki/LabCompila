@@ -117,7 +117,7 @@ public class MethodDec {
 			}
 		}
 		
-		pw.println("){");
+		pw.println(") {");
 		pw.add();
 		
 		for(int i = 0; i < this.stat.size(); i++) {

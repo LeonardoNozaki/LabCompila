@@ -17,9 +17,5 @@ abstract public class Expr {
     abstract public boolean isOnlyId();
     abstract public boolean isObjectCreation();
     abstract public Type getType();
-    
-	
-	public void genC(PW pw) {
-		this.genC(pw, false);
-	}
+   
 }

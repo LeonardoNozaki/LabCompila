@@ -20,7 +20,15 @@ public class RepeatStat extends Statement{
 	}
 
 	public void genC( PW pw ) {
-		
+		pw.printlnIdent("do {");
+		pw.add();
+		for(int i = 0; i < this.stat.size(); i++) {
+			this.stat.get(i).genC(pw);
+		}
+		pw.sub();
+		pw.printIdent("} while( ");
+		this.expr.genC(pw, true);
+		pw.println(" == false);");
 	}
 	
 	public void genJava(PW pw) {

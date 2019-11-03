@@ -29,15 +29,27 @@ public class SignalFactor extends Expr{
 		return false;
 	}
 	
-	public void genC( PW pw, boolean putParenthesis ) {
-    	
-    }
-
-	@Override
-	public void genC(PW pw) {
-		//this.genC(pw, false);
-		//nao precisa tratar o caso do not
+	public void nullOP() {
+		this.op = null;
 	}
+	
+	public void genC( PW pw, boolean putParenthesis ) {
+		if(putParenthesis == true) {
+			pw.print("( ");
+		}
+		
+    	if(this.op == null) {
+    		this.expr.genC(pw, false);
+    	}
+    	else {
+    		pw.print(this.op.toString());
+    		this.expr.genC(pw, false);
+    	}
+    	
+    	if(putParenthesis == true) {
+			pw.print(" )");
+		}
+    }
 	
 	public void genJava(PW pw) {
 		pw.print(this.op.toString());

@@ -16,8 +16,37 @@ public class CompositeAssign extends AssignExpr {
 		this.left = left;
 		this.right = right;
 	}
+	
 	public void genC(PW pw) {
-		
+		Type l = this.left.getType();
+		Type r = this.right.getType();
+		if(l instanceof TypeCianetoClass) {
+			if(this.right instanceof ObjectCreation) {
+				if(r.getName().equals(l.getName()) == false) {
+					pw.printIdent("");
+					this.left.genC(pw, false);
+					pw.print(" = (_class_" + r.getName() + " *) ");
+					this.right.genC(pw, false);
+					pw.println(";");
+					return;
+				}
+			}
+			else if(r instanceof TypeCianetoClass) {
+				if(r.getName().equals(l.getName()) == false) {
+					pw.printIdent("");
+					this.left.genC(pw, false);
+					pw.print(" = (_class_" + r.getName() + " *) ");
+					this.right.genC(pw, false);
+					pw.println(";");
+					return;
+				}
+			}
+		}
+		pw.printIdent("");
+		this.left.genC(pw, false);
+		pw.print(" = ");
+		this.right.genC(pw, false);
+		pw.println(";");
 	}
 	
 	public void genJava(PW pw) {

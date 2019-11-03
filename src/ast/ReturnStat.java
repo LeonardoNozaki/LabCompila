@@ -17,7 +17,9 @@ public class ReturnStat extends Statement{
 	}
 
 	public void genC( PW pw ) {
-		
+		pw.printIdent("return ");
+		this.expr.genC(pw, false);
+		pw.println(";");
 	}
 	
 	public void genJava(PW pw) {

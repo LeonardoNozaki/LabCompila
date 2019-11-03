@@ -35,9 +35,6 @@ public class LocalVar extends Variable{
     	return true;
     }
 	
-	public void genC(PW pw) {
-		
-	}
 	
 	public void genJava(PW pw) {
 		pw.print(id);
@@ -48,7 +45,12 @@ public class LocalVar extends Variable{
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		if(putParenthesis == true) {
+			pw.print("( id )");
+		}
+		else {
+			pw.print(id);
+		}
 	}
 	
 	public String getName() {

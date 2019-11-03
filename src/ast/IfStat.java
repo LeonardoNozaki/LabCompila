@@ -25,6 +25,8 @@ public class IfStat extends Statement {
 			pw.printIdent("if( ");
 			this.expr.genC(pw, true);
 			pw.println(" == false ){");
+			SignalFactor sf = (SignalFactor) this.expr;
+			sf.nullOP();
 		}
 		else {
 			pw.printIdent("if( ");
@@ -39,7 +41,7 @@ public class IfStat extends Statement {
 		pw.sub();
 		pw.printlnIdent("}");
 		if(rightPart.size() > 0) {
-			pw.printlnIdent("else{");
+			pw.printlnIdent("else {");
 			pw.add();
 			for(int i = 0; i < this.rightPart.size(); i++) {
 				this.rightPart.get(i).genC(pw);
