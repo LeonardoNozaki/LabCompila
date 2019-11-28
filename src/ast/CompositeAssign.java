@@ -25,7 +25,7 @@ public class CompositeAssign extends AssignExpr {
 				if(r.getName().equals(l.getName()) == false) {
 					pw.printIdent("");
 					this.left.genC(pw, false);
-					pw.print(" = (_class_" + r.getName() + " *) ");
+					pw.print(" = (_class_" + l.getName() + " *) ");
 					this.right.genC(pw, false);
 					pw.println(";");
 					return;
@@ -35,12 +35,20 @@ public class CompositeAssign extends AssignExpr {
 				if(r.getName().equals(l.getName()) == false) {
 					pw.printIdent("");
 					this.left.genC(pw, false);
-					pw.print(" = (_class_" + r.getName() + " *) ");
+					pw.print(" = (_class_" + l.getName() + " *) ");
 					this.right.genC(pw, false);
 					pw.println(";");
 					return;
 				}
 			}
+		}
+		if(l instanceof TypeString && r instanceof TypeString) {
+			pw.printIdent("strcpy(");
+			this.left.genC(pw, false);
+			pw.print(", ");
+			this.right.genC(pw, false);
+			pw.println(");");
+			return;
 		}
 		pw.printIdent("");
 		this.left.genC(pw, false);

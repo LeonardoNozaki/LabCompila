@@ -31,6 +31,24 @@ public class LocalDecList extends Variable{
     }
 	
 	public void genC(PW pw) {
+		if(this.type instanceof TypeCianetoClass) {
+			pw.printIdent(this.type.getCname() + " *");
+			this.id.get(0).genC(pw, false);
+			for(int i = 1; i < this.id.size(); i++) {
+				pw.print(", *");
+				this.id.get(i).genC(pw, false);
+			}
+			pw.println(";");
+			return;
+		}
+		if(this.type instanceof TypeString) {
+			for(int i = 0; i < this.id.size(); i++) {
+				pw.printIdent(this.type.getCname() + " *");
+				this.id.get(i).genC(pw, false);
+				pw.println(" = (char*)malloc(sizeof(char)*1000);");
+			}
+			return;
+		}
 		pw.printIdent(this.type.getCname() + " ");
 		this.id.get(0).genC(pw, false);
 		for(int i = 1; i < this.id.size(); i++) {

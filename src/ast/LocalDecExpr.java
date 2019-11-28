@@ -27,6 +27,36 @@ public class LocalDecExpr extends Variable{
 	}
 	
 	public void genC(PW pw) {
+		Type l = this.type;
+		Type r = this.expr.getType();
+		if(l instanceof TypeCianetoClass) {
+			if(this.expr instanceof ObjectCreation) {
+				if(r.getName().equals(l.getName()) == false) {
+					pw.printIdent(this.type.getCname() + " *_" + id);
+					pw.print(" = (_class_" + l.getName() + " *) ");
+					this.expr.genC(pw, false);
+					pw.println(";");
+					return;
+				}
+			}
+			else if(r instanceof TypeCianetoClass) {
+				if(r.getName().equals(l.getName()) == false) {
+					pw.printIdent(this.type.getCname() + " *_" + id);
+					pw.print(" = (_class_" + l.getName() + " *) ");
+					this.expr.genC(pw, false);
+					pw.println(";");
+					return;
+				}
+			}
+		}
+		if(l instanceof TypeString && r instanceof TypeString) {
+			pw.printlnIdent(this.type.getCname() + " *_" + id + " = (char*)malloc(sizeof(char)*1000);");
+			pw.printIdent("strcpy(");
+			pw.print(" _" + id + ", ");
+			this.expr.genC(pw, false);
+			pw.println(");");
+			return;
+		}
 		pw.printIdent(this.type.getCname() + " _" + id + " = ");
 		this.expr.genC(pw, false);
 		pw.println(";");

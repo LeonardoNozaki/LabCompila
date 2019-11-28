@@ -31,6 +31,19 @@ public class CompositeExpr extends Expr {
     	if(putParenthesis == true) {
     		pw.print("( ");
     	}
+    	Type l = this.left.getType();
+		Type r = this.right.getType();
+    	if(l instanceof TypeString && r instanceof TypeString) {
+    		pw.print("strcmp(");
+			this.left.genC(pw, false);
+			pw.print(", ");
+			this.right.genC(pw, false);
+			pw.print(") == 0");
+			if(putParenthesis == true) {
+	    		pw.print(" )");
+	    	}
+			return;
+    	}
     	
     	this.left.genC(pw, false);
     	if(this.op != null && this.right != null) {

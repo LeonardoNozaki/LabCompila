@@ -46,10 +46,10 @@ public class LocalVar extends Variable{
 	
 	public void genC( PW pw, boolean putParenthesis ) {
 		if(putParenthesis == true) {
-			pw.print("( id )");
+			pw.print("( _" + id + " )");
 		}
 		else {
-			pw.print(id);
+			pw.print("_" + id);
 		}
 	}
 	

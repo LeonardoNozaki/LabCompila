@@ -215,7 +215,11 @@ public class TypeCianetoClass extends Type{
 		pw.printlnIdent("_class_" + className + " *new_" + className + "() {");
 		pw.add();
 		pw.printlnIdent("_class_" + className + " *t;");
-		pw.printlnIdent("if ( (t = malloc(sizeof(_class_" + className + "))) != NULL )");
+		pw.printlnIdent("if ( (t = malloc(sizeof(_class_" + className + "))) != NULL ){");
+		pw.add();
+		for(int i = 0; i < mallocString.size(); i++) {
+			pw.printlnIdent("t->" + "_" + getCname() + "_" + mallocString.get(i) + " = (char*)malloc(sizeof(char)*1000);");	
+		}
 		pw.printlnIdent("t->vt = VTclass_" + className + ";");
 		pw.printlnIdent("return t;");
 		pw.sub();
@@ -229,50 +233,39 @@ public class TypeCianetoClass extends Type{
 		}
 	  
 		for(int i = 0; i < this.fieldList.size(); i++) {
-			pw.printIdent(fieldList.get(i).getType().getCname() + " ");
-			pw.println("_" + getCname() + "_" + fieldList.get(i).getName() + ";" );
+			if(this.fieldList.get(i).getType() instanceof TypeCianetoClass) {
+				pw.printIdent(fieldList.get(i).getType().getCname() + " *");
+				pw.println("_" + getCname() + "_" + fieldList.get(i).getName() + ";" );
+			}
+			else if(this.fieldList.get(i).getType() instanceof TypeString) {
+				mallocString.add(fieldList.get(i).getName());
+				pw.printIdent(fieldList.get(i).getType().getCname() + " *");
+				pw.println("_" + getCname() + "_" + fieldList.get(i).getName() + ";" );
+			}
+			else {
+				pw.printIdent(fieldList.get(i).getType().getCname() + " ");
+				pw.println("_" + getCname() + "_" + fieldList.get(i).getName() + ";" );
+			}
 		}
 	}
 	
 	public void genArrayMethodC(PW pw) {
-		ArrayList<String> globalNames = new ArrayList<String>();
 		String className = this.getCname();
 		pw.printlnIdent("Func VTclass_" + className + "[] = {");
 		pw.add();
-		this.genMethodC(pw, globalNames);
+		this.createGlobalNames();
+		if(globalNames.size() > 0) {
+			pw.printIdent("( void (*)() )" + globalNames.get(0));
+			for(int i = 1; i < globalNames.size(); i++) {
+				pw.println(",");
+				pw.printIdent("( void (*)() )" + globalNames.get(i));
+			}
+		}
 		pw.sub();
 		pw.printlnIdent("};");
 	}
 	
-	public void genMethodC(PW pw, ArrayList<String> globalNames) {
-		ArrayList<String> localNames = new ArrayList<String>();
-		for(int i = 0; i < this.publicMethodList.size(); i++) {
-			if(globalNames.contains(this.publicMethodList.get(i).getName()) == false) {
-				globalNames.add(this.publicMethodList.get(i).getName());
-				localNames.add(this.publicMethodList.get(i).getName());
-			}
-		}
-		
-		if(superclass != null) {
-			superclass.genMethodC(pw, globalNames);
-		}
-		
-		String className = this.getCname();
-		boolean flag = false;
-		for(int i = 0; i < this.publicMethodList.size(); i++) {
-			if(localNames.contains(this.publicMethodList.get(i).getName()) == true 
-					&& this.publicMethodList.get(i).getQuali().hasFinal() == false) {
-				if(flag == true) {
-					pw.println(",");
-				}
-				pw.printIdent("( void (*)() )" + " _" + className + "_" +  this.publicMethodList.get(i).getName());
-				flag = true;
-			}
-		}
-		pw.println("");
-	}
-	
-   public void genJava(PW pw) {
+	public void genJava(PW pw) {
 	    pw.println("");
 	    if(open) {
 	    	pw.printIdent("");
@@ -310,7 +303,7 @@ public class TypeCianetoClass extends Type{
 		pw.printlnIdent("}");
    }
    
-   public boolean sameSignature(MethodDec md) {
+	public boolean sameSignature(MethodDec md) {
 	   MethodDec supermd = this.getMethodPublic(md.getName());
 	   if(supermd != null) {
 		   if(supermd.getName().equals(md.getName()) && supermd.getType() == md.getType() && supermd.compareParOverrite(md.getParamDec())) {
@@ -333,11 +326,43 @@ public class TypeCianetoClass extends Type{
 	   }
    }
    
-   private boolean open;
-   private TypeCianetoClass superclass = null;
-   private ArrayList<FieldDec> fieldList = new ArrayList<FieldDec>();
-   private ArrayList<MethodDec> publicMethodList = new ArrayList<MethodDec>();
-   private ArrayList<MethodDec> privateMethodList = new ArrayList<MethodDec>();
-   // métodos públicos get e set para obter e iniciar as variáveis acima,
-   // entre outros métodos
+	public ArrayList<String> getGlobalNames(){
+	   return this.globalNames;
+   }
+   
+	private void createGlobalNames() {
+	   if(superclass != null) {
+		   globalNames = new ArrayList<String>(superclass.getGlobalNames());
+	   }
+	   else {
+		   globalNames = new ArrayList<String>();
+	   }
+	   int size = globalNames.size();
+	   String name;
+	   for(int i = 0; i < publicMethodList.size(); i++) {
+		   name = publicMethodList.get(i).getName();
+		   if(name.endsWith(":")) {
+			   name = name.substring(0, name.length()-1);
+			   name = name + "$";
+		   }
+		   for(int j = 0; j < size; j++) {
+			   if(globalNames.get(j).contains(name)) {
+				   globalNames.set(j, "_" + this.getCname() + "_" + name);
+			   }
+			   else {
+				   globalNames.add("_" + this.getCname() + "_" + name);
+			   }
+		   }
+	   }
+   }
+	
+    private boolean open;
+    private TypeCianetoClass superclass = null;
+    private ArrayList<FieldDec> fieldList = new ArrayList<FieldDec>();
+    private ArrayList<MethodDec> publicMethodList = new ArrayList<MethodDec>();
+    private ArrayList<MethodDec> privateMethodList = new ArrayList<MethodDec>();
+    private ArrayList<String> mallocString = new ArrayList<String>();
+    private ArrayList<String> globalNames;
+    // métodos públicos get e set para obter e iniciar as variáveis acima,
+    // entre outros métodos
 }

@@ -54,6 +54,7 @@ public class Program {
 		pw.printlnIdent("#include <malloc.h>");
 		pw.printlnIdent("#include <stdlib.h>");
 		pw.printlnIdent("#include <stdio.h>");
+		pw.printlnIdent("#include <string.h>");
 		pw.println("");
 		
 		pw.printlnIdent("typedef int boolean;");
