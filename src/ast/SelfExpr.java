@@ -28,11 +28,16 @@ public class SelfExpr extends Expr {
     }
 	
 	public void genC(PW pw) {
-		
+		pw.print("self");
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		if(putParenthesis == true) {
+			pw.print("(self)");
+		}
+		else {
+			pw.print("self");
+		}
 	}
 	
 	public Type getType() {

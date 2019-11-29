@@ -14,12 +14,13 @@ package ast;
 import java.util.ArrayList;
 
 public class MethodDec {
-	public MethodDec(Qualifier qualifier, String id) {
+	public MethodDec(Qualifier qualifier, String id, String className) {
 		this.qualifier = qualifier;
 		this.id = id;
 		this.paramDec = null;
 		this.type = Type.voidType;
 		this.stat = null;
+		this.className = className;
 	}
 	
 	public void setParamDec(ArrayList<ParamDec> paramDec) {
@@ -193,9 +194,14 @@ public class MethodDec {
 		return qualifier;
 	}
 	
+	public String getClassName() {
+		return className;
+	}
+	
 	private Qualifier qualifier;
 	private String id;
 	private ArrayList<ParamDec> paramDec;
 	private Type type;
 	private ArrayList<Statement> stat; 
+	private String className;
 }

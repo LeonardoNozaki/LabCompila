@@ -29,11 +29,18 @@ public class SelfField extends Expr{
 	}
 	
 	public void genC(PW pw) {
-		
+		String className = fieldDec.getType().getName();
+		pw.print("self->_" + className + "_" + fieldDec.getName());
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		String className = fieldDec.getType().getName();
+		if(putParenthesis == true) {
+			pw.print("(self->_" + className + "_" + fieldDec.getName() + ")");
+		}
+		else {
+			pw.print("self->_" + className + "_" + fieldDec.getName());
+		}
 	}
 	
 	public Type getType() {

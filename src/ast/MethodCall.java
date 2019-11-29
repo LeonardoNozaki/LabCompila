@@ -57,7 +57,7 @@ public class MethodCall extends Expr{
 			pw.print(" ");
 		}
 		else {
-			pw.print("( (" + returnName + " (*)(_class_" + className + " *)) ");
+			pw.printIdent("( (" + returnName + " (*)(_class_" + className + " *)) ");
 			this.variable.genC(pw, false);
 			pw.print("->vt[" + index + "] )");
 			this.variable.genC(pw, true);

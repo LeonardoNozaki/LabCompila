@@ -24,9 +24,16 @@ public class Print extends Statement{
 				pw.println(");");
 			}
 			else {
-				pw.printIdent("printf(\"%s\", ");
-				this.expr.get(i).genC(pw, false);
-				pw.println(");");
+				if(this.expr.get(i) instanceof LiteralString) {
+					pw.printIdent("printf(");
+					this.expr.get(i).genC(pw, false);
+					pw.println(");");
+				}
+				else {
+					pw.printIdent("printf(\"%s\", ");
+					this.expr.get(i).genC(pw, false);
+					pw.println(");");
+				}
 			}	
 		}
 	}

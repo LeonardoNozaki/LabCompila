@@ -39,11 +39,19 @@ public class SelfMethodCall extends Expr{
 	}
 	
 	public void genC(PW pw) {
-		
+		this.genC(pw, false);
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		if(putParenthesis == true) {
+			pw.print("(");
+		}
+		TypeCianetoClass tc = (TypeCianetoClass) variable.getType();
+		int index = tc.findMethod(method.getName());
+		pw.print("(self->_" + variable.getType().getName() + "_" + variable.getName() + "->vt[" + index + "])(self->_" + variable.getType().getName() + "_" + variable.getName() + ")");
+		if(putParenthesis == true) {
+			pw.print(")");
+		}
 	}
 	
 	public Type getType() {

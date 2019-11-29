@@ -22,7 +22,7 @@ public class SimpleExpr extends Expr{
 	
 	@Override
 	public void genC( PW pw, boolean putParenthesis ) {
-		this.expr.genC(pw, true);
+		this.expr.genC(pw, putParenthesis);
     }
 
 	@Override

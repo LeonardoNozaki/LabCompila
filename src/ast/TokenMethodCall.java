@@ -14,9 +14,10 @@ package ast;
 import lexer.Token;
 
 public class TokenMethodCall extends Expr{
-	public TokenMethodCall(Token t, MethodDec method){
+	public TokenMethodCall(Token t, MethodDec method, TypeCianetoClass classe){
 		this. method = method;
 		this.t = t;
+		this.classe = classe;
 	}
 	
 	public boolean isObjectCreation() {
@@ -61,7 +62,44 @@ public class TokenMethodCall extends Expr{
 	}
 	
 	public void genC(PW pw) {
+		if(method.getQuali().isPrivate()) {
+			if(method.getType() == Type.voidType) {
+				pw.printlnIdent("_" + method.getClassName() + "_" + method.getName() + "( self );"); 
+			}
+			else {
+				pw.print("_" + method.getClassName() + "_" + method.getName() + "( self );" );
+			}
+		}
+		else {
+			String className = "";
+			if(t== Token.SELF) {
+				className = classe.getName();	
+				String returnName = this.method.getType().getCname();
+				int index = classe.findMethod(this.method.getName());
+				
+				if(this.method.getType() != Type.voidType) {
+					pw.print("( (" + returnName + " (*)(_class_" + className + " *)) self ");
+					pw.print("->vt[" + index + "] ) ( (_class_" + className + " *) self) ");
+				}
+				else {
+					pw.printIdent("( (" + returnName + " (*)(_class_" + className + " *)) self ");
+					pw.println("->vt[" + index + "] ) ( (_class_" + className + " *) self);");
+				}
+			}
+			else {
+				className = classe.getSuper().getName();
+				if(this.method.getType() != Type.voidType) {
+					pw.print("_" + className + "_" + this.method.getName());
+					pw.print("( (_class_" + classe.getName() + " *self);");
+				}
+				else {
+					pw.printIdent("_" + className + "_" + this.method.getName());
+					pw.println("( (_class_" + classe.getName() + " *self);");
+				}
+			}
 		
+			
+		}
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
@@ -74,4 +112,5 @@ public class TokenMethodCall extends Expr{
 
 	private MethodDec method;
 	private Token t;
+	private TypeCianetoClass classe;
 }

@@ -93,6 +93,15 @@ public class Program {
 		pw.printlnIdent("}");
 		pw.println("");
 		
+		pw.printlnIdent("char *toStr(int a) {");
+		pw.add();
+		pw.printlnIdent("char *s = malloc(11);");
+		pw.printlnIdent("sprintf(s, \"%d\", a);");
+		pw.printlnIdent("return s;");
+		pw.sub();
+		pw.printlnIdent("}");
+		pw.println("");
+		
 		pw.printlnIdent("typedef void (*Func)();");
 		pw.println("");
 		

@@ -181,8 +181,9 @@ public class Compiler {
 		symbolTable.removeLocalIdent();
 		
 		boolean open = false;
-		String superclassName = "";
 		String className = "";
+		String superclassName = "";
+		className = "";
 		if ( lexer.token == Token.ID && lexer.getStringValue().equals("open") ) {
 			lexer.nextToken();
 			open = true;
@@ -312,7 +313,8 @@ public class Compiler {
 			}
 		}
 		
-		methodDec = new MethodDec(qualifier, id);
+		String className = classdec.getName();
+		methodDec = new MethodDec(qualifier, id, className);
 		methodDec.setParamDec(paramDec);
 		methodDec.setReturn(Type.voidType);
 		
@@ -1148,7 +1150,7 @@ public class Compiler {
 						else {
 							error("'super' used in class '" + classdec.getName() + "' that does not have a superclass");
 						}
-						return new TokenMethodCall(Token.SUPER, md);
+						return new TokenMethodCall(Token.SUPER, md, classdec);
 					}
 					else if(lexer.token == Token.IDCOLON){
 						String idMethod = lexer.getStringValue();
@@ -1280,7 +1282,7 @@ public class Compiler {
 						else {
 							MethodDec md = classdec.getMethod(id);
 							if(md != null) {
-								return new TokenMethodCall(Token.SELF, md);
+								return new TokenMethodCall(Token.SELF, md, classdec);
 							}
 							else {
 								FieldDec fd = classdec.getField(id);
@@ -1466,6 +1468,5 @@ public class Compiler {
 	private boolean returnFlag;
 	private boolean returnNeed;
 	private Type returnType;
-	
 	private int isRepetitionState;
 }
