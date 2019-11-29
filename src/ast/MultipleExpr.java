@@ -39,7 +39,7 @@ public class MultipleExpr extends Expr{
     		for(int k = 0; k < cont; k++) {
     			aux = "strcat(" + aux;
     		}
-    		
+    		pw.print(aux);
     		boolean flag = false;
     		if(this.expr.get(0).getType() == Type.intType) {
     			pw.print("toStr(");
