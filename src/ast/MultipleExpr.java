@@ -36,7 +36,7 @@ public class MultipleExpr extends Expr{
     	
     	if(cont > 0) {
     		String aux = "strInitCat(),";
-    		for(int k = 0; k < cont; k++) {
+    		for(int k = 0; k <= cont; k++) {
     			aux = "strcat(" + aux;
     		}
     		pw.print(aux);
