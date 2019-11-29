@@ -389,6 +389,10 @@ public class TypeCianetoClass extends Type{
 	
 	public int findMethod(String name) {
 		int size = methodNames.size();
+		if(name.endsWith(":")) {
+			name = name.substring(0, name.length()-1);
+			name = name + "$";
+		}
 		for(int j = 0; j < size; j++) {
 		   if(methodNames.get(j).equals(name)) {
 			   return j;
