@@ -135,7 +135,13 @@ public class MultipleExpr extends Expr{
 			return Type.intType;
 		}
 		else if(tam == 1){ 
-			return this.expr.get(0).getType();
+			if(this.op.get(0) == Token.PLUSPLUS) {
+				return Type.stringType;
+			}
+			else if(this.op.get(0) == Token.AND || this.op.get(0) == Token.OR) {
+				return Type.booleanType;
+			}
+			return Type.intType;
 		}
 		return Type.undefinedType;
 	}
