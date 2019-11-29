@@ -68,7 +68,7 @@ public class Program {
 		pw.printlnIdent("char __s[512];");
 		pw.printlnIdent("gets(__s);");
 		pw.printlnIdent("sscanf(__s, \"%d\", &_n);");
-		pw.printlnIdent("return n;");
+		pw.printlnIdent("return _n;");
 		pw.sub();
 		pw.printlnIdent("}");
 		pw.println("");
