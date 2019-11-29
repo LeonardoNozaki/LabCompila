@@ -25,7 +25,7 @@ public class CompilationError {
 		this.lineWithError = lineWithError;
 	}
 	
-	private static final long	serialVersionUID	= 1L;
+	//private static final long	serialVersionUID	= 1L;
 
 	public String getMessage() {
 		return message;

@@ -24,6 +24,7 @@ public class ReadExpr extends Expr {
 		return false;
 	}
 	
+	@Override
 	public void genJava(PW pw) {
 		if(this.name.equals("readInt")) {
 			pw.print("scanner.nextInt()");
@@ -33,7 +34,18 @@ public class ReadExpr extends Expr {
 		}
 	}
 	
+	@Override
 	public void genC(PW pw, boolean putParenthesis) {
+		if(this.name.equals("readInt")) {
+			pw.print("readInt()");
+		}
+		else if(this.name.equals("readString")) {
+			pw.print("readString()");
+		}
+	}
+	
+	@Override
+	public void genC( PW pw ) {
 		if(this.name.equals("readInt")) {
 			pw.print("readInt()");
 		}

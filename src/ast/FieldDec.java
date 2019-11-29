@@ -31,10 +31,12 @@ public class FieldDec extends Variable {
 		return true;
 	}
 	
+	@Override
 	public void genC( PW pw ) {
 		pw.print(id);
 	}
 	
+	@Override
 	public void genC( PW pw, boolean putParenthesis ) {
 		if(putParenthesis == true) {
 			pw.print("( _" + id + " )");

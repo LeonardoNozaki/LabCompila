@@ -84,6 +84,15 @@ public class Program {
 		pw.printlnIdent("}");
 		pw.println("");
 		
+		pw.printlnIdent("char *strInitCat() {");
+		pw.add();
+		pw.printlnIdent("char *s = malloc(2000);");
+		pw.printlnIdent("s[0] = '\0';");
+		pw.printlnIdent("return s;");
+		pw.sub();
+		pw.printlnIdent("}");
+		pw.println("");
+		
 		pw.printlnIdent("typedef void (*Func)();");
 		pw.println("");
 		
@@ -91,7 +100,7 @@ public class Program {
 			this.classList.get(i).genC(pw);
 			pw.println("");
 		}
-
+		
 		pw.printlnIdent("int main() {");
 		pw.add();
 		pw.printlnIdent("_class_Program *program;");

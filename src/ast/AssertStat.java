@@ -17,6 +17,7 @@ public class AssertStat extends Statement{
 		this.message = message;
 	}
 	
+	@Override
 	public void genJava(PW pw) {
 		pw.printIdent("if(!( " );
 		this.expr.genJava(pw);
@@ -26,7 +27,8 @@ public class AssertStat extends Statement{
 		pw.sub();
 		pw.printlnIdent("}");
 	}
-
+	
+	@Override
 	public void genC( PW pw ) {
 		pw.printIdent("if( " );
 		this.expr.genC(pw, true);

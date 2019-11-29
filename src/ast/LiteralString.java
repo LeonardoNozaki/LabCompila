@@ -39,6 +39,14 @@ public class LiteralString extends Expr {
     	}
     }
     
+    @Override
+    public void genC(PW pw) {
+    	pw.print("\"");
+    	pw.print(literalString);
+    	pw.print("\"");
+    }
+    
+    @Override
     public void genJava(PW pw) {
     	pw.print("\"");
     	pw.print(literalString);

@@ -221,6 +221,8 @@ public class TypeCianetoClass extends Type{
 			pw.printlnIdent("t->" + "_" + getCname() + "_" + mallocString.get(i) + " = (char*)malloc(sizeof(char)*1000);");	
 		}
 		pw.printlnIdent("t->vt = VTclass_" + className + ";");
+		pw.sub();
+		pw.printlnIdent("}");
 		pw.printlnIdent("return t;");
 		pw.sub();
 		pw.printlnIdent("}");
@@ -258,10 +260,11 @@ public class TypeCianetoClass extends Type{
 			pw.printIdent("( void (*)() )" + globalNames.get(0));
 			for(int i = 1; i < globalNames.size(); i++) {
 				pw.println(",");
-				pw.printIdent("( void (*)() )" + globalNames.get(i));
+				pw.printIdent("( void (*)() ) " + globalNames.get(i));
 			}
 		}
 		pw.sub();
+		pw.println("");
 		pw.printlnIdent("};");
 	}
 	
@@ -328,33 +331,71 @@ public class TypeCianetoClass extends Type{
    
 	public ArrayList<String> getGlobalNames(){
 	   return this.globalNames;
-   }
-   
+	}
+	
 	private void createGlobalNames() {
 	   if(superclass != null) {
 		   globalNames = new ArrayList<String>(superclass.getGlobalNames());
+		   createMethodNames();
 	   }
 	   else {
 		   globalNames = new ArrayList<String>();
+		   methodNames = new ArrayList<String>();
 	   }
+	   
 	   int size = globalNames.size();
 	   String name;
+	   boolean flag = false;
+	   
 	   for(int i = 0; i < publicMethodList.size(); i++) {
 		   name = publicMethodList.get(i).getName();
 		   if(name.endsWith(":")) {
 			   name = name.substring(0, name.length()-1);
 			   name = name + "$";
 		   }
+		   flag = false;
 		   for(int j = 0; j < size; j++) {
-			   if(globalNames.get(j).contains(name)) {
+			   if(methodNames.get(j).equals(name)) {
 				   globalNames.set(j, "_" + this.getCname() + "_" + name);
-			   }
-			   else {
-				   globalNames.add("_" + this.getCname() + "_" + name);
+				   j = size;
+				   flag = true;
 			   }
 		   }
+		   if(flag == false) {
+			   globalNames.add("_" + this.getCname() + "_" + name);
+			   methodNames.add(name);
+		   }
 	   }
-   }
+	}
+	
+	private void createMethodNames() {
+		methodNames = new ArrayList<String>();
+		int size = globalNames.size();
+		String aux;
+		int qnt = 0, j = 0;
+		for(int i = 0; i < size; i++) {
+			aux = globalNames.get(i);
+			qnt = 0;
+			j = 0;
+			while(qnt < 2) {
+				if(aux.charAt(j) == '_') {
+					qnt++;
+				}
+				j++;
+			}
+			methodNames.add(aux.substring(j)); //Substring comeca em j e pega ate o fim
+		}
+	}
+	
+	public int findMethod(String name) {
+		int size = methodNames.size();
+		for(int j = 0; j < size; j++) {
+		   if(methodNames.get(j).equals(name)) {
+			   return j;
+		   }
+		}
+		return -1;
+	}
 	
     private boolean open;
     private TypeCianetoClass superclass = null;
@@ -363,6 +404,7 @@ public class TypeCianetoClass extends Type{
     private ArrayList<MethodDec> privateMethodList = new ArrayList<MethodDec>();
     private ArrayList<String> mallocString = new ArrayList<String>();
     private ArrayList<String> globalNames;
+    private ArrayList<String> methodNames;
     // métodos públicos get e set para obter e iniciar as variáveis acima,
     // entre outros métodos
 }

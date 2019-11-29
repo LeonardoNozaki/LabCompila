@@ -13,23 +13,33 @@ package ast;
 
 public class NullExpr extends Expr {
     
-   public void genC( PW pw, boolean putParenthesis ) {
-	   pw.printIdent("NULL");
-   }
+	@Override
+	public void genC( PW pw, boolean putParenthesis ) {
+	   if(putParenthesis == true) {
+		   pw.printIdent("(NULL)");
+	   }
+	   else {
+		   pw.printIdent("NULL");
+	   }
+	}
    
-   public boolean isObjectCreation() {
+	@Override
+	public void genC( PW pw ) {
+		pw.printIdent("NULL");
+	}
+	public boolean isObjectCreation() {
 		return false;
 	}
    
-   public void genJava(PW pw) {
+	public void genJava(PW pw) {
 	   pw.print("null");
-   }
+	}
    
-   public boolean isOnlyId() {
-   	return false;
-   }
+	public boolean isOnlyId() {
+		return false;
+	}
    
-   public Type getType() {
-	   return Type.nullType;
-   }
+	public Type getType() {
+		return Type.nullType;
+	}
 }

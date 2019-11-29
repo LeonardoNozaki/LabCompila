@@ -20,6 +20,7 @@ public class IfStat extends Statement {
 		this.rightPart = rightPart;
 	}
 
+	@Override
 	public void genC( PW pw ) {
 		if(this.expr instanceof SignalFactor) {
 			SignalFactor sf = (SignalFactor) this.expr;
@@ -51,6 +52,7 @@ public class IfStat extends Statement {
 		}
 	}
 	
+	@Override
 	public void genJava(PW pw) {
 		pw.printIdent("if( ");
 		this.expr.genJava(pw);

@@ -26,6 +26,12 @@ public class LocalDecExpr extends Variable{
 		return false;
 	}
 	
+	@Override
+	public void genC( PW pw, boolean putParenthesis ) {
+		this.genC(pw);
+	}
+
+	@Override
 	public void genC(PW pw) {
 		Type l = this.type;
 		Type r = this.expr.getType();
@@ -66,6 +72,7 @@ public class LocalDecExpr extends Variable{
     	return false;
     }
 	
+	@Override
 	public void genJava(PW pw) {
 		pw.printIdent(this.type.getJavaname() + " " + id + " = ");
 		this.expr.genJava(pw);
@@ -73,10 +80,6 @@ public class LocalDecExpr extends Variable{
 	}
 	public Type getType() {
 		return type;
-	}
-	
-	public void genC( PW pw, boolean putParenthesis ) {
-		
 	}
 
 	public String getName() {

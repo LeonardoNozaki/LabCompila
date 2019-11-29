@@ -24,6 +24,7 @@ public class MethodCallPar extends Expr{
 		return false;
 	}
 	
+	@Override
 	public void genJava(PW pw) {
 		if(this.methodDec.getType() != Type.voidType) {
 			this.variable.genJava(pw);
@@ -52,13 +53,40 @@ public class MethodCallPar extends Expr{
     	return false;
     }
 	
+	@Override
 	public void genC(PW pw) {
+		String className = this.variable.getType().getCname();
+		String returnName = this.methodDec.getType().getCname();
+		TypeCianetoClass classe = (TypeCianetoClass) this.variable.getType();
+		int index = classe.findMethod(this.methodDec.getName());
 		
+		if(this.methodDec.getType() != Type.voidType) {
+			pw.print("( (" + returnName + " (*)(_class_" + className + " *");
+		}
+		else {
+			pw.printIdent("( (" + returnName + " (*)(_class_" + className + " *");
+		}
 		
+		for(int i = 0; i < this.expr.size(); i++) {
+			pw.print(", " + this.expr.get(i).getType().getCname());
+		}
+		
+		pw.print("))");
+		
+		this.variable.genC(pw, false);
+		pw.print("->vt[" + index + "] )(");
+		this.variable.genC(pw, false);
+		for(int i = 0; i < this.expr.size(); i++) {
+			pw.print(", ");
+			this.expr.get(i).genC(pw, false);
+		}
+		
+		pw.print(");");
 	}
 	
+	@Override
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		this.genC(pw);
 	}
 	
 	public Type getType() {

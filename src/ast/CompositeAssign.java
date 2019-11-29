@@ -17,6 +17,7 @@ public class CompositeAssign extends AssignExpr {
 		this.right = right;
 	}
 	
+	@Override
 	public void genC(PW pw) {
 		Type l = this.left.getType();
 		Type r = this.right.getType();
@@ -57,6 +58,7 @@ public class CompositeAssign extends AssignExpr {
 		pw.println(";");
 	}
 	
+	@Override
 	public void genJava(PW pw) {
 		pw.printIdent("");
 		this.left.genJava(pw);

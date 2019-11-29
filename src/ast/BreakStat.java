@@ -12,11 +12,13 @@
 package ast;
 
 public class BreakStat extends Statement{
-   public void genC( PW pw) {
+	@Override
+	public void genC( PW pw) {
 	   pw.printlnIdent("break;");
-   }
+	}
    
-   public void genJava( PW pw ) {
+	@Override
+	public void genJava( PW pw ) {
 	   pw.printlnIdent("break;");
-   }   
+	}   
 }

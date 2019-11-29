@@ -30,6 +30,12 @@ public class LocalDecList extends Variable{
     	return false;
     }
 	
+	@Override
+	public void genC( PW pw, boolean putParenthesis ) {
+		this.genC(pw);
+	}
+
+	@Override
 	public void genC(PW pw) {
 		if(this.type instanceof TypeCianetoClass) {
 			pw.printIdent(this.type.getCname() + " *");
@@ -69,10 +75,6 @@ public class LocalDecList extends Variable{
 	}
 	public Type getType() {
 		return type;
-	}
-	
-	public void genC( PW pw, boolean putParenthesis ) {
-		
 	}
 	
 	public String getName() {

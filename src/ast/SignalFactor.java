@@ -33,6 +33,7 @@ public class SignalFactor extends Expr{
 		this.op = null;
 	}
 	
+	@Override
 	public void genC( PW pw, boolean putParenthesis ) {
 		if(putParenthesis == true) {
 			pw.print("( ");
@@ -51,6 +52,18 @@ public class SignalFactor extends Expr{
 		}
     }
 	
+	@Override
+	public void genC( PW pw ) {
+    	if(this.op == null) {
+    		this.expr.genC(pw, false);
+    	}
+    	else {
+    		pw.print(this.op.toString());
+    		this.expr.genC(pw, false);
+    	}
+    }
+	
+	@Override
 	public void genJava(PW pw) {
 		pw.print(this.op.toString());
 		this.expr.genJava(pw);

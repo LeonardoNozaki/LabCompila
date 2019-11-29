@@ -13,6 +13,7 @@ package ast;
 
 abstract public class Expr {
     abstract public void genC( PW pw, boolean putParenthesis );
+    abstract public void genC( PW pw);
     abstract public void genJava(PW pw);
     abstract public boolean isOnlyId();
     abstract public boolean isObjectCreation();

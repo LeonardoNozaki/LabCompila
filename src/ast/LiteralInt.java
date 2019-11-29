@@ -29,7 +29,13 @@ public class LiteralInt extends Expr {
         return value;
     }
     
+    @Override
     public void genJava(PW pw) {
+    	pw.print("" + this.value);
+    }
+    
+    @Override
+    public void genC( PW pw) {
     	pw.print("" + this.value);
     }
     

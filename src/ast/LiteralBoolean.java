@@ -26,10 +26,16 @@ public class LiteralBoolean extends Expr {
     }
     
     @Override
+    public void genC( PW pw) {
+		this.genC(pw, false);
+	}
+    
+    @Override
 	public void genC( PW pw, boolean putParenthesis ) {
     	pw.print(value ? "true" : "false");
     }
     
+    @Override
     public void genJava(PW pw) {
     	pw.print(value ? "true" : "false");
     }

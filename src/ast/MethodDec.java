@@ -14,7 +14,6 @@ package ast;
 import java.util.ArrayList;
 
 public class MethodDec {
-	
 	public MethodDec(Qualifier qualifier, String id) {
 		this.qualifier = qualifier;
 		this.id = id;
@@ -34,8 +33,6 @@ public class MethodDec {
 	public void setStatement(ArrayList<Statement> stat) {
 		this.stat = stat;
 	}
-	
-	
 	
 	public boolean comparePar(ArrayList<Expr> expr) {
 		if(expr.size() != paramDec.size()) {
@@ -101,7 +98,7 @@ public class MethodDec {
 	
 	public void genC( PW pw , String className) {
 		if(id.charAt(id.length() -1) == ':') {
-			pw.printIdent(this.type.getCname() + " _" + className + "_" + id.substring(0, id.length()-1) + "( ");
+			pw.printIdent(this.type.getCname() + " _" + className + "_" + id.substring(0, id.length()-1) + "$( ");
 		}
 		else {
 			pw.printIdent(this.type.getCname() + " _" + className + "_" + id + "( ");
@@ -123,6 +120,7 @@ public class MethodDec {
 		for(int i = 0; i < this.stat.size(); i++) {
 			this.stat.get(i).genC(pw);
 		}
+		
 		
 		pw.sub();
 		pw.printlnIdent("}");

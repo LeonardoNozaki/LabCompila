@@ -24,7 +24,76 @@ public class MultipleExpr extends Expr{
 	}
 	
     public void genC( PW pw, boolean putParenthesis ) {
+    	if(putParenthesis == true) {
+    		pw.print("(");
+    	}
+    	int cont = 0;
+    	for(int i = 0; i < this.op.size(); i++) {
+    		if(this.op.get(i) == Token.PLUSPLUS) {
+    			cont++;
+    		}
+    	}
     	
+    	if(cont > 0) {
+    		String aux = "strInitCat(),";
+    		for(int k = 0; k < cont; k++) {
+    			aux = "strcat(" + aux;
+    		}
+    		
+    		boolean flag = false;
+    		if(this.expr.get(0).getType() == Type.intType) {
+    			pw.print("toStr(");
+    			this.expr.get(0).genC(pw);
+    			flag = true;
+    		}
+    		else {
+    			this.expr.get(0).genC(pw);
+    		}
+    		for(int i = 1; i < this.expr.size(); i++) {
+    			if(this.op.get(i-1) == Token.PLUSPLUS) {
+    				if(flag == true) {
+    					pw.print(")");
+    					flag = false;
+    				}
+    				pw.print("), ");
+    				if(this.expr.get(i).getType() == Type.intType) {
+    	    			pw.print("toStr(");
+    	    			this.expr.get(i).genC(pw);
+    	    			flag = true;
+    	    		}
+    				else {
+    					this.expr.get(i).genC(pw);
+    				}
+    			}
+    			else {
+    				pw.print(" " + this.op.get(i-1).toString() + " ");
+    				if(this.expr.get(i).getType() == Type.intType) {
+    	    			pw.print("toStr(");
+    	    			this.expr.get(i).genC(pw);
+    	    			flag = true;
+    	    		}
+    				else {
+    					this.expr.get(i).genC(pw);
+    				}
+    			}
+    		}
+    		pw.print(")");
+    	}
+    	else {
+    		this.expr.get(0).genC(pw);
+    		for(int i = 1; i < this.expr.size(); i++) {
+    			pw.print(" " + this.op.get(i-1).toString() + " ");
+    			this.expr.get(i).genC(pw);
+    		}
+    	}
+    	
+		if(putParenthesis == true) {
+    		pw.print(")");
+    	}
+    }
+    
+    public void genC(PW pw) {
+    	this.genC(pw, false);
     }
    
 	public void genJava(PW pw) {

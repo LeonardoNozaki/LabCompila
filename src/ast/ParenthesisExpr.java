@@ -16,12 +16,20 @@ public class ParenthesisExpr extends Expr{
 		this.expr = expr;
 	}
 	
+	@Override
 	public void genC( PW pw, boolean putParenthesis ) {
 		pw.print("( ");
 		this.expr.genC(pw, putParenthesis);
 		pw.print(" )");
     }
 
+	@Override
+	public void genC( PW pw ) {
+		pw.print("( ");
+		this.expr.genC(pw, false);
+		pw.print(" )");
+	}
+	
 	public boolean isObjectCreation() {
 		return false;
 	}
@@ -30,6 +38,7 @@ public class ParenthesisExpr extends Expr{
     	return expr.isOnlyId();
     }
 	
+	@Override
 	public void genJava(PW pw) {
 		pw.print("( ");
 		this.expr.genJava(pw);

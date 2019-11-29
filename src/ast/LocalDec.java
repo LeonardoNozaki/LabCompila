@@ -18,9 +18,10 @@ public class LocalDec extends Statement{
 	
 	@Override
 	public void genC(PW pw) {
-		this.variable.genC(pw, false);
+		this.variable.genC(pw);
 	}
 	
+	@Override
 	public void genJava(PW pw) {
 		this.variable.genJava(pw);
 	}

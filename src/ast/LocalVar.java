@@ -35,15 +35,17 @@ public class LocalVar extends Variable{
     	return true;
     }
 	
-	
+	@Override
 	public void genJava(PW pw) {
 		pw.print(id);
 	}
 	
+	@Override
 	public Type getType() {
 		return type;
 	}
 	
+	@Override
 	public void genC( PW pw, boolean putParenthesis ) {
 		if(putParenthesis == true) {
 			pw.print("( _" + id + " )");
@@ -51,6 +53,11 @@ public class LocalVar extends Variable{
 		else {
 			pw.print("_" + id);
 		}
+	}
+	
+	@Override
+	public void genC( PW pw) {
+		pw.print("_" + id);
 	}
 	
 	public String getName() {

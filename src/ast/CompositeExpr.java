@@ -27,6 +27,12 @@ public class CompositeExpr extends Expr {
 		return false;
 	}
 	
+	@Override
+	public void genC( PW pw) {
+		this.genC(pw, false);
+	}
+	
+	@Override
     public void genC( PW pw, boolean putParenthesis ) {
     	if(putParenthesis == true) {
     		pw.print("( ");
