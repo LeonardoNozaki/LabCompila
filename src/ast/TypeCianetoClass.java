@@ -236,7 +236,7 @@ public class TypeCianetoClass extends Type{
 	  
 		for(int i = 0; i < this.fieldList.size(); i++) {
 			if(this.fieldList.get(i).getType() instanceof TypeCianetoClass) {
-				pw.printIdent(fieldList.get(i).getType().getCname() + " *");
+				pw.printIdent("_class_" + fieldList.get(i).getType().getCname() + " *");
 				pw.println("_" + getCname() + "_" + fieldList.get(i).getName() + ";" );
 			}
 			else if(this.fieldList.get(i).getType() instanceof TypeString) {

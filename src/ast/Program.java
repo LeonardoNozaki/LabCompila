@@ -64,7 +64,7 @@ public class Program {
 		
 		pw.printlnIdent("int readInt() {");
 		pw.add();
-		pw.printlnIdent("int n;");
+		pw.printlnIdent("int _n;");
 		pw.printlnIdent("char __s[512];");
 		pw.printlnIdent("gets(__s);");
 		pw.printlnIdent("sscanf(__s, \"%d\", &_n);");
@@ -87,7 +87,7 @@ public class Program {
 		pw.printlnIdent("char *strInitCat() {");
 		pw.add();
 		pw.printlnIdent("char *s = malloc(2000);");
-		pw.printlnIdent("s[0] = '\0';");
+		pw.printlnIdent("s[0] = '\\0';");
 		pw.printlnIdent("return s;");
 		pw.sub();
 		pw.printlnIdent("}");
