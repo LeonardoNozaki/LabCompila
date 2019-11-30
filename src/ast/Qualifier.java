@@ -16,10 +16,6 @@ public class Qualifier {
 		this.quali = quali;
 	}
 	
-	public void genC(PW pw) {
-		
-	}
-	
 	public String getQualifier() {
 		return quali;
 	}

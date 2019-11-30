@@ -35,7 +35,7 @@ public class TypeCianetoClass extends Type{
    }
    
    public String getCname() {
-      return getName();
+      return "_class_" + getName();
    }
    
    public String getJavaname() {
@@ -183,42 +183,43 @@ public class TypeCianetoClass extends Type{
    }
    
 	public void genC(PW pw) {
+		this.createGlobalNames();
 		String className = this.getCname();
 		pw.printlnIdent("typedef");
 		pw.add();
-		pw.printlnIdent("struct" + " _St_" + className + " {");
+		pw.printlnIdent("struct" + " _St_" + this.getName() + " {");
 		pw.add();
 		pw.printlnIdent("Func *vt;");
 		   
 		this.genFieldC(pw);
 
 		pw.sub();
-		pw.printlnIdent("} _class_" + className + ";");
+		pw.printlnIdent("} " + className + ";");
 		pw.sub();
 		pw.println("");
 		
-		pw.printlnIdent("_class_" + className + " *new_" + className + "(void);");
+		pw.printlnIdent(className + " *new_" + this.getName() + "(void);");
 		pw.println("");
 		
 		for(int i = 0; i < this.privateMethodList.size(); i++) {
-			this.privateMethodList.get(i).genC(pw, className);
+			this.privateMethodList.get(i).genC(pw, this.getName());
 			pw.println("");
 		}
 		for(int i = 0; i < this.publicMethodList.size(); i++) {
-			this.publicMethodList.get(i).genC(pw, className);
+			this.publicMethodList.get(i).genC(pw, this.getName());
 			pw.println("");
 		}
 		
 		this.genArrayMethodC(pw);
 		pw.println("");
 		
-		pw.printlnIdent("_class_" + className + " *new_" + className + "() {");
+		pw.printlnIdent(className + " *new_" + this.getName() + "() {");
 		pw.add();
-		pw.printlnIdent("_class_" + className + " *t;");
-		pw.printlnIdent("if ( (t = malloc(sizeof(_class_" + className + "))) != NULL ){");
+		pw.printlnIdent(className + " *t;");
+		pw.printlnIdent("if ( (t = malloc(sizeof(" + className + "))) != NULL ){");
 		pw.add();
 		for(int i = 0; i < mallocString.size(); i++) {
-			pw.printlnIdent("t->" + "_" + getCname() + "_" + mallocString.get(i) + " = (char*)malloc(sizeof(char)*1000);");	
+			pw.printlnIdent("t->" + getCname() + "_" + mallocString.get(i) + " = (char*)malloc(sizeof(char)*1000);");	
 		}
 		pw.printlnIdent("t->vt = VTclass_" + className + ";");
 		pw.sub();
@@ -236,17 +237,24 @@ public class TypeCianetoClass extends Type{
 	  
 		for(int i = 0; i < this.fieldList.size(); i++) {
 			if(this.fieldList.get(i).getType() instanceof TypeCianetoClass) {
-				pw.printIdent("_class_" + fieldList.get(i).getType().getCname() + " *");
-				pw.println("_" + getCname() + "_" + fieldList.get(i).getName() + ";" );
+				String className = this.getCname();
+				if(className.equals(fieldList.get(i).getType().getCname())) {
+					pw.printIdent("struct _St_" + fieldList.get(i).getType().getName() + " *");
+					pw.println("_" + getName() + "_" + fieldList.get(i).getName() + ";" );
+				}
+				else {
+					pw.printIdent(fieldList.get(i).getType().getName() + " *");
+					pw.println("_" + getName() + "_" + fieldList.get(i).getName() + ";" );
+				}
 			}
 			else if(this.fieldList.get(i).getType() instanceof TypeString) {
 				mallocString.add(fieldList.get(i).getName());
-				pw.printIdent(fieldList.get(i).getType().getCname() + " *");
-				pw.println("_" + getCname() + "_" + fieldList.get(i).getName() + ";" );
+				pw.printIdent(fieldList.get(i).getType().getName() + " *");
+				pw.println("_" + getName() + "_" + fieldList.get(i).getName() + ";" );
 			}
 			else {
-				pw.printIdent(fieldList.get(i).getType().getCname() + " ");
-				pw.println("_" + getCname() + "_" + fieldList.get(i).getName() + ";" );
+				pw.printIdent(fieldList.get(i).getType().getName() + " ");
+				pw.println("_" + getName() + "_" + fieldList.get(i).getName() + ";" );
 			}
 		}
 	}
@@ -255,9 +263,8 @@ public class TypeCianetoClass extends Type{
 		String className = this.getCname();
 		pw.printlnIdent("Func VTclass_" + className + "[] = {");
 		pw.add();
-		this.createGlobalNames();
 		if(globalNames.size() > 0) {
-			pw.printIdent("( void (*)() )" + globalNames.get(0));
+			pw.printIdent("( void (*)() ) " + globalNames.get(0));
 			for(int i = 1; i < globalNames.size(); i++) {
 				pw.println(",");
 				pw.printIdent("( void (*)() ) " + globalNames.get(i));
@@ -356,14 +363,21 @@ public class TypeCianetoClass extends Type{
 		   flag = false;
 		   for(int j = 0; j < size; j++) {
 			   if(methodNames.get(j).equals(name)) {
-				   globalNames.set(j, "_" + this.getCname() + "_" + name);
+				   globalNames.set(j, "_" + this.getName() + "_" + name);
 				   j = size;
 				   flag = true;
 			   }
 		   }
+		   Qualifier qlf = publicMethodList.get(i).getQuali();
 		   if(flag == false) {
-			   globalNames.add("_" + this.getCname() + "_" + name);
-			   methodNames.add(name);
+			   if(qlf.hasFinal() && qlf.hasOverride()) {
+				   globalNames.add("_" + this.getName() + "_" + name);
+				   methodNames.add(name);
+			   }
+			   else if(!qlf.hasFinal()) {
+				   globalNames.add("_" + this.getName() + "_" + name);
+				   methodNames.add(name);
+			   }
 		   }
 	   }
 	}
@@ -389,16 +403,47 @@ public class TypeCianetoClass extends Type{
 	
 	public int findMethod(String name) {
 		int size = methodNames.size();
+		if(name.length() <= 0) {
+			return -1;
+		}
 		if(name.endsWith(":")) {
 			name = name.substring(0, name.length()-1);
 			name = name + "$";
 		}
 		for(int j = 0; j < size; j++) {
-		   if(methodNames.get(j).equals(name)) {
+			if(methodNames.get(j).equals(name)) {
 			   return j;
-		   }
+			}
 		}
 		return -1;
+	}
+	
+	public String getSuperClassNameMethod(int index) {
+		if(index < 0) {
+			return "";
+		}
+		if(superclass != null) {
+			return superclass.getClassNameMethod(index);
+		}
+		else {
+			return "";
+		}
+	}
+	
+	public String getClassNameMethod(int index) {
+		String aux = globalNames.get(index);
+		int qnt = 0, inicio = 0;
+		int j = 0;
+		while(qnt < 2) {
+			if(aux.charAt(j) == '_') {
+				qnt++;
+				if(qnt == 1) {
+					inicio = j + 1;
+				}
+			}
+			j++;
+		}
+		return aux.substring(inicio, j - 1);	
 	}
 	
     private boolean open;

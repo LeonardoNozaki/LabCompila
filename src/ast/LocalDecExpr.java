@@ -38,7 +38,7 @@ public class LocalDecExpr extends Variable{
 		if(l instanceof TypeCianetoClass) {
 			if(this.expr instanceof ObjectCreation) {
 				if(r.getName().equals(l.getName()) == false) {
-					pw.printIdent("_class_" + this.type.getCname() + " *_" + id);
+					pw.printIdent( this.type.getCname() + " *_" + id);
 					pw.print(" = (_class_" + l.getName() + " *) ");
 					this.expr.genC(pw, false);
 					pw.println(";");
@@ -47,7 +47,7 @@ public class LocalDecExpr extends Variable{
 			}
 			else if(r instanceof TypeCianetoClass) {
 				if(r.getName().equals(l.getName()) == false) {
-					pw.printIdent("_class_" + this.type.getCname() + " *_" + id);
+					pw.printIdent( this.type.getCname() + " *_" + id);
 					pw.print(" = (_class_" + l.getName() + " *) ");
 					this.expr.genC(pw, false);
 					pw.println(";");
@@ -55,7 +55,7 @@ public class LocalDecExpr extends Variable{
 				}
 			}
 			else {
-				pw.printIdent("_class_" + this.type.getCname() + " _" + id + " = ");
+				pw.printIdent( this.type.getCname() + " _" + id + " = ");
 				this.expr.genC(pw, false);
 				pw.println(";");
 			}

@@ -98,11 +98,18 @@ public class MethodDec {
 	}
 	
 	public void genC( PW pw , String className) {
-		if(id.charAt(id.length() -1) == ':') {
-			pw.printIdent(this.type.getCname() + " _" + className + "_" + id.substring(0, id.length()-1) + "$( ");
+		String returnType = "";
+		if(this.type instanceof TypeCianetoClass) {
+			returnType = this.type.getCname() + " *";
 		}
 		else {
-			pw.printIdent(this.type.getCname() + " _" + className + "_" + id + "( ");
+			returnType = this.type.getCname();
+		}
+		if(id.charAt(id.length() -1) == ':') {
+			pw.printIdent(returnType + " _" + className + "_" + id.substring(0, id.length()-1) + "$( ");
+		}
+		else {
+			pw.printIdent(returnType + " _" + className + "_" + id + "( ");
 		}
 		
 		pw.print("_class_" + className + " *self ");
@@ -110,7 +117,13 @@ public class MethodDec {
 		if(paramDec != null) {
 			for(int i = 0; i < this.paramDec.size(); i++) {
 				pw.print(", ");
-				pw.print(this.paramDec.get(i).getType().getCname()+ " ");
+				Type t = this.paramDec.get(i).getType();
+				if(t instanceof TypeCianetoClass) {
+					pw.print(this.paramDec.get(i).getType().getCname()+ "* ");
+				}
+				else {
+					pw.print(this.paramDec.get(i).getType().getCname()+ " ");
+				}
 				this.paramDec.get(i).genC(pw);
 			}
 		}

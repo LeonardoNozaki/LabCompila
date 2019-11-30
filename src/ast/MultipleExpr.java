@@ -56,7 +56,7 @@ public class MultipleExpr extends Expr{
     					flag = false;
     				}
     				pw.print("), ");
-    				if(this.expr.get(i).getType() == Type.intType) {
+    				if(this.expr.get(i).getType() == Type.intType && flag == false) {
     	    			pw.print("toStr(");
     	    			this.expr.get(i).genC(pw);
     	    			flag = true;
@@ -67,7 +67,7 @@ public class MultipleExpr extends Expr{
     			}
     			else {
     				pw.print(" " + this.op.get(i-1).toString() + " ");
-    				if(this.expr.get(i).getType() == Type.intType) {
+    				if(this.expr.get(i).getType() == Type.intType && flag == false) {
     	    			pw.print("toStr(");
     	    			this.expr.get(i).genC(pw);
     	    			flag = true;
@@ -76,6 +76,9 @@ public class MultipleExpr extends Expr{
     					this.expr.get(i).genC(pw);
     				}
     			}
+    		}
+    		if(flag == true) {
+    			pw.print(")");
     		}
     		pw.print(")");
     	}

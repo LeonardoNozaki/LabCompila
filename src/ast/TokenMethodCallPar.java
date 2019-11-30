@@ -16,10 +16,11 @@ import java.util.ArrayList;
 import lexer.Token;
 
 public class TokenMethodCallPar extends Expr{
-	public TokenMethodCallPar(Token t, MethodDec method, ArrayList<Expr> expr){
+	public TokenMethodCallPar(Token t, MethodDec method, ArrayList<Expr> expr, TypeCianetoClass classe){
 		this.method = method;
 		this.expr = expr;
 		this.t = t;
+		this.classe = classe;
 	}
 	
 	public boolean isObjectCreation() {
@@ -74,12 +75,97 @@ public class TokenMethodCallPar extends Expr{
 		}
 	}
 	
+	private void genParam(PW pw) {
+		if(this.expr.size() > 0) {
+			this.expr.get(0).genC(pw);
+		}
+		for(int i = 1; i < this.expr.size(); i++) {
+			pw.print(", ");
+			this.expr.get(i).genC(pw);
+		}
+	}
+	
+	private void genParamTypes(PW pw) {
+		if(this.expr.size() > 0) {
+			pw.print(this.expr.get(0).getType().getCname());
+		}
+		for(int i = 1; i < this.expr.size(); i++) {
+			pw.print(", ");
+			pw.print(this.expr.get(i).getType().getCname());
+		}
+	}
 	public void genC(PW pw) {
-		
+		int index = classe.findMethod(this.method.getName());
+		String methodName = method.getName();
+		if(methodName.endsWith(":")) {
+			methodName = methodName.substring(0, methodName.length()-1);
+			methodName = methodName + "$";
+		}
+		if(method.getQuali().isPrivate() || index == -1) {
+			if(method.getType() == Type.voidType) {
+				pw.printIdent("_" + method.getClassName() + "_" + methodName + "( self, "); 
+				genParam(pw);
+				pw.println(");");
+			}
+			else {
+				pw.print("_" + method.getClassName() + "_" + methodName + "( self, ");
+				genParam(pw);
+				pw.print(");");
+			}
+		}
+		else {
+			String className = "";
+			if(t == Token.SELF) {
+				className = classe.getName();	
+				String returnName = this.method.getType().getCname();
+				
+				if(this.method.getType() != Type.voidType) {
+					pw.print("( (" + returnName + " (*)(_class_" + className + " *, ");
+					genParamTypes(pw);
+					pw.print(")) self->vt[" + index + "] ) ( (_class_" + className + " *) self, ");
+					genParam(pw);
+					pw.print(")");
+				}
+				else {
+					pw.printIdent("( (" + returnName + " (*)(_class_" + className + " *, ");
+					genParamTypes(pw);
+					pw.print(")) self->vt[" + index + "] ) ( (_class_" + className + " *) self, ");
+					genParam(pw);
+					pw.println(");");
+				}
+			}
+			else {
+				className = classe.getSuperClassNameMethod(index);
+				if(this.method.getType() != Type.voidType) {
+					pw.print("_" + className + "_" + methodName);
+					pw.print("( (_class_" + className + " *) self, ");
+					genParam(pw);
+					pw.print(")");
+				}
+				else {
+					pw.printIdent("_" + className + "_" + methodName);
+					pw.print("( (_class_" + className + " *) self, ");
+					genParam(pw);
+					pw.println(");");
+				}
+			}			
+		}
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		if(putParenthesis == true && method.getType() == Type.voidType) {
+			pw.printIdent("(");
+		}
+		else if(putParenthesis == true) {
+			pw.print("(");
+		}
+		this.genC(pw);
+		if(putParenthesis == true && method.getType() == Type.voidType) {
+			pw.printIdent(")");
+		}
+		else if(putParenthesis == true) {
+			pw.print(")");
+		}
 	}
 	
 	public Type getType() {
@@ -89,4 +175,5 @@ public class TokenMethodCallPar extends Expr{
 	private MethodDec method;
 	private ArrayList<Expr> expr;
 	private Token t;
+	private TypeCianetoClass classe;
 }

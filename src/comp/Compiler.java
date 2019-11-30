@@ -1178,7 +1178,7 @@ public class Compiler {
 						else {
 							error("'super' used in class '" + classdec.getName() + "' that does not have a superclass");
 						}
-						return new TokenMethodCallPar(Token.SUPER, md, exprs);
+						return new TokenMethodCallPar(Token.SUPER, md, exprs, classdec);
 					}
 					else {
 						error("id or id: expected after .");
@@ -1212,7 +1212,7 @@ public class Compiler {
 						else {
 							error("Method '" + idMethod + "' was not found in self class or its superclasses");
 						}
-						return new TokenMethodCallPar(Token.SELF, md, exprs);
+						return new TokenMethodCallPar(Token.SELF, md, exprs, classdec);
 					}
 					else if(lexer.token == Token.ID) {
 						String id = lexer.getStringValue();
@@ -1276,7 +1276,7 @@ public class Compiler {
 							else {
 								error("id or id: expected after .");
 								FieldDec fd = classdec.getField(id);
-								return new SelfField(fd);
+								return new SelfField(fd, classdec.getName());
 							}
 						}
 						else {
@@ -1289,7 +1289,7 @@ public class Compiler {
 								if(fd == null) {
 									error("Field or Method '" + id + "' has not been declared");
 								}
-								return new SelfField(fd);
+								return new SelfField(fd, classdec.getName());
 							}
 						}
 					}

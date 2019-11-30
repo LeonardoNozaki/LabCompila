@@ -62,7 +62,8 @@ public class TokenMethodCall extends Expr{
 	}
 	
 	public void genC(PW pw) {
-		if(method.getQuali().isPrivate()) {
+		int index = classe.findMethod(this.method.getName());
+		if(method.getQuali().isPrivate() || index == -1) {
 			if(method.getType() == Type.voidType) {
 				pw.printlnIdent("_" + method.getClassName() + "_" + method.getName() + "( self );"); 
 			}
@@ -75,7 +76,6 @@ public class TokenMethodCall extends Expr{
 			if(t== Token.SELF) {
 				className = classe.getName();	
 				String returnName = this.method.getType().getCname();
-				int index = classe.findMethod(this.method.getName());
 				
 				if(this.method.getType() != Type.voidType) {
 					pw.print("( (" + returnName + " (*)(_class_" + className + " *)) self ");
@@ -87,23 +87,33 @@ public class TokenMethodCall extends Expr{
 				}
 			}
 			else {
-				className = classe.getSuper().getName();
+				className = classe.getSuperClassNameMethod(index);
 				if(this.method.getType() != Type.voidType) {
 					pw.print("_" + className + "_" + this.method.getName());
-					pw.print("( (_class_" + classe.getName() + " *self);");
+					pw.print("( (_class_" + className + " *) self)");
 				}
 				else {
 					pw.printIdent("_" + className + "_" + this.method.getName());
-					pw.println("( (_class_" + classe.getName() + " *self);");
+					pw.println("( (_class_" + className + " *) self);");
 				}
-			}
-		
-			
+			}			
 		}
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		if(putParenthesis == true && method.getType() == Type.voidType) {
+			pw.printIdent("(");
+		}
+		else if(putParenthesis == true) {
+			pw.print("(");
+		}
+		this.genC(pw);
+		if(putParenthesis == true && method.getType() == Type.voidType) {
+			pw.printIdent(")");
+		}
+		else if(putParenthesis == true) {
+			pw.print(")");
+		}
 	}
 	
 	public Type getType() {

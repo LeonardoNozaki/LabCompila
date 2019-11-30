@@ -52,6 +52,9 @@ public class SelfMethodCall extends Expr{
 		if(putParenthesis == true) {
 			pw.print(")");
 		}
+		if(method.getType() == Type.voidType) {
+			pw.println(";");
+		}
 	}
 	
 	public Type getType() {

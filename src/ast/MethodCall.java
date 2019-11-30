@@ -50,14 +50,14 @@ public class MethodCall extends Expr{
 		int index = classe.findMethod(this.methodDec.getName());
 		
 		if(this.methodDec.getType() != Type.voidType) {
-			pw.print("( (" + returnName + " (*)(_class_" + className + " *)) ");
+			pw.print("( (" + returnName + " (*)(" + className + " *)) ");
 			this.variable.genC(pw, false);
 			pw.print("->vt[" + index + "] )");
 			this.variable.genC(pw, true);
 			pw.print(" ");
 		}
 		else {
-			pw.printIdent("( (" + returnName + " (*)(_class_" + className + " *)) ");
+			pw.printIdent("( (" + returnName + " (*)(" + className + " *)) ");
 			this.variable.genC(pw, false);
 			pw.print("->vt[" + index + "] )");
 			this.variable.genC(pw, true);

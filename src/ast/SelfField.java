@@ -12,8 +12,9 @@
 package ast;
 
 public class SelfField extends Expr{
-	public SelfField(FieldDec fd){
+	public SelfField(FieldDec fd, String className){
 		this.fieldDec = fd;
+		this.className = className;
 	}
 	
 	public boolean isOnlyId() {
@@ -29,12 +30,10 @@ public class SelfField extends Expr{
 	}
 	
 	public void genC(PW pw) {
-		String className = fieldDec.getType().getName();
 		pw.print("self->_" + className + "_" + fieldDec.getName());
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		String className = fieldDec.getType().getName();
 		if(putParenthesis == true) {
 			pw.print("(self->_" + className + "_" + fieldDec.getName() + ")");
 		}
@@ -48,4 +47,5 @@ public class SelfField extends Expr{
 	}
 
 	private FieldDec fieldDec;
+	private String className;
 }

@@ -61,10 +61,10 @@ public class MethodCallPar extends Expr{
 		int index = classe.findMethod(this.methodDec.getName());
 		
 		if(this.methodDec.getType() != Type.voidType) {
-			pw.print("( (" + returnName + " (*)(_class_" + className + " *");
+			pw.print("( (" + returnName + " (*)(" + className + " *");
 		}
 		else {
-			pw.printIdent("( (" + returnName + " (*)(_class_" + className + " *");
+			pw.printIdent("( (" + returnName + " (*)(" + className + " *");
 		}
 		
 		for(int i = 0; i < this.expr.size(); i++) {
@@ -72,7 +72,6 @@ public class MethodCallPar extends Expr{
 		}
 		
 		pw.print("))");
-		
 		this.variable.genC(pw, false);
 		pw.print("->vt[" + index + "] )(");
 		this.variable.genC(pw, false);
@@ -81,7 +80,7 @@ public class MethodCallPar extends Expr{
 			this.expr.get(i).genC(pw, false);
 		}
 		
-		pw.print(");");
+		pw.println(");");
 	}
 	
 	@Override

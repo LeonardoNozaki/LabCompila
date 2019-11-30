@@ -18,6 +18,7 @@ public class SimpleAssign extends AssignExpr {
 	public void genC(PW pw) {
 		pw.printIdent("");
 		this.left.genC(pw, false);
+		pw.println(";");
 	}
 	
 	public void genJava(PW pw) {

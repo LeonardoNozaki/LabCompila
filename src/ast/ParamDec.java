@@ -47,7 +47,12 @@ public class ParamDec extends Variable{
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		if(putParenthesis == true) {
+			pw.print("(_" + id + ")");
+		}
+		else {
+			pw.print("_" + id);
+		}
 	}
 
 	private String id;
