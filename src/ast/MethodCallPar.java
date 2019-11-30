@@ -45,7 +45,7 @@ public class MethodCallPar extends Expr{
 				pw.print(", ");
 				this.expr.get(i).genJava(pw);	
 			}
-			pw.println(");");
+			pw.print(");");
 		}
 	}
 	
@@ -64,7 +64,7 @@ public class MethodCallPar extends Expr{
 			pw.print("( (" + returnName + " (*)(" + className + " *");
 		}
 		else {
-			pw.printIdent("( (" + returnName + " (*)(" + className + " *");
+			pw.print("( (" + returnName + " (*)(" + className + " *");
 		}
 		
 		for(int i = 0; i < this.expr.size(); i++) {
@@ -80,7 +80,7 @@ public class MethodCallPar extends Expr{
 			this.expr.get(i).genC(pw, false);
 		}
 		
-		pw.println(");");
+		pw.print(")");
 	}
 	
 	@Override

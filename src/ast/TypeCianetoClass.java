@@ -185,9 +185,7 @@ public class TypeCianetoClass extends Type{
 	public void genC(PW pw) {
 		this.createGlobalNames();
 		String className = this.getCname();
-		pw.printlnIdent("typedef");
-		pw.add();
-		pw.printlnIdent("struct" + " _St_" + this.getName() + " {");
+		pw.printlnIdent("typedef struct" + " _St_" + this.getName() + " {");
 		pw.add();
 		pw.printlnIdent("Func *vt;");
 		   
@@ -195,7 +193,6 @@ public class TypeCianetoClass extends Type{
 
 		pw.sub();
 		pw.printlnIdent("} " + className + ";");
-		pw.sub();
 		pw.println("");
 		
 		pw.printlnIdent(className + " *new_" + this.getName() + "(void);");

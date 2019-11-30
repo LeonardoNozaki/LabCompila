@@ -57,11 +57,10 @@ public class MethodCall extends Expr{
 			pw.print(" ");
 		}
 		else {
-			pw.printIdent("( (" + returnName + " (*)(" + className + " *)) ");
+			pw.print("( (" + returnName + " (*)(" + className + " *)) ");
 			this.variable.genC(pw, false);
 			pw.print("->vt[" + index + "] )");
 			this.variable.genC(pw, true);
-			pw.println(";");
 		}
 	}
 	

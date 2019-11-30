@@ -76,26 +76,13 @@ public class TokenMethodCall extends Expr{
 			if(t== Token.SELF) {
 				className = classe.getName();	
 				String returnName = this.method.getType().getCname();
-				
-				if(this.method.getType() != Type.voidType) {
-					pw.print("( (" + returnName + " (*)(_class_" + className + " *)) self ");
-					pw.print("->vt[" + index + "] ) ( (_class_" + className + " *) self) ");
-				}
-				else {
-					pw.printIdent("( (" + returnName + " (*)(_class_" + className + " *)) self ");
-					pw.println("->vt[" + index + "] ) ( (_class_" + className + " *) self);");
-				}
+				pw.print("( (" + returnName + " (*)(_class_" + className + " *)) self ");
+				pw.print("->vt[" + index + "] ) ( (_class_" + className + " *) self) ");
 			}
 			else {
 				className = classe.getSuperClassNameMethod(index);
-				if(this.method.getType() != Type.voidType) {
-					pw.print("_" + className + "_" + this.method.getName());
-					pw.print("( (_class_" + className + " *) self)");
-				}
-				else {
-					pw.printIdent("_" + className + "_" + this.method.getName());
-					pw.println("( (_class_" + className + " *) self);");
-				}
+				pw.print("_" + className + "_" + this.method.getName());
+				pw.print("( (_class_" + className + " *) self)");
 			}			
 		}
 	}

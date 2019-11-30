@@ -102,52 +102,27 @@ public class TokenMethodCallPar extends Expr{
 			methodName = methodName + "$";
 		}
 		if(method.getQuali().isPrivate() || index == -1) {
-			if(method.getType() == Type.voidType) {
-				pw.printIdent("_" + method.getClassName() + "_" + methodName + "( self, "); 
-				genParam(pw);
-				pw.println(");");
-			}
-			else {
-				pw.print("_" + method.getClassName() + "_" + methodName + "( self, ");
-				genParam(pw);
-				pw.print(");");
-			}
+			pw.print("_" + method.getClassName() + "_" + methodName + "( self, ");
+			genParam(pw);
+			pw.print(")");
 		}
 		else {
 			String className = "";
 			if(t == Token.SELF) {
 				className = classe.getName();	
 				String returnName = this.method.getType().getCname();
-				
-				if(this.method.getType() != Type.voidType) {
-					pw.print("( (" + returnName + " (*)(_class_" + className + " *, ");
-					genParamTypes(pw);
-					pw.print(")) self->vt[" + index + "] ) ( (_class_" + className + " *) self, ");
-					genParam(pw);
-					pw.print(")");
-				}
-				else {
-					pw.printIdent("( (" + returnName + " (*)(_class_" + className + " *, ");
-					genParamTypes(pw);
-					pw.print(")) self->vt[" + index + "] ) ( (_class_" + className + " *) self, ");
-					genParam(pw);
-					pw.println(");");
-				}
+				pw.print("( (" + returnName + " (*)(_class_" + className + " *, ");
+				genParamTypes(pw);
+				pw.print(")) self->vt[" + index + "] ) ( (_class_" + className + " *) self, ");
+				genParam(pw);
+				pw.print(")");
 			}
 			else {
 				className = classe.getSuperClassNameMethod(index);
-				if(this.method.getType() != Type.voidType) {
-					pw.print("_" + className + "_" + methodName);
-					pw.print("( (_class_" + className + " *) self, ");
-					genParam(pw);
-					pw.print(")");
-				}
-				else {
-					pw.printIdent("_" + className + "_" + methodName);
-					pw.print("( (_class_" + className + " *) self, ");
-					genParam(pw);
-					pw.println(");");
-				}
+				pw.print("_" + className + "_" + methodName);
+				pw.print("( (_class_" + className + " *) self, ");
+				genParam(pw);
+				pw.print(")");
 			}			
 		}
 	}
