@@ -27,52 +27,70 @@ public class Comp {
 	}
 
 	/**
+	 * true if the compiler should generated code in Java. In this case,
+	 * method genJava of the program is called
+	 */
+	private boolean genJava = false;
+
+	/**
 	 * true if the compiler should generated code in C. In this case,
-	 * method genC of the program is called
+	 * method genJava of the program is called
 	 */
 	private boolean genC = false;
+
 	/**
-	 * directory to which the generated C code of the program will be put. If it is
+	 * directory to which the generated Java code of the program will be put. If it is
 	 *      C:\out
 	 * the compilation of a file
 	 *      first.ci
-	 * should produce a C file
-	 *      C:\out\first.C
+	 * should produce a Java file
+	 *      C:\out\first.java
 	 *
 	 */
-	private String dirToCOutput;
+	private String dirToOutput;
+	private static void printUsageExit() {
+		System.out.println("Usage:\n   comp input");
+		System.out.println("input is the file or directory to be compiled");
+		System.out.println("the output file will be created in the current directory");
+		System.exit(1);
+	}
 
 	public void run( String []args ) {
 
 		File file;
-		if ( args.length == 3 && args[1].equalsIgnoreCase("-genc") ) {
-			this.genC  = true;
-			this.dirToCOutput = args[2];
-			if ( dirToCOutput.endsWith(File.separator) ) {
-				dirToCOutput = dirToCOutput.substring(0, dirToCOutput.length()-1);
+		if ( args.length == 3 ) {
+			if ( args[1].equalsIgnoreCase("-genjava") ) {
+				this.genJava  = true;
 			}
-			File f = new File(this.dirToCOutput);
+			else if ( args[1].equalsIgnoreCase("-genc") ) {
+				this.genC = true;
+			}
+			else {
+				printUsageExit();
+			}
+			this.dirToOutput = args[2];
+			if ( dirToOutput.endsWith(File.separator) ) {
+				dirToOutput = dirToOutput.substring(0, dirToOutput.length()-1);
+			}
+			File f = new File(this.dirToOutput);
 			if ( !f.exists() ) {
-				System.out.println("Directory '" + this.dirToCOutput + "' given as option in the command line, after '-genC', does not exist");
+				System.out.println("Directory '" + this.dirToOutput + "' given as option in the command line, after '-genJava' or '-genC', does not exist");
 				System.exit(1);
 			}
 			if ( !f.isDirectory() ) {
-				System.out.println("File '" + this.dirToCOutput + "' given as option in the command line, after '-genC', should be a directory");
+				System.out.println("File '" + this.dirToOutput + "' given as option in the command line, after '-genJava' or '-genC', should be a directory");
 				System.exit(1);
 			}
-			this.filesWithCorrectlyGeneratedCClasses = new ArrayList<>();
-			this.filesWithWrongGeneratedCClasses     = new ArrayList<>();
-			this.filesWithCClassesWithCompilationErrors = new ArrayList<>();
-			this.filesCompilerDidNotProducedCCode = new ArrayList<>();
+			this.filesWithCorrectlyGeneratedCode_Java_or_C = new ArrayList<>();
+			this.filesWithWrongGeneratedCode_Java_or_C     = new ArrayList<>();
+			this.filesWithCode_Java_or_C_WithCompilationErrors = new ArrayList<>();
+			this.filesCompilerDidNotProducedCode_Java_or_C = new ArrayList<>();
 		}
 		else if ( args.length < 1 ||  args.length > 2 )  {
-			System.out.println("Usage:\n   comp input");
-			System.out.println("input is the file or directory to be compiled");
-			System.out.println("the output file will be created in the current directory");
-			System.exit(1);
+			printUsageExit();
 		}
 
-		//this.compileExecC(null, args[0]);
+		//this.compileExecJava(null, args[0]);
 
 		createGradeTable();
 		numSourceFilesWithAnnotCEP = 0;
@@ -93,8 +111,8 @@ public class Comp {
 		FileOutputStream reportStream = null;
 		try {
 			String reportTxt;
-			if ( this.genC )  {
-				reportTxt = dirToCOutput + File.separator + "report.txt";
+			if ( this.genJava || this.genC )  {
+				reportTxt = dirToOutput + File.separator + "report.txt";
 			}
 			else {
 				reportTxt = "report.txt";
@@ -138,16 +156,20 @@ public class Comp {
 						}
 						else {
 							programList.add(program);
-							if ( this.genC ) {
+							if ( this.genJava ) {
+								compileExecJava(program, filename);
+							}
+							else if ( this.genC ) {
 								compileExecC(program, filename);
 							}
+
 						}
 					}
 					catch (RuntimeException e ) {
 						nullPointerAndOtherExceptionsList.add(filename);
 						System.out.println("Runtime exception");
 					}
-					catch (Throwable t) {
+					catch (Exception t) {
 						nullPointerAndOtherExceptionsList.add(filename);
 						System.out.println("Throwable exception");
 					}
@@ -167,7 +189,10 @@ public class Comp {
 				outError.flush();
 			}
 			else {
-				if ( this.genC ) {
+				if ( this.genJava ) {
+					compileExecJava(program, args[0]);
+				}
+				else if ( this.genC ) {
 					compileExecC(program, args[0]);
 				}
 				if ( numSourceFilesWithAnnotNCE == 0 && numSourceFilesWithAnnotCEP == 0 ) {
@@ -180,29 +205,29 @@ public class Comp {
 
 		}
 
-		if ( this.genC ) {
-			if ( this.filesWithCorrectlyGeneratedCClasses != null &&
-					this.filesWithWrongGeneratedCClasses != null &&
-					this.filesWithCClassesWithCompilationErrors != null &&
-					this.filesCompilerDidNotProducedCCode != null ) {
+		if ( this.genJava || this.genC ) {
+			if ( this.filesWithCorrectlyGeneratedCode_Java_or_C != null &&
+					this.filesWithWrongGeneratedCode_Java_or_C != null &&
+					this.filesWithCode_Java_or_C_WithCompilationErrors != null &&
+					this.filesCompilerDidNotProducedCode_Java_or_C != null ) {
 				report.println("");
-				report.println("List of C files with compilation errors: ");
-				for ( String s : this.filesWithCClassesWithCompilationErrors ) {
+				report.println("List of Java or C files with compilation errors: ");
+				for ( String s : this.filesWithCode_Java_or_C_WithCompilationErrors ) {
 					report.println("   " + s );
 				}
 				report.println("");
-				report.println("List of files with correct C code: ");
-				for ( String s : this.filesWithCorrectlyGeneratedCClasses ) {
+				report.println("List of files with correct Java or C code: ");
+				for ( String s : this.filesWithCorrectlyGeneratedCode_Java_or_C ) {
 					report.println("   " + s );
 				}
 				report.println("");
-				report.println("List of files C code that compiles but was generated incorrectly: ");
-				for ( String s : this.filesWithWrongGeneratedCClasses ) {
+				report.println("List of files with Java or C code that compiles but was generated incorrectly: ");
+				for ( String s : this.filesWithWrongGeneratedCode_Java_or_C ) {
 					report.println("   " + s );
 				}
 				report.println("");
-				report.println("The compiler could not create the following .C files:");
-				for ( String s : this.filesCompilerDidNotProducedCCode ) {
+				report.println("The compiler could not create the following .java or .c files:");
+				for ( String s : this.filesCompilerDidNotProducedCode_Java_or_C ) {
 					report.println("   " + s );
 				}
 			}
@@ -262,9 +287,9 @@ public class Comp {
 			partialReport.append("\r\n");
 			partialReport.append("O compilador falhou em testar alguns aspectos (construções) de Cianeto. "
 					+ "A lista abaixo consiste de entradas da forma \n"
-					+ "    aspecto\n        lista de nomes de arquivos\n");
+					+ "    aspecto\n        listas de nomes de arquivos\n");
 			partialReport.append("Os nomes de arquivos listados são aqueles que testam 'aspecto' mas em "
-					+ "que o compilador falhou em apontar um erro, apontou um erro inexistente ou gerou código errado (se opção -genC ou -genc foi usada).\r\n");
+					+ "que o compilador falhou em apontar um erro, apontou um erro inexistente ou gerou código errado (se opção -genjava ou -genc foi usada).\r\n");
 			if ( ! printReportCheckNameFilenameList(checkNameFilenameListCompilerFailedMap, partialReport, true) ) {
 				return ;
 			}
@@ -273,9 +298,9 @@ public class Comp {
 		if ( this.checkNameFilenameListCompilerSucceededMap.size() > 0 ) {
 			partialReport.append("O compilador obteve sucesso em testar alguns aspectos (construções) de Cianeto. "
 					+ "A lista abaixo consiste de entradas da forma \n"
-					+ "    aspecto\n        lista de nomes de arquivos\n");
+					+ "    aspecto\n        listas de nomes de arquivos\n");
 			partialReport.append("Os nomes de arquivos listados são aqueles que testam 'aspecto' e nos quais "
-					+ "o compilador obteve sucesso e gerou código correto (se opção -genC ou -genc foi usada).\r\n");
+					+ "o compilador obteve sucesso e gerou código correto (se opção -genjava ou -genc foi usada).\r\n");
 			if ( ! printReportCheckNameFilenameList(checkNameFilenameListCompilerSucceededMap, partialReport, false) ) {
 				return ;
 			}
@@ -305,25 +330,34 @@ public class Comp {
 			//sb.append(this.wereButShouldNotList.size() + "/" + (numSourceFiles -  numSourceFilesWithAnnotCEP) + "\r\n");
 			//sb.append(this.wereButWrongLineList.size() + "/" + numSourceFilesWithAnnotCEP + "\r\n");
 		}
+		boolean sourceFilesWithErrors = (this.genJava || this.genC) &&
+				this.filesWithCode_Java_or_C_WithCompilationErrors != null &&
+				this.filesWithCode_Java_or_C_WithCompilationErrors.size() > 0;
 
+		if ( sourceFilesWithErrors ) {
+			sb.append("\nSwithE: " + this.filesWithCode_Java_or_C_WithCompilationErrors.size());
+		}
 		report.println("Resumo");
 		report.println("_________________________________________________________________________");
 		report.println(sb.toString());
 		report.println();
-		report.println("MI = muito importante, I = importante, PI = pouco importante, Exc = exceï¿½ï¿½es");
+		report.println("MI = muito importante, I = importante, PI = pouco importante, Exc = exceções");
 		report.println("Dev = deveria ter sinalizado, LE = sinalizou linha errada, SSE = sinalizado sem erro");
+		if ( sourceFilesWithErrors ) {
+			report.println(" SwithE = number of generated files with compilation errors");
+		}
 		report.println("_________________________________________________________________________");
 
 		report.println();
-		report.println("Nï¿½mero de testes 'Muito importantes' em que o compilador falhou: " + Comp.numVeryImportantFailed);
-		report.println("Nï¿½mero de testes 'Importantes' em que o compilador falhou: " + Comp.numImportantFailed);
-		report.println("Nï¿½mero de testes 'Pouco importantes' em que o compilador falhou: " + Comp.numLittleImportantFailed);
+		report.println("Número de testes 'Muito importantes' em que o compilador falhou: " + Comp.numVeryImportantFailed);
+		report.println("Número de testes 'Importantes' em que o compilador falhou: " + Comp.numImportantFailed);
+		report.println("Número de testes 'Pouco importantes' em que o compilador falhou: " + Comp.numLittleImportantFailed);
 
 		report.println(partialReport.toString());
 
 		if ( this.nullPointerAndOtherExceptionsList.size() > 0 ) {
 			report.println( nullPointerAndOtherExceptionsList.size() +
-					" arquivos lançaram excessões que não foram capturadas pelo compilador ou houve algum problema e o método 'compileProgram' retornou 'null'. "
+					" arquivos lançaram exceções que não foram capturadas pelo compilador ou houve algum problema e o método 'compileProgram' retornou 'null'. "
 					+ "A maioria delas é provavelmente NullPointerException. Estes arquivos são:");
 			for ( String fn : this.nullPointerAndOtherExceptionsList ) {
 				report.println("    " + fn);
@@ -355,7 +389,7 @@ public class Comp {
 			else {
 				compilerOk = false;
 				report.println();
-				report.println("Erros que deveriam ser sinalizados mas nï¿½o foram:");
+				report.println("Erros que deveriam ser sinalizados mas não foram:");
 				report.println();
 				for (String s : this.shouldButWereNotList) {
 					report.println(s);
@@ -443,15 +477,15 @@ public class Comp {
 //	}
 
 
+
 	private static boolean printReportCheckNameFilenameList(Map<String, String> checkNameFilenameList,
-			StringBuilder partialReport, boolean failed ) {
+			StringBuilder partialReport, boolean compilerFailed ) {
 		ArrayList<TupleCheckNameText> ta = new ArrayList<>();
 		for ( Entry<String, String> entry : checkNameFilenameList.entrySet() ) {
 			String checkName = entry.getKey();
+			int numFiles = 0;
 			Integer importance = Comp.testNameWeightMap.get(checkName);
 			if ( importance == null ) {
-//				report.println("*******************************\nFailed to produce report: check name '" +
-//			       checkName + "' is not allowed");
 				partialReport.append("*******************************\nFailed to produce report: check name '" +
 					       checkName + "' is not allowed" + "\r\n");
 				return false;
@@ -461,52 +495,51 @@ public class Comp {
 			s.append("    " + checkName + "\r\n");
 			if ( filenameListStr.indexOf(" ") < 0 ) {
 				s.append("        " + filenameListStr + "\r\n");
+				++numFiles;
 			}
 			else {
 				String []filenameList = filenameListStr.split(" ");
 				for ( String filename : filenameList ) {
 					s.append("        " + filename + "\r\n");
+					++numFiles;
 				}
 			}
-			ta.add(new TupleCheckNameText(checkName, importance, s.toString()));
+			ta.add(new TupleCheckNameText(checkName, importance, s.toString(), numFiles));
 		}
 		Collections.sort(ta);
-		//report.println("Os testes so categorizados por importncia: 'Muito importante', 'Importante', 'pouco importante'");
-		partialReport.append("Os testes so categorizados por importncia: 'Muito importante', 'Importante', 'pouco importante'\r\n");
+		partialReport.append("Os testes são categorizados por importância: 'Muito importante', 'Importante', 'pouco importante'\r\n");
 		if ( ta.get(0).importance >= 5 ) {
 			//report.println("\nTestes 'Muito importantes' em que o compilador falhou:");
-			partialReport.append("\nTestes 'Muito importantes' em que o compilador " + (failed ? "falhou" : "acertou") + ":\r\n");
+			partialReport.append("\nTestes 'Muito importantes' em que o compilador " + (compilerFailed ? "falhou" : "acertou") + ":\r\n");
 		}
 		boolean alreadPrintMessage3 = false;
 		boolean alreadPrintMessage2 = false;
 		for ( TupleCheckNameText t : ta ) {
-			if(failed){
+			if ( compilerFailed ) {
 				if ( t.importance >= 5 ) {
-					++Comp.numVeryImportantFailed;
+					Comp.numVeryImportantFailed += t.numFiles;
 				}
 				else if ( t.importance > 1 ) {
-					++Comp.numImportantFailed;
+					Comp.numImportantFailed += t.numFiles;
 				}
 				else {
-					++Comp.numLittleImportantFailed;
+					Comp.numLittleImportantFailed += t.numFiles;
 				}
 			}
 			if ( !alreadPrintMessage3 && t.importance < 5 && t.importance > 1 ) {
 				alreadPrintMessage3 = true;
-				//report.println("\nTestes 'importantes' em que o compilador falhou:");
-				partialReport.append("\nTestes 'importantes' em que o compilador "+(failed ? "falhou" : "acertou")+":\r\n");
+				partialReport.append("\nTestes 'importantes' em que o compilador " +
+				    (compilerFailed ? "falhou" : "acertou") + ":\r\n");
 			}
 			if ( !alreadPrintMessage2 && t.importance < 3  ) {
 				alreadPrintMessage2 = true;
-				// report.println("\nTestes 'pouco importantes' em que o compilador falhou:");
-				partialReport.append("\nTestes 'pouco importantes' em que o compilador "+(failed ? "falhou" : "acertou")+"\r\n");
+				partialReport.append("\nTestes 'pouco importantes' em que o compilador " +
+				    (compilerFailed ? "falhou" : "acertou") + "\r\n");
 			}
-			//report.append(t.text);
 			partialReport.append(t.text + "\r\n");
 		}
 		return true;
 	}
-
 	/**
 	   @param args
 	   @param stream
@@ -544,7 +577,7 @@ public class Comp {
 			program  = compiler.compile(input, outError );
 			callMetaobjectMethods(filename, program, outError);
 		}
-		catch ( Throwable e ) {
+		catch ( Exception e ) {
 
 		}
 
@@ -560,23 +593,30 @@ public class Comp {
 		boolean foundNCE = false;
 		for ( MetaobjectAnnotation annot : program.getMetaobjectCallList() ) {
 			String annotName = annot.getName();
+			int sizeParamList = annot.getParamList().size();
 			switch ( annotName ) {
 			case "cep":
 
 				this.numSourceFilesWithAnnotCEP++;
 
-				String message = (String ) annot.getParamList().get(2);
+				String suggestedMessage;
+				if ( sizeParamList >= 3 ) {
+					suggestedMessage = (String ) annot.getParamList().get(2);
+				}
+				else {
+					suggestedMessage = (String ) annot.getParamList().get(1);
+				}
 				int lineNumber = (Integer ) annot.getParamList().get(0);
 				if ( ! program.hasCompilationErrors() ) {
 					// there was no compilation error. There should be no call @cep(...)
 					// The source code, through calls to "@cep(...)", informs that
 					// there are errors
 					String whatToCorrect = "";
-					if ( annot.getParamList().size() >= 4 ) {
+					if ( sizeParamList >= 4 ) {
 						whatToCorrect = (String ) annot.getParamList().get(3);
 						whatToCorrect = " (" + whatToCorrect + ")";
 					}
-					this.shouldButWereNotList.add(filename + ", " + lineNumber + ", " + message +
+					this.shouldButWereNotList.add(filename + ", " + lineNumber + ", " + suggestedMessage +
 							whatToCorrect
 							);
 					if ( foundCE )
@@ -587,12 +627,11 @@ public class Comp {
 				else {
 					// there was a compilation error. Check it.
 					int lineOfError = program.getCompilationErrorList().get(0).getLineNumber();
-					String ceMessage = (String ) annot.getParamList().get(2);
 					String compilerMessage = program.getCompilationErrorList().get(0).getMessage();
 					if ( lineNumber != lineOfError ) {
 
 						String whatToCorrect = "";
-						if ( annot.getParamList().size() >= 4 ) {
+						if ( sizeParamList >= 4 ) {
 							whatToCorrect = (String ) annot.getParamList().get(3);
 							whatToCorrect = "(" + whatToCorrect + ")";
 						}
@@ -600,7 +639,7 @@ public class Comp {
 						checkAnnotList(filename, program, outError, false);
 
 						this.wereButWrongLineList.add(filename + "\n" +
-								"    correto:    " + lineNumber + ", " + ceMessage + " " + whatToCorrect + "\n" +
+								"    correto:    " + lineNumber + ", " + suggestedMessage + " " + whatToCorrect + "\n" +
 								"    sinalizado: " + lineOfError + ", " + compilerMessage);
 					}
 					else {
@@ -608,7 +647,7 @@ public class Comp {
 						// that the compiler signalled and the message of the test, given in @ce
 						correctList.add(filename + "\r\n" +
 								"The compiler message was: \"" + compilerMessage + "\"\r\n" +
-								"The 'cep' message is:      \"" + ceMessage + "\"\r\n" );
+								"The 'cep' message is:      \"" + suggestedMessage + "\"\r\n" );
 						checkAnnotList(filename, program, outError, true);
 					}
 				}
@@ -621,8 +660,8 @@ public class Comp {
 				foundNCE = true;
 				if ( program.hasCompilationErrors() ) {
 					int lineOfError = program.getCompilationErrorList().get(0).getLineNumber();
-					message = program.getCompilationErrorList().get(0).getMessage();
-					this.wereButShouldNotList.add(filename + ", " + lineOfError + ", " + message);
+					suggestedMessage = program.getCompilationErrorList().get(0).getMessage();
+					this.wereButShouldNotList.add(filename + ", " + lineOfError + ", " + suggestedMessage);
 					checkAnnotList(filename, program, outError, false);
 				}
 				else {
@@ -813,66 +852,66 @@ public class Comp {
 
 	};
 
-	private static final int dotCLength = ".c".length();
+	private static final int dotJavaLength = ".java".length();
+	private static final int dotC_Length = ".c".length();
 
-	private void compileExecC(Program program, String filename) {
-		String CFilename = filename;
+	private void compileExecJava(Program program, String filename) {
+		String javaFilename = filename;
 		try {
 			int lastSlash = filename.lastIndexOf(File.separator);
 			if ( lastSlash > 0 ) {
-				CFilename = filename.substring(lastSlash + 1);
+				javaFilename = filename.substring(lastSlash + 1);
 			}
 
-			int i = CFilename.indexOf(".ci");
+			int i = javaFilename.indexOf(".ci");
 			if ( i > 0 ) {
-				CFilename = CFilename.substring(0, i) + ".c";
+				javaFilename = javaFilename.substring(0, i) + ".java";
 			}
-			String className = CFilename.substring(0, CFilename.length() - dotCLength);
+			String className = javaFilename.substring(0, javaFilename.length() - dotJavaLength);
 
-			CFilename = this.dirToCOutput + File.separator + CFilename;
+			javaFilename = this.dirToOutput + File.separator + javaFilename;
 
-			try ( FileOutputStream fos = new FileOutputStream(CFilename);
+			try ( FileOutputStream fos = new FileOutputStream(javaFilename);
 					PrintWriter printWriter = new PrintWriter(fos, true) ) {
 				PW pw = new PW(printWriter);
 				try {
 					program.setMainJavaClassName(className);
-					System.out.println("za");
-					program.genC(pw);
+					program.genJava(pw);
 				}
 				catch( Throwable e ) {
-					System.out.println("Exception '" + e.getClass().getName() + "' thrown while calling method 'genC' on file '"
-							+ CFilename + "'");
-					this.filesCompilerDidNotProducedCCode.add(CFilename);
+					System.out.println("Exception '" + e.getClass().getName() + "' thrown while calling method 'genJava' on file '"
+							+ javaFilename + "'");
+					this.filesCompilerDidNotProducedCode_Java_or_C.add(javaFilename);
 					return ;
 				}
 			}
 			catch (Throwable e ) {
 				System.out.println("Error when creating file '"
-						+ CFilename + "'");
-				this.filesCompilerDidNotProducedCCode.add(CFilename);
+						+ javaFilename + "'");
+				this.filesCompilerDidNotProducedCode_Java_or_C.add(javaFilename);
 				return ;
 			}
 
 			final Runtime rt = Runtime.getRuntime();
 			Process proc = null;
 			try {
-				proc = rt.exec("gcc " + CFilename + " " +"-o C");
+				proc = rt.exec("javac " + javaFilename);
 			}
 			catch(final SecurityException e ) {
-				System.out.println("Error in calling 'gcc'. Probably this program is not in the PATH variable");
+				System.out.println("Error in calling 'javac'. Probably this program is not in the PATH variable");
 			}
 			catch ( final IOException e ) {
-				System.out.println("Error in calling 'gcc'. There was an input/output error. Message: " + e.getMessage());
+				System.out.println("Error in calling 'javac'. There was an input/output error. Message: " + e.getMessage());
 			}
 			catch ( final NullPointerException e ) {
-				System.out.println("Error in calling 'gcc'. Probably an internal error of this program");
+				System.out.println("Error in calling 'javac'. Probably an internal error of this program");
 			}
 			catch ( final IllegalArgumentException e ) {
 				System.out.println("Internal error in '" + this.getClass().getName() +
-						"'. Arguments to 'gcc' are not well built");
+						"'. Arguments to 'javac' are not well built");
 			}
 			if ( proc == null ) {
-				this.filesWithCClassesWithCompilationErrors.add(CFilename);
+				this.filesWithCode_Java_or_C_WithCompilationErrors.add(javaFilename);
 				return ;
 			}
 			final InputStream stderr = proc.getErrorStream();
@@ -886,36 +925,36 @@ public class Comp {
 			}
 			int exitVal = proc.waitFor();
 			if ( exitVal != 0 ) {
-				System.out.println("Error when compiling the C code of file '" + CFilename +
+				System.out.println("Error when compiling the Java code of file '" + javaFilename +
 						"' generated by the Cianeto compiler (exit code " + exitVal + ")");
 				for ( final String s : outList ) {
 					System.out.println(s);
 				}
-				this.filesWithCClassesWithCompilationErrors.add(CFilename);
+				this.filesWithCode_Java_or_C_WithCompilationErrors.add(javaFilename);
 			}
 			else {
 				// call the program
-				System.out.println("Executing the C code of file '" + CFilename + "'");
+				System.out.println("Executing the Java code of file '" + javaFilename + "'");
 				Process p = null;
 				try {
-					p = Runtime.getRuntime().exec("./C > " + this.dirToCOutput + " " + className);
+					p = Runtime.getRuntime().exec("java -cp " + this.dirToOutput + " " + className);
 				}
 				catch(final SecurityException e ) {
-					System.out.println("Error in calling the C interpreter on file '" + CFilename + "'. Probably this program is not in the PATH variable");
+					System.out.println("Error in calling the Java interpreter on file '" + javaFilename + "'. Probably this program is not in the PATH variable");
 				}
 				catch ( final IOException e ) {
-					System.out.println("Error in calling the C interpreter on file '" + CFilename + "'. There was an input/output error. Message: " + e.getMessage());
+					System.out.println("Error in calling the Java interpreter on file '" + javaFilename + "'. There was an input/output error. Message: " + e.getMessage());
 				}
 				catch ( final NullPointerException e ) {
-					System.out.println("Error in calling the C interpreter on file '" + CFilename + "'. Probably an internal error of this program");
+					System.out.println("Error in calling the Java interpreter on file '" + javaFilename + "'. Probably an internal error of this program");
 				}
 				catch ( final IllegalArgumentException e ) {
 					System.out.println("Internal error in '" + this.getClass().getName() +
-							"' on file '" + CFilename + "'. Arguments to 'C' are not well built");
+							"' on file '" + javaFilename + "'. Arguments to 'java' are not well built");
 				}
 
 				if ( p == null ) {
-					this.filesWithWrongGeneratedCClasses.add(CFilename);
+					this.filesWithWrongGeneratedCode_Java_or_C.add(javaFilename);
 					return ;
 				}
 
@@ -925,7 +964,7 @@ public class Comp {
 					while((line = error.readLine()) != null){
 						System.out.println(line);
 						if ( line.startsWith("Error:") ) {
-							this.filesWithWrongGeneratedCClasses.add(CFilename);
+							this.filesWithWrongGeneratedCode_Java_or_C.add(javaFilename);
 							return ;
 						}
 					}
@@ -951,11 +990,11 @@ public class Comp {
 
 
 				if ( result.equals(alloutput) ) {
-					this.filesWithCorrectlyGeneratedCClasses.add(CFilename);
-					//System.out.println("File '" + CFilename + "' executed correctly");
+					this.filesWithCorrectlyGeneratedCode_Java_or_C.add(javaFilename);
+					//System.out.println("File '" + javaFilename + "' executed correctly");
 				}
 				else {
-					this.filesWithWrongGeneratedCClasses.add(CFilename);
+					this.filesWithWrongGeneratedCode_Java_or_C.add(javaFilename);
 //					System.out.println("Class '" + className + "' of file '" + filename +
 //							"' does not generate correct code. It should generate '" + result + "' but it is generating '" +
 //							alloutput + "'" );
@@ -970,8 +1009,8 @@ public class Comp {
 
 
 				if ( exitVal != 0 ) {
-					this.filesWithWrongGeneratedCClasses.add(CFilename);
-					System.out.println("Error when executing the code generated by the C compiler (exit code " + exitVal + ")");
+					this.filesWithWrongGeneratedCode_Java_or_C.add(javaFilename);
+					System.out.println("Error when executing the code generated by the Java compiler (exit code " + exitVal + ")");
 				}
 			}
 
@@ -979,7 +1018,172 @@ public class Comp {
 		}
 		catch ( Throwable e ) {
 			System.out.println("Exception '" + e.getClass().getName() + "' thrown while creating/compiling/executing on file '"
-					+ CFilename + "'");
+					+ javaFilename + "'");
+			return ;
+		}
+
+
+	}
+
+
+	private void compileExecC(Program program, String filename) {
+		String sourceFilename = filename;
+		try {
+			int lastSlash = filename.lastIndexOf(File.separator);
+			if ( lastSlash > 0 ) {
+				sourceFilename = filename.substring(lastSlash + 1);
+			}
+
+			int i = sourceFilename.indexOf(".ci");
+			String sourceWithoutExtension = sourceFilename;
+			if ( i > 0 ) {
+				sourceWithoutExtension = sourceFilename.substring(0, i);
+				sourceFilename = sourceWithoutExtension
+						+ ".c";
+			}
+			String className = sourceFilename.substring(0, sourceFilename.length() -
+					dotC_Length);
+
+			sourceFilename = this.dirToOutput + File.separator + sourceFilename;
+
+			try ( FileOutputStream fos = new FileOutputStream(sourceFilename);
+					PrintWriter printWriter = new PrintWriter(fos, true) ) {
+				PW pw = new PW(printWriter);
+				try {
+					program.genC(pw);
+				}
+				catch( Throwable e ) {
+					System.out.println("Exception '" + e.getClass().getName() + "' thrown while calling method 'genC' on file '"
+							+ sourceFilename + "'");
+					this.filesCompilerDidNotProducedCode_Java_or_C.add(sourceFilename);
+					return ;
+				}
+			}
+			catch (Throwable e ) {
+				System.out.println("Error when creating file '"
+						+ sourceFilename + "'");
+				this.filesCompilerDidNotProducedCode_Java_or_C.add(sourceFilename);
+				return ;
+			}
+
+			final Runtime rt = Runtime.getRuntime();
+			Process proc = null;
+			try {
+				proc = rt.exec("gcc " + sourceFilename + " -o " + sourceWithoutExtension);
+			}
+			catch(final SecurityException e ) {
+				System.out.println("Error in calling 'javac'. Probably this program is not in the PATH variable");
+			}
+			catch ( final IOException e ) {
+				System.out.println("Error in calling 'javac'. There was an input/output error. Message: " + e.getMessage());
+			}
+			catch ( final NullPointerException e ) {
+				System.out.println("Error in calling 'javac'. Probably an internal error of this program");
+			}
+			catch ( final IllegalArgumentException e ) {
+				System.out.println("Internal error in '" + this.getClass().getName() +
+						"'. Arguments to 'javac' are not well built");
+			}
+			if ( proc == null ) {
+				this.filesWithCode_Java_or_C_WithCompilationErrors.add(sourceFilename);
+				return ;
+			}
+			final InputStream stderr = proc.getErrorStream();
+			final InputStreamReader isr = new InputStreamReader(stderr);
+			final ArrayList<String> outList = new ArrayList<>();
+			String line = null;
+			try ( BufferedReader br = new BufferedReader(isr) ) {
+				while ( (line = br.readLine()) != null) {
+					outList.add(line);
+				}
+			}
+			int exitVal = proc.waitFor();
+			if ( exitVal != 0 ) {
+				System.out.println("Error when compiling the Java code of file '" + sourceFilename +
+						"' generated by the Cianeto compiler (exit code " + exitVal + ")");
+				for ( final String s : outList ) {
+					System.out.println(s);
+				}
+				this.filesWithCode_Java_or_C_WithCompilationErrors.add(sourceFilename);
+			}
+			else {
+				// call the program
+				System.out.println("Executing the Java code of file '" + sourceFilename + "'");
+				Process p = null;
+				try {
+					p = Runtime.getRuntime().exec(sourceWithoutExtension);
+				}
+				catch ( final Exception e ) {
+					System.out.println("Error when calling the C compile file '"
+							+ sourceWithoutExtension + ".exe'");
+				}
+
+				if ( p == null ) {
+					this.filesWithWrongGeneratedCode_Java_or_C.add(sourceFilename);
+					return ;
+				}
+
+
+				exitVal = p.waitFor();
+				try ( BufferedReader error = new BufferedReader(new InputStreamReader(p.getErrorStream())) ) {
+					while((line = error.readLine()) != null){
+						System.out.println(line);
+						if ( line.startsWith("Error:") ) {
+							this.filesWithWrongGeneratedCode_Java_or_C.add(sourceFilename);
+							return ;
+						}
+					}
+				}
+				// error.close();
+				String alloutput = "";
+				String firstLine = "";
+				int lineCount = 0;
+				try ( BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream())) ) {
+					while ( (line = input.readLine()) != null ) {
+						System.out.println(line);
+						if ( lineCount == 0 ) {
+							firstLine = line;
+						}
+						else {
+							alloutput += line;
+						}
+						++lineCount;
+					}
+				}
+				String result = removeExtraSpacesFirstLine(firstLine).trim();
+				alloutput = removeExtraSpaces(alloutput).trim();
+
+
+				if ( result.equals(alloutput) ) {
+					this.filesWithCorrectlyGeneratedCode_Java_or_C.add(sourceFilename);
+					//System.out.println("File '" + javaFilename + "' executed correctly");
+				}
+				else {
+					this.filesWithWrongGeneratedCode_Java_or_C.add(sourceFilename);
+//					System.out.println("Class '" + className + "' of file '" + filename +
+//							"' does not generate correct code. It should generate '" + result + "' but it is generating '" +
+//							alloutput + "'" );
+//					return ;
+				}
+
+//				final OutputStream outputStream = p.getOutputStream();
+//				final PrintStream printStream = new PrintStream(outputStream);
+//				printStream.println();
+//				printStream.flush();
+//				printStream.close();
+
+
+				if ( exitVal != 0 ) {
+					this.filesWithWrongGeneratedCode_Java_or_C.add(sourceFilename);
+					System.out.println("Error when executing the code generated by the Java or C compiler (exit code " + exitVal + ")");
+				}
+			}
+
+
+		}
+		catch ( Exception e ) {
+			System.out.println("Exception '" + e.getClass().getName() + "' thrown while creating/compiling/executing on file '"
+					+ sourceFilename + "'");
 			return ;
 		}
 
@@ -1043,7 +1247,8 @@ public class Comp {
 
 
 
-	ArrayList<String> shouldButWereNotList, wereButShouldNotList, wereButWrongLineList, correctList;
+	ArrayList<String> shouldButWereNotList,
+	                  wereButShouldNotList, wereButWrongLineList, correctList;
 
 	ArrayList<String> nullPointerAndOtherExceptionsList;
 	/**
@@ -1057,19 +1262,20 @@ public class Comp {
 	private int numSourceFilesWithAnnotNCE;
 
 
-	private List<String> filesWithWrongGeneratedCClasses;
-	private List<String> filesWithCClassesWithCompilationErrors;
-	private List<String> filesWithCorrectlyGeneratedCClasses;
-	private List<String> filesCompilerDidNotProducedCCode;
+	private List<String> filesWithWrongGeneratedCode_Java_or_C;
+	private List<String> filesWithCode_Java_or_C_WithCompilationErrors;
+	private List<String> filesWithCorrectlyGeneratedCode_Java_or_C;
+	private List<String> filesCompilerDidNotProducedCode_Java_or_C;
 }
 
 
 
 class TupleCheckNameText implements Comparable<TupleCheckNameText> {
-	public TupleCheckNameText(String checkName, int importance, String text) {
+	public TupleCheckNameText(String checkName, int importance, String text, int numFiles) {
 		this.checkName = checkName;
 		this.importance = importance;
 		this.text = text;
+		this.numFiles = numFiles;
 	}
 
 	@Override
@@ -1088,4 +1294,6 @@ class TupleCheckNameText implements Comparable<TupleCheckNameText> {
 	String checkName;
 	int importance;
 	String text;
+	int numFiles;
+
 }
