@@ -240,7 +240,7 @@ public class TypeCianetoClass extends Type{
 					pw.println("_" + getName() + "_" + fieldList.get(i).getName() + ";" );
 				}
 				else {
-					pw.printIdent(fieldList.get(i).getType().getName() + " *");
+					pw.printIdent(fieldList.get(i).getType().getCname() + " *");
 					pw.println("_" + getName() + "_" + fieldList.get(i).getName() + ";" );
 				}
 			}

@@ -12,13 +12,25 @@
 package ast;
 
 public class ReturnStat extends Statement{
-	public ReturnStat( Expr expr ) {
+	public ReturnStat( Expr expr, Type type) {
 		this.expr = expr;
+		this.type = type;
 	}
 
 	public void genC( PW pw ) {
 		pw.printIdent("return ");
-		this.expr.genC(pw, false);
+		if(type instanceof TypeCianetoClass) {
+			if(type.getName().equals(expr.getType().getName())) {
+				this.expr.genC(pw, false);
+			}
+			else {
+				pw.print("(" + type.getCname() + "*) ");
+				this.expr.genC(pw, false);
+			}
+		}
+		else {
+			this.expr.genC(pw, false);
+		}
 		pw.println(";");
 	}
 	
@@ -29,4 +41,5 @@ public class ReturnStat extends Statement{
 	}
 
 	private Expr expr;
+	private Type type;
 }

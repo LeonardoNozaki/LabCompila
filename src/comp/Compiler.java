@@ -668,16 +668,16 @@ public class Compiler {
 				}
 			}
 			else if(returnType == Type.stringType && expr.getType() == Type.nullType) {
-				return new ReturnStat(expr);
+				return new ReturnStat(expr, returnType);
 			}
 			else if(returnType instanceof TypeCianetoClass && expr.getType() == Type.nullType) {
-				return new ReturnStat(expr);
+				return new ReturnStat(expr, returnType);
 			}
 			else {
 				error("Type error: type of the expression returned is not type of the method return type");
 			}
 		}
-		return new ReturnStat(expr);
+		return new ReturnStat(expr, returnType);
 	}
 
 	private Statement whileStat() {
@@ -1271,7 +1271,7 @@ public class Compiler {
 								else {
 									error(id + "field was not declared");
 								}
-								return new SelfMethodCall(fd, md);
+								return new SelfMethodCall(fd, md, classdec.getName());
 							}
 							else {
 								error("id or id: expected after .");

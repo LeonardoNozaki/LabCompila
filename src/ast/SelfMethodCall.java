@@ -12,9 +12,10 @@
 package ast;
 
 public class SelfMethodCall extends Expr{
-	public SelfMethodCall(Variable variable, MethodDec method){
+	public SelfMethodCall(Variable variable, MethodDec method, String className){
 		this.method = method;
 		this.variable = variable;
+		this.className = className;
 	}
 	
 	public boolean isOnlyId() {
@@ -48,7 +49,15 @@ public class SelfMethodCall extends Expr{
 		}
 		TypeCianetoClass tc = (TypeCianetoClass) variable.getType();
 		int index = tc.findMethod(method.getName());
-		pw.print("(self->_" + variable.getType().getName() + "_" + variable.getName() + "->vt[" + index + "])(self->_" + variable.getType().getName() + "_" + variable.getName() + ")");
+		Type t = method.getType();
+		if(t instanceof TypeCianetoClass) {
+			pw.print("( (" + t.getCname() + " *(*)(" + variable.getType().getCname() + "*))");
+		}
+		else {
+			pw.print("( (" + t.getCname() + "(*)(" + variable.getType().getCname() + "*))");
+		}
+		
+		pw.print("self->_" + className + "_" + variable.getName() + "->vt[" + index + "])(self->_" + className + "_" + variable.getName() + ")");
 		if(putParenthesis == true) {
 			pw.print(")");
 		}
@@ -63,4 +72,5 @@ public class SelfMethodCall extends Expr{
 
 	private MethodDec method;
 	private Variable variable;
+	private String className;
 }
