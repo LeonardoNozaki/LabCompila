@@ -88,12 +88,19 @@ public class TokenMethodCallPar extends Expr{
 	private void genParamTypes(PW pw) {
 		if(this.expr.size() > 0) {
 			pw.print(this.expr.get(0).getType().getCname());
+			if(this.expr.get(0).getType() instanceof TypeCianetoClass ) {
+				pw.print(" *");
+			}
 		}
 		for(int i = 1; i < this.expr.size(); i++) {
 			pw.print(", ");
 			pw.print(this.expr.get(i).getType().getCname());
+			if(this.expr.get(i).getType() instanceof TypeCianetoClass ) {
+				pw.print(" *");
+			}
 		}
 	}
+	
 	public void genC(PW pw) {
 		int index = classe.findMethod(this.method.getName());
 		String methodName = method.getName();
@@ -109,8 +116,14 @@ public class TokenMethodCallPar extends Expr{
 		else {
 			String className = "";
 			if(t == Token.SELF) {
-				className = classe.getName();	
-				String returnName = this.method.getType().getCname();
+				className = classe.getName();
+				String returnName;
+				if(this.method.getType() instanceof TypeCianetoClass) {
+					returnName = this.method.getType().getCname() + " *";
+				}
+				else{
+					returnName = this.method.getType().getCname();
+				}
 				pw.print("( (" + returnName + " (*)(_class_" + className + " *, ");
 				genParamTypes(pw);
 				pw.print(")) self->vt[" + index + "] ) ( (_class_" + className + " *) self, ");
