@@ -1069,6 +1069,7 @@ public class Comp {
 			final Runtime rt = Runtime.getRuntime();
 			Process proc = null;
 			try {
+				System.out.println("Nome" + sourceWithoutExtension);
 				proc = rt.exec("gcc " + sourceFilename + " -o " + sourceWithoutExtension);
 			}
 			catch(final SecurityException e ) {

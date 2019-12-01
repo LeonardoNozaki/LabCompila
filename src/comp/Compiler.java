@@ -1251,7 +1251,7 @@ public class Compiler {
 								else {
 									error(id + "field was not declared");
 								}
-								return new SelfMethodCallPar(fd, md, exprs);
+								return new SelfMethodCallPar(fd, md, exprs, classdec.getName());
 							}
 							else if(lexer.token == Token.ID) {
 								String idMethod = lexer.getStringValue();

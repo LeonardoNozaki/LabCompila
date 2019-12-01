@@ -64,12 +64,7 @@ public class TokenMethodCall extends Expr{
 	public void genC(PW pw) {
 		int index = classe.findMethod(this.method.getName());
 		if(method.getQuali().isPrivate() || index == -1) {
-			if(method.getType() == Type.voidType) {
-				pw.printlnIdent("_" + method.getClassName() + "_" + method.getName() + "( self );"); 
-			}
-			else {
-				pw.print("_" + method.getClassName() + "_" + method.getName() + "( self );" );
-			}
+			pw.print("_" + method.getClassName() + "_" + method.getName() + "( self )" );
 		}
 		else {
 			String className = "";

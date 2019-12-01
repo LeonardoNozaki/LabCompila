@@ -14,10 +14,11 @@ import java.util.ArrayList;
 
 
 public class SelfMethodCallPar extends Expr{
-	public SelfMethodCallPar(Variable variable, MethodDec method, ArrayList<Expr> expr){
+	public SelfMethodCallPar(Variable variable, MethodDec method, ArrayList<Expr> expr, String className){
 		this.method = method;
 		this.expr = expr;
 		this.variable = variable;
+		this.className = className;
 	}
 	
 	public boolean isOnlyId() {
@@ -57,18 +58,69 @@ public class SelfMethodCallPar extends Expr{
 	}
 	
 	public void genC(PW pw) {
+		TypeCianetoClass tc = (TypeCianetoClass) variable.getType();
+		int index = tc.findMethod(method.getName());
+		Type t = method.getType();
+		if(t instanceof TypeCianetoClass) {
+			pw.print("( (" + t.getCname() + " *(*)(" + variable.getType().getCname() + "*, ");
+		}
+		else {
+			pw.print("( (" + t.getCname() + "(*)(" + variable.getType().getCname() + "*, ");
+		}
+		genParamTypes(pw);
 		
+		pw.print("))self->_" + className + "_" + variable.getName() + "->vt[" + index + "])(self->_" + className + "_" + variable.getName() + ", ");
+		genParam(pw);
+		pw.print(")");
+	
+		if(method.getType() == Type.voidType) {
+			pw.println(";");
+		}
 	}
 	
 	public void genC( PW pw, boolean putParenthesis ) {
-		
+		if(putParenthesis == true) {
+			pw.print("(");
+			genC(pw);
+			pw.print(")");
+		}
+		else {
+			genC(pw);
+		}
 	}
 	
 	public Type getType() {
 		return method.getType();
 	}
+	
+	private void genParam(PW pw) {
+		if(this.expr.size() > 0) {
+			this.expr.get(0).genC(pw);
+		}
+		for(int i = 1; i < this.expr.size(); i++) {
+			pw.print(", ");
+			this.expr.get(i).genC(pw);
+		}
+	}
+	
+	private void genParamTypes(PW pw) {
+		if(this.expr.size() > 0) {
+			pw.print(this.expr.get(0).getType().getCname());
+			if(this.expr.get(0).getType() instanceof TypeCianetoClass ) {
+				pw.print(" *");
+			}
+		}
+		for(int i = 1; i < this.expr.size(); i++) {
+			pw.print(", ");
+			pw.print(this.expr.get(i).getType().getCname());
+			if(this.expr.get(i).getType() instanceof TypeCianetoClass ) {
+				pw.print(" *");
+			}
+		}
+	}
 
 	private MethodDec method;
 	private ArrayList<Expr> expr;
 	private Variable variable; 
+	private String className;
 }
